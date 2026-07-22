@@ -300,25 +300,24 @@
   .entry-panel{display:none;}
   .entry-panel.open{display:block;}
 
-  /* ---- export CSV (copiar/colar manual) ---- */
-  .export-overlay{
-    display:none;position:fixed;inset:0;background:rgba(5,6,10,.6);
-    align-items:center;justify-content:center;z-index:1000;
+  /* ---- login Microsoft ---- */
+  .login-overlay{
+    display:none;position:fixed;inset:0;background:#000;
+    align-items:center;justify-content:center;z-index:2000;
   }
-  .export-overlay.open{display:flex;}
-  .export-modal{
-    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
-    padding:20px;width:520px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  .login-overlay.open{display:flex;}
+  .login-box{
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:14px;
+    padding:32px;width:360px;max-width:90vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);
   }
-  .export-modal h3{margin:0 0 6px;font:700 14px var(--sans);color:var(--ink);}
-  .export-modal p{margin:0 0 12px;font-size:12px;color:var(--ink-soft);line-height:1.5;}
-  .export-modal p b{color:var(--ink);}
-  .export-modal textarea{
-    width:100%;box-sizing:border-box;height:180px;background:var(--surface);border:1px solid var(--border);
-    color:var(--ink);border-radius:7px;padding:10px;font:11.5px var(--mono);resize:vertical;
+  .login-box h2{margin:0 0 6px;font-size:20px;font-weight:800;}
+  .login-box p{margin:0 0 20px;font-size:12.5px;color:var(--ink-soft);line-height:1.5;}
+  .user-chip{
+    display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--border);padding:5px 10px;border-radius:20px;
   }
-  .export-modal textarea:focus{outline:2px solid var(--chart);outline-offset:1px;border-color:var(--chart);}
-  .export-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
+  .user-chip svg{width:15px;height:15px;flex:none;color:var(--ink-muted);}
+  .user-chip .ebtn{padding:3px 9px;font-size:10.5px;}
 
   /* ---- senha de autorização ---- */
   .senha-overlay{
@@ -342,8 +341,8 @@
   .senha-erro.show{display:block;}
   .senha-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
   .entry-panel .panel-head .badge-local{
-    display:flex;align-items:center;gap:6px;font-size:11px;color:var(--warning);
-    background:rgba(250,178,25,.12);border:1px solid rgba(250,178,25,.3);
+    display:flex;align-items:center;gap:6px;font-size:11px;color:var(--positive);
+    background:var(--positive-dim);border:1px solid rgba(47,191,110,.3);
     padding:4px 8px;border-radius:7px;
   }
   .entry-panel .panel-head .badge-local svg{width:12px;height:12px;}
@@ -394,6 +393,11 @@
       <p>Contas a Pagar</p>
     </div>
     <div class="header-actions">
+      <div class="user-chip" id="userChip" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/></svg>
+        <span id="userName"></span>
+        <button type="button" class="ebtn ghost" id="logoutBtn">Sair</button>
+      </div>
       <button class="clear-btn" id="clearBtn" type="button" title="Limpar todos os filtros">
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         Limpar
@@ -412,7 +416,7 @@
       <h2>Novo lançamento</h2>
       <span class="badge-local">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
-        Salvo neste navegador · não sincroniza com a planilha
+        Grava direto na planilha do SharePoint
       </span>
     </div>
     <form id="entryForm">
@@ -488,8 +492,7 @@
           <textarea id="nf_obs" placeholder="Opcional"></textarea>
         </div>
       </div>
-      <div class="entry-actions">
-        <button type="button" class="ebtn" id="exportNewBtn">Baixar CSV dos novos</button>
+      <div class="entry-actions" style="justify-content:flex-end;">
         <div style="display:flex;gap:10px;">
           <button type="button" class="ebtn ghost" id="cancelEntryBtn">Cancelar</button>
           <button type="submit" class="ebtn primary">Adicionar lançamento</button>
@@ -548,21 +551,17 @@
   </div>
 
   <p class="foot-note">
-    <b>Fonte:</b> aba "Base de Dados" — Gestão Financeira Claude.xlsx. Hoje considerado como <b>20/07/2026</b>. Nenhum lançamento tem pagamento registrado na base original — os valores de "Pago" refletem isso. Lançamentos adicionados por aqui (marcados como <b>novo</b>) ficam salvos só neste navegador.
+    <b>Fonte:</b> planilha "Gestão Financeira Pessoal.xlsx" no SharePoint (sincronização em tempo real). Lançamentos adicionados aqui são gravados direto na planilha, com os anexos enviados como arquivos reais.
   </p>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<div class="export-overlay" id="exportOverlay">
-  <div class="export-modal">
-    <h3>Baixar CSV dos novos</h3>
-    <p>O download automático não funciona neste ambiente. Copie o conteúdo abaixo (já vem selecionado), cole em um Bloco de Notas e salve como <b id="exportFileName"></b> na pasta Downloads (ao salvar, escolha a codificação <b>UTF-8</b>).</p>
-    <textarea id="exportTextarea" readonly spellcheck="false"></textarea>
-    <div class="export-actions">
-      <button type="button" class="ebtn" id="exportCopyBtn">Copiar</button>
-      <button type="button" class="ebtn ghost" id="exportCloseBtn">Fechar</button>
-    </div>
+<div class="login-overlay open" id="loginOverlay">
+  <div class="login-box">
+    <h2>CAP</h2>
+    <p>Entre com sua conta Microsoft da Sinerggia para ver e lançar as contas a pagar direto na planilha do SharePoint.</p>
+    <button type="button" class="ebtn primary" id="loginBtn" style="width:100%;padding:11px;">Entrar com Microsoft</button>
   </div>
 </div>
 
@@ -579,14 +578,177 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3/lib/msal-browser.min.js"></script>
 <script>
-var REAL_DATA = [];
 var DATA = [];
-var HOJE = new Date(2026,6,20);
-var STORAGE_KEY = 'cap_novos_lancamentos_v1';
+var HOJE = new Date();
+HOJE.setHours(0,0,0,0);
 var EMPRESAS_CONHECIDAS = [
   ['Ivanilda Hozana','213.110.484-72'],['Natanael Silva','045.993.784-70']
 ];
+
+/* ---- login Microsoft + Graph API (SharePoint ao vivo) ---- */
+var MSAL_CONFIG = {
+  auth: {
+    clientId: '9291254e-8c79-4641-8d7d-c5771d82ccde',
+    authority: 'https://login.microsoftonline.com/0ea62e2f-152a-4380-bf4b-497083aa0326',
+    redirectUri: 'https://natanael1982.github.io/cap-contas-a-pagar/'
+  },
+  cache: { cacheLocation: 'localStorage' }
+};
+var GRAPH_SCOPES = ['Files.ReadWrite.All'];
+var GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
+var DRIVE_ID = 'b!Xyf9Y4l0qUWv1kO5T5rKOn3FJmBOsbRFnpjvpPbvNvrn80E1xObESKagjmnZsZfm';
+var ITEM_ID = '01ZF6ARXTIQSWRHIKDQVHIHZRFMV5YVCAD';
+var TABLE_NAME = 'TabelaLancamentos';
+var ANEXOS_PATH = 'Gestão Financeira Claude/Anexos';
+
+var msalInstance = new msal.PublicClientApplication(MSAL_CONFIG);
+var currentAccount = null;
+
+function encodePath(path){
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+function ddmmyyToISO(str){
+  var m = String(str||'').match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
+  if (!m) return '';
+  var yy = m[3].length === 2 ? '20'+m[3] : m[3];
+  return yy + '-' + m[2] + '-' + m[1];
+}
+function isoToDDMMYYYY(iso){
+  if (!iso) return '';
+  var p = iso.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function graphRowToRow(v, rowIndex){
+  var empresa = String(v[3]||'');
+  var nome = empresa, doc = '';
+  var mEmp = empresa.match(/^(.*) - (.+)$/);
+  if (mEmp) { nome = mEmp[1]; doc = mEmp[2]; }
+  var descFull = String(v[7]||'');
+  var desc = descFull, parcela = '';
+  var mParc = descFull.match(/^(.*) - Parcela (\d+)$/);
+  if (mParc) { desc = mParc[1]; parcela = mParc[2]; }
+  return {
+    id: v[0], _rowIndex: rowIndex,
+    nome: nome, doc: doc, desc: desc, parcela: parcela,
+    tipo: v[8] || 'Mensal',
+    venc: ddmmyyToISO(v[5]),
+    pag: ddmmyyToISO(v[6]),
+    barra: v[10] || '',
+    valor: typeof v[11] === 'number' ? v[11] : parseBRL(v[11]),
+    cobrado: (v[12]===''||v[12]==null) ? null : (typeof v[12]==='number' ? v[12] : parseBRL(v[12])),
+    anexo: v[13] || '', anexoNome: '',
+    anexoComprovante: v[14] || '', anexoComprovanteNome: '',
+    obs: v[16] || ''
+  };
+}
+
+async function initAuth(){
+  try {
+    await msalInstance.initialize();
+    await msalInstance.handleRedirectPromise();
+    var accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0){
+      currentAccount = accounts[0];
+      msalInstance.setActiveAccount(currentAccount);
+    }
+  } catch (e) { /* segue sem login */ }
+  atualizarEstadoLogin();
+  if (currentAccount) { await carregarDados(); }
+  else { buildFilters(); updateClearButton(); render(); }
+}
+
+async function entrar(){
+  try {
+    var result = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
+    currentAccount = result.account;
+    msalInstance.setActiveAccount(currentAccount);
+    atualizarEstadoLogin();
+    await carregarDados();
+  } catch (e) {
+    showToast('Não foi possível entrar: ' + (e && e.message ? e.message : e));
+  }
+}
+function sair(){
+  currentAccount = null;
+  msalInstance.setActiveAccount(null);
+  DATA = [];
+  atualizarEstadoLogin();
+  buildFilters(); updateClearButton(); render();
+}
+function atualizarEstadoLogin(){
+  var logado = !!currentAccount;
+  document.getElementById('loginOverlay').classList.toggle('open', !logado);
+  document.getElementById('userChip').style.display = logado ? 'flex' : 'none';
+  if (logado) document.getElementById('userName').textContent = currentAccount.username || currentAccount.name || '';
+}
+
+async function getToken(){
+  if (!currentAccount) throw new Error('Entre com sua conta Microsoft primeiro.');
+  try {
+    var result = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: currentAccount });
+    return result.accessToken;
+  } catch (e) {
+    var result2 = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES, account: currentAccount });
+    return result2.accessToken;
+  }
+}
+
+async function carregarDados(){
+  try {
+    var token = await getToken();
+    var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+    var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var json = await resp.json();
+    DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
+    DATA.forEach(normalizeRow);
+  } catch (e) {
+    showToast('Erro ao carregar dados: ' + (e && e.message ? e.message : e));
+    DATA = [];
+  }
+  buildFilters(); updateClearButton(); render();
+}
+
+async function subirAnexo(token, file, prefixo, id){
+  var ext = (file.name.match(/\.[^.]+$/) || [''])[0];
+  var nomeArquivo = prefixo + '-' + id + '-' + Date.now() + ext;
+  var caminho = encodePath(ANEXOS_PATH + '/' + nomeArquivo);
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/root:/' + caminho + ':/content';
+  var resp = await fetch(url, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': file.type || 'application/octet-stream' },
+    body: file
+  });
+  if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao enviar anexo (' + resp.status + '): ' + t); }
+  var json = await resp.json();
+  return json.webUrl || '';
+}
+async function adicionarLinhaGraph(token, linha){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+  var resp = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [linha] })
+  });
+  if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao gravar na planilha (' + resp.status + '): ' + t); }
+}
+async function atualizarLinhaGraph(token, rowIndex, linha){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
+  var resp = await fetch(url, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [linha] })
+  });
+  if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao atualizar a planilha (' + resp.status + '): ' + t); }
+}
+async function removerLinhaGraph(token, rowIndex){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
+  var resp = await fetch(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+  if (!resp.ok && resp.status !== 204) { var t = await resp.text(); throw new Error('Falha ao remover da planilha (' + resp.status + '): ' + t); }
+}
 
 function brl(v){
   if (v === null || v === undefined) return "—";
@@ -613,14 +775,6 @@ function normalizeRow(r){
   r._ano = String(r.vencDate.getFullYear());
 }
 
-function loadLocalEntries(){
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e){ return []; }
-}
-function saveLocalEntries(list){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return true; }
-  catch(e){ showToast('Não foi possível salvar neste navegador (armazenamento bloqueado).'); return false; }
-}
 function parseBRL(str){
   str = String(str || '').trim();
   if (!str) return 0;
@@ -631,24 +785,6 @@ function parseBRL(str){
   }
   var n = parseFloat(str);
   return isNaN(n) ? 0 : n;
-}
-
-function localEntryToRow(e){
-  return {
-    id: 'L' + e.id, nome: e.nome, doc: e.doc,
-    desc: e.desc,
-    parcela: e.parcela || '', pag: e.pag || '', barra: e.barra || '', obs: e.obs || '',
-    tipo: e.tipo, venc: e.venc, valor: e.valor, cobrado: e.cobrado,
-    anexo: e.anexoBoleto || '', anexoNome: e.anexoNome || '',
-    anexoComprovante: e.anexoComprovante || '', anexoComprovanteNome: e.anexoComprovanteNome || '',
-    _isNew: true, _rawId: e.id, _statusOverride: e.status
-  };
-}
-
-function rebuildData(){
-  var locals = loadLocalEntries().map(localEntryToRow);
-  DATA = REAL_DATA.concat(locals);
-  DATA.forEach(normalizeRow);
 }
 
 var FIELDS = [
@@ -793,7 +929,7 @@ function anexoIcon(r, url, nome, key, label){
 var COLUMNS = {
   dcto:    {label:'Dcto', cellCls:'muted', titleAttr:function(r){ return String(r.barra||r.id).replace(/"/g,'&quot;'); }, render:function(r){ return String(r.barra||r.id); }},
   empresa: {label:'Despesa de:', cellCls:'', titleAttr:function(r){ return (r.nome + (r.doc ? ' · '+r.doc : '')).replace(/"/g,'&quot;'); }, render:function(r){ return r.nome + (r.doc ? '<span class="muted"> · '+r.doc+'</span>' : ''); }},
-  desc:    {label:'Descrição', cellCls:'desc-cell', titleAttr:function(r){ return (r.desc||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.desc + (r._isNew ? '<span class="pill novo">novo</span>' : ''); }},
+  desc:    {label:'Descrição', cellCls:'desc-cell', titleAttr:function(r){ return (r.desc||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.desc; }},
   parcela: {label:'Parcela', cellCls:'muted', render:function(r){ return r.parcela||'—'; }},
   venc:    {label:'Vencimento', cellCls:'', render:function(r){ return fmtDate(r.vencDate); }},
   status:  {label:'Status', cellCls:'', render:function(r){
@@ -812,8 +948,8 @@ var COLUMNS = {
     return anexoIcon(r, r.anexoComprovante, r.anexoComprovanteNome, 'comp', 'Abrir comprovante');
   }},
   acao:    {label:'', cellCls:'', render:function(r){
-    var editBtn = r._isNew ? '<button class="row-edit" data-rawid="'+r._rawId+'" title="Editar lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '';
-    var delBtn = r._isNew ? '<button class="row-del" data-rawid="'+r._rawId+'" title="Remover lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>' : '';
+    var editBtn = '<button class="row-edit" data-rawid="'+r.id+'" title="Editar lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    var delBtn = '<button class="row-del" data-rawid="'+r.id+'" title="Remover lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>';
     return editBtn+delBtn;
   }}
 };
@@ -950,14 +1086,19 @@ function renderTable(rows){
         pedirSenha('Digite a senha para remover este lançamento:', function(ok){
           if (!ok) return;
           var rawId = Number(btn.getAttribute('data-rawid'));
-          if (editingId === rawId) { editingId = null; setFormMode(false); togglePanel(false); }
-          var locals = loadLocalEntries().filter(function(e){ return e.id !== rawId; });
-          saveLocalEntries(locals);
-          rebuildData();
-          buildFilters();
-          updateClearButton();
-          render();
-          showToast('Lançamento removido.');
+          var row = DATA.find(function(r){ return r.id === rawId; });
+          if (!row) { showToast('Lançamento não encontrado.'); return; }
+          (async function(){
+            try {
+              var token = await getToken();
+              await removerLinhaGraph(token, row._rowIndex);
+              if (editingId === rawId) { editingId = null; setFormMode(false); togglePanel(false); }
+              showToast('Lançamento removido.');
+              await carregarDados();
+            } catch (err) {
+              showToast('Erro ao remover: ' + (err && err.message ? err.message : err));
+            }
+          })();
         });
       });
     });
@@ -1150,12 +1291,6 @@ document.getElementById('cancelEntryBtn').addEventListener('click', function(){
   document.getElementById('entryForm').reset();
 });
 
-function nextLocalId(){
-  var max = 0;
-  loadLocalEntries().forEach(function(e){ if (e.id > max) max = e.id; });
-  return max + 1;
-}
-
 var SENHA_ACAO = '727349';
 var senhaCallback = null;
 function pedirSenha(mensagem, callback){
@@ -1196,13 +1331,13 @@ document.getElementById('senhaInput').addEventListener('keydown', function(ev){
 });
 
 function abrirParaEdicao(rawId){
-  var entry = loadLocalEntries().find(function(e){ return e.id === rawId; });
+  var entry = DATA.find(function(e){ return e.id === rawId; });
   if (!entry) { showToast('Lançamento não encontrado.'); return; }
   editingId = rawId;
   document.getElementById('nf_nome').value = entry.nome || '';
   document.getElementById('nf_desc').value = entry.desc || '';
   document.getElementById('nf_tipo').value = entry.tipo || 'Mensal';
-  document.getElementById('nf_status').value = entry.status || 'A Vencer';
+  document.getElementById('nf_status').value = entry.pag ? 'Pago' : 'A Vencer';
   document.getElementById('nf_venc').value = entry.venc || '';
   document.getElementById('nf_valor').value = (entry.valor != null ? String(entry.valor).replace('.', ',') : '');
   document.getElementById('nf_parcela').value = entry.parcela || '';
@@ -1254,72 +1389,66 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
 
     if (!ok){ showToast('Preencha os campos obrigatórios (*) com valores válidos.'); return; }
 
-    var MAX_FILE_BYTES = 2 * 1024 * 1024;
+    var MAX_FILE_BYTES = 4 * 1024 * 1024;
     var boletoInput = document.getElementById('nf_anexoBoleto');
     var compInput = document.getElementById('nf_anexoComprovante');
     var boletoFile = boletoInput && boletoInput.files && boletoInput.files[0];
     var compFile = compInput && compInput.files && compInput.files[0];
     if (boletoFile && boletoFile.size > MAX_FILE_BYTES){
-      showToast('Arquivo do boleto maior que 2MB — escolha um arquivo menor.');
+      showToast('Arquivo do boleto maior que 4MB — escolha um arquivo menor.');
       return;
     }
     if (compFile && compFile.size > MAX_FILE_BYTES){
-      showToast('Arquivo do comprovante maior que 2MB — escolha um arquivo menor.');
+      showToast('Arquivo do comprovante maior que 4MB — escolha um arquivo menor.');
       return;
     }
 
-    function lerArquivo(file){
-      return new Promise(function(resolve, reject){
-        if (!file) { resolve({dataUrl: '', nome: ''}); return; }
-        var reader = new FileReader();
-        var timeoutId = setTimeout(function(){ reject(new Error('Demorou demais lendo "' + file.name + '".')); }, 15000);
-        reader.onload = function(){ clearTimeout(timeoutId); resolve({dataUrl: reader.result, nome: file.name}); };
-        reader.onerror = function(){ clearTimeout(timeoutId); reject(new Error('Falha ao ler "' + file.name + '".')); };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    var finishSubmit = function(boleto, comprovante){
+    var finishSubmit = async function(){
     try {
-      var locals = loadLocalEntries();
+      if (!currentAccount) { showToast('Entre com sua conta Microsoft primeiro.'); return; }
       var isEditing = editingId !== null;
-      var existing = isEditing ? locals.find(function(e){ return e.id === editingId; }) : null;
+      var existing = isEditing ? DATA.find(function(e){ return e.id === editingId; }) : null;
       if (isEditing && !existing) { showToast('Lançamento não encontrado (pode já ter sido removido).'); editingId = null; setFormMode(false); return; }
 
-      var entry = {
-        id: isEditing ? existing.id : nextLocalId(),
-        nome: document.getElementById('nf_nome').value.trim(),
-        doc: '',
-        desc: document.getElementById('nf_desc').value.trim(),
-        parcela: document.getElementById('nf_parcela').value.trim(),
-        tipo: document.getElementById('nf_tipo').value,
-        status: document.getElementById('nf_status').value,
-        venc: document.getElementById('nf_venc').value,
-        pag: document.getElementById('nf_pag').value,
-        valor: parseBRL(document.getElementById('nf_valor').value),
-        cobrado: document.getElementById('nf_cobrado').value.trim() ? parseBRL(document.getElementById('nf_cobrado').value) : null,
-        anexoBoleto: boleto.dataUrl || (isEditing ? existing.anexoBoleto : '') || '',
-        anexoNome: boleto.nome || (isEditing ? existing.anexoNome : '') || '',
-        anexoComprovante: comprovante.dataUrl || (isEditing ? existing.anexoComprovante : '') || '',
-        anexoComprovanteNome: comprovante.nome || (isEditing ? existing.anexoComprovanteNome : '') || '',
-        barra: document.getElementById('nf_barra').value.trim(),
-        obs: document.getElementById('nf_obs').value.trim()
-      };
+      var token = await getToken();
+      var novoId = isEditing ? existing.id : (DATA.reduce(function(m,d){ return Math.max(m, d.id); }, 0) + 1);
+
+      var anexoBoletoUrl = isEditing ? (existing.anexo || '') : '';
+      var anexoComprovanteUrl = isEditing ? (existing.anexoComprovante || '') : '';
+      if (boletoFile) anexoBoletoUrl = await subirAnexo(token, boletoFile, 'boleto', novoId);
+      if (compFile) anexoComprovanteUrl = await subirAnexo(token, compFile, 'comprovante', novoId);
+
+      var nome = document.getElementById('nf_nome').value.trim();
+      var desc = document.getElementById('nf_desc').value.trim();
+      var parcela = document.getElementById('nf_parcela').value.trim();
+      var descCompleta = desc + (parcela ? ' - Parcela ' + parcela : '');
+      var venc = document.getElementById('nf_venc').value;
+      var pag = document.getElementById('nf_pag').value;
+      var valor = parseBRL(document.getElementById('nf_valor').value);
+      var cobradoStr = document.getElementById('nf_cobrado').value.trim();
+      var cobrado = cobradoStr ? parseBRL(cobradoStr) : '';
+      var tipo = document.getElementById('nf_tipo').value;
+      var status = document.getElementById('nf_status').value;
+      var barra = document.getElementById('nf_barra').value.trim();
+      var obs = document.getElementById('nf_obs').value.trim();
+
+      var linha = [
+        novoId, '', '', nome, 'Envio de Boleto',
+        isoToDDMMYYYY(venc), pag ? isoToDDMMYYYY(pag) : '',
+        descCompleta, tipo, status, barra,
+        valor, cobrado === '' ? '' : cobrado,
+        anexoBoletoUrl, anexoComprovanteUrl, '', obs
+      ];
 
       if (isEditing) {
-        var idx = locals.findIndex(function(e){ return e.id === editingId; });
-        locals[idx] = entry;
+        await atualizarLinhaGraph(token, existing._rowIndex, linha);
       } else {
-        locals.push(entry);
+        await adicionarLinhaGraph(token, linha);
       }
-      if (!saveLocalEntries(locals)) { setSubmitting(false); return; }
-      rebuildData();
-      buildFilters();
-      updateClearButton();
-      render();
-      showToast(isEditing ? ('Lançamento #L' + entry.id + ' atualizado.') : ('Lançamento #L' + entry.id + ' adicionado.'));
 
-      var keepNome = entry.nome;
+      showToast(isEditing ? ('Lançamento #' + novoId + ' atualizado.') : ('Lançamento #' + novoId + ' adicionado.'));
+
+      var keepNome = nome;
       var wasEditing = isEditing;
       editingId = null;
       setFormMode(false);
@@ -1332,80 +1461,26 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       } else {
         togglePanel(false);
       }
+      await carregarDados();
     } catch (err) {
-      showToast('Erro ao salvar: ' + err.message);
+      showToast('Erro ao salvar: ' + (err && err.message ? err.message : err));
     } finally {
       setSubmitting(false);
     }
-  }
+  };
 
   setSubmitting(true);
-  Promise.all([lerArquivo(boletoFile), lerArquivo(compFile)]).then(function(results){
-    finishSubmit(results[0], results[1]);
-  }).catch(function(err){
-    showToast(err.message);
-    setSubmitting(false);
-  });
+  finishSubmit();
   } catch (err) {
     showToast('Erro inesperado ao adicionar: ' + err.message);
     setSubmitting(false);
   }
 });
 
-function csvEscape(v){
-  v = (v === null || v === undefined) ? '' : String(v);
-  if (/[";\n]/.test(v)) v = '"' + v.replace(/"/g,'""') + '"';
-  return v;
-}
-document.getElementById('exportNewBtn').addEventListener('click', function(){
-  var locals = loadLocalEntries();
-  if (!locals.length){ showToast('Nenhum lançamento novo para exportar.'); return; }
-  var header = ['Id','Hora de início','Hora de conclusão','Empresa','Tipo de Eventos','Data do Vencimento','Data do Pagamento','Descrição do Documento','Tipo de Despesa','Status','Código de Barra','R$ Valor Original','R$ Valor Cobrado','Anexo - Boleto','Anexo - Comprovante','Outros Anexos','Observação'];
-  var rows = locals.map(function(e){
-    return [
-      e.id, '', '', e.doc ? (e.nome+' - '+e.doc) : e.nome, 'Envio de Boleto',
-      fmtDate(parseISO(e.venc)), e.pag ? fmtDate(parseISO(e.pag)) : '', e.desc + (e.parcela ? ' - Parcela ' + e.parcela : ''), e.tipo, e.status,
-      e.barra, e.valor.toFixed(2).replace('.',','), e.cobrado!==null ? e.cobrado.toFixed(2).replace('.',',') : '',
-      e.anexoBoleto, e.anexoComprovante || '', '', e.obs
-    ];
-  });
-  var lines = [header].concat(rows).map(function(r){ return r.map(csvEscape).join(';'); });
-  var csv = lines.join('\r\n');
-  var nomeArquivo = 'novos-lancamentos-' + new Date().toISOString().slice(0,10) + '.csv';
-  document.getElementById('exportFileName').textContent = nomeArquivo;
-  var textarea = document.getElementById('exportTextarea');
-  textarea.value = csv;
-  document.getElementById('exportOverlay').classList.add('open');
-  textarea.focus();
-  textarea.select();
-});
-document.getElementById('exportCopyBtn').addEventListener('click', function(){
-  var textarea = document.getElementById('exportTextarea');
-  textarea.focus();
-  textarea.select();
-  var copiado = false;
-  try { copiado = document.execCommand('copy'); } catch(e){ copiado = false; }
-  if (copiado) {
-    showToast('Copiado! Cole no Bloco de Notas e salve.');
-  } else if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(textarea.value).then(function(){
-      showToast('Copiado! Cole no Bloco de Notas e salve.');
-    }).catch(function(){
-      showToast('Não copiou sozinho: selecione o texto (Ctrl+A) e copie (Ctrl+C).');
-    });
-  } else {
-    showToast('Não copiou sozinho: selecione o texto (Ctrl+A) e copie (Ctrl+C).');
-  }
-});
-document.getElementById('exportCloseBtn').addEventListener('click', function(){
-  document.getElementById('exportOverlay').classList.remove('open');
-});
-
-rebuildData();
-buildFilters();
-updateClearButton();
 renderTableHead();
-render();
+document.getElementById('loginBtn').addEventListener('click', entrar);
+document.getElementById('logoutBtn').addEventListener('click', sair);
+initAuth();
 </script>
 
 </body>
