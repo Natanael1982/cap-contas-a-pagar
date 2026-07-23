@@ -83,12 +83,18 @@
     display:flex;align-items:center;gap:10px;flex:none;
   }
   .filters{
-    display:grid;
-    grid-template-columns:repeat(8, minmax(96px,1fr));
+    display:flex;
+    flex-wrap:wrap;
     gap:10px;
     margin-bottom:18px;
     flex:none;
   }
+  .filter-field{flex:0 0 auto;width:160px;}
+  .filter-resizer{
+    position:absolute;top:18px;right:-6px;bottom:0;width:10px;
+    cursor:col-resize;user-select:none;z-index:6;
+  }
+  .filter-resizer:hover, .filter-resizer.resizing{background:rgba(57,135,229,.35);}
   .clear-btn{
     flex:none;display:flex;align-items:center;gap:6px;
     background:var(--surface);border:1px solid var(--border);color:var(--ink-soft);
@@ -184,8 +190,7 @@
   .filters-manage-item:hover{background:var(--surface-3);}
   .filters-manage-empty{padding:6px 8px;font-size:11.5px;color:var(--ink-muted);white-space:nowrap;}
 
-  @media (max-width:1180px){ .filters{grid-template-columns:repeat(4,1fr);max-width:none;} }
-  @media (max-width:640px){ .filters{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:640px){ .filter-field{width:calc(50% - 5px);} }
 
   /* ---- kpi cards ---- */
   .kpis{
@@ -1132,6 +1137,16 @@ document.getElementById('columnsManageBtn').addEventListener('click', function(e
 });
 document.getElementById('columnsManageMenu').addEventListener('click', function(ev){ ev.stopPropagation(); });
 
+function loadFilterWidths(){
+  try {
+    var saved = JSON.parse(localStorage.getItem('cap_filter_widths_v1'));
+    if (saved && typeof saved === 'object') return saved;
+  } catch(e){}
+  return {};
+}
+function saveFilterWidths(w){ try{ localStorage.setItem('cap_filter_widths_v1', JSON.stringify(w)); }catch(e){} }
+var filterWidths = loadFilterWidths();
+
 var DEFAULT_FILTER_ORDER = FIELDS.map(function(f){ return f.key; });
 function loadFilterOrder(){
   try {
@@ -1203,6 +1218,7 @@ function buildFilters(){
     wrap.className = 'filter-field ss';
     wrap.draggable = true;
     wrap.setAttribute('data-filter-key', key);
+    wrap.style.width = (filterWidths[key] || 160) + 'px';
 
     wrap.addEventListener('dragstart', function(ev){
       ev.dataTransfer.setData('text/plain', key);
@@ -1316,6 +1332,31 @@ function buildFilters(){
     wrap.appendChild(label);
     wrap.appendChild(control);
     wrap.appendChild(dropdown);
+
+    var filterResizer = document.createElement('div');
+    filterResizer.className = 'filter-resizer';
+    filterResizer.addEventListener('click', function(ev){ ev.stopPropagation(); });
+    filterResizer.addEventListener('mousedown', function(ev){
+      ev.preventDefault(); ev.stopPropagation();
+      filterResizer.classList.add('resizing');
+      var startX = ev.clientX;
+      var startWidth = wrap.getBoundingClientRect().width;
+      function onMove(e2){
+        var newWidth = Math.max(90, Math.round(startWidth + (e2.clientX - startX)));
+        wrap.style.width = newWidth + 'px';
+      }
+      function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        filterResizer.classList.remove('resizing');
+        filterWidths[key] = parseInt(wrap.style.width, 10);
+        saveFilterWidths(filterWidths);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+    wrap.appendChild(filterResizer);
+
     filtersRoot.appendChild(wrap);
   });
 }
