@@ -154,6 +154,34 @@
   .ss-opt:hover{background:var(--surface-3);}
   .ss-opt.selected{background:var(--chart);color:#fff;}
 
+  /* ---- reordenar/ocultar filtros ---- */
+  .filter-field{position:relative;cursor:grab;}
+  .filter-field.dragging-filter{opacity:.35;}
+  .filter-field.drop-target-filter{outline:2px dashed var(--chart);outline-offset:2px;border-radius:9px;}
+  .filter-remove{
+    position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;
+    background:var(--surface-3);border:1px solid var(--border-strong);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;line-height:1;padding:0;
+    opacity:0;transition:opacity .12s ease;z-index:5;
+  }
+  .filter-field:hover .filter-remove{opacity:1;}
+  .filter-remove:hover{background:var(--critical-dim);color:var(--critical);border-color:var(--critical);}
+  .filters-manage-wrap{position:relative;}
+  .filters-manage-btn{
+    flex:none;display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);
+    color:var(--ink-soft);font:600 11.5px var(--sans);padding:7.5px 11px;border-radius:7px;cursor:pointer;height:31px;
+  }
+  .filters-manage-btn:hover{border-color:var(--border-strong);color:var(--ink);}
+  .filters-manage-btn svg{width:13px;height:13px;}
+  .filters-manage-menu{
+    display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:200px;background:var(--surface-2);
+    border:1px solid var(--border-strong);border-radius:9px;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:40;padding:8px;
+  }
+  .filters-manage-wrap.open .filters-manage-menu{display:block;}
+  .filters-manage-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:12px;color:var(--ink);cursor:pointer;white-space:nowrap;}
+  .filters-manage-item:hover{background:var(--surface-3);}
+  .filters-manage-empty{padding:6px 8px;font-size:11.5px;color:var(--ink-muted);white-space:nowrap;}
+
   @media (max-width:1180px){ .filters{grid-template-columns:repeat(4,1fr);max-width:none;} }
   @media (max-width:640px){ .filters{grid-template-columns:repeat(2,1fr);} }
 
@@ -483,6 +511,13 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/></svg>
         <span id="userName"></span>
         <button type="button" class="ebtn ghost" id="logoutBtn">Sair</button>
+      </div>
+      <div class="filters-manage-wrap" id="filtersManageWrap">
+        <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar/ocultar filtros">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Filtros
+        </button>
+        <div class="filters-manage-menu" id="filtersManageMenu"></div>
       </div>
       <button class="clear-btn" id="clearBtn" type="button" title="Limpar todos os filtros">
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -940,12 +975,79 @@ var filtersRoot = document.getElementById('filters');
 function closeAllFilterDropdowns(){
   document.querySelectorAll('.filter-field.ss.open').forEach(function(w){ w.classList.remove('open'); });
 }
-document.addEventListener('click', function(){ closeAllFilterDropdowns(); });
-document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') closeAllFilterDropdowns(); });
+document.addEventListener('click', function(){
+  closeAllFilterDropdowns();
+  document.getElementById('filtersManageWrap').classList.remove('open');
+});
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape'){
+    closeAllFilterDropdowns();
+    document.getElementById('filtersManageWrap').classList.remove('open');
+  }
+});
+document.getElementById('filtersManageBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  var wrap = document.getElementById('filtersManageWrap');
+  var willOpen = !wrap.classList.contains('open');
+  wrap.classList.toggle('open', willOpen);
+  if (willOpen) updateFiltersManageMenu();
+});
+document.getElementById('filtersManageMenu').addEventListener('click', function(ev){ ev.stopPropagation(); });
+
+var DEFAULT_FILTER_ORDER = FIELDS.map(function(f){ return f.key; });
+function loadFilterOrder(){
+  try {
+    var saved = JSON.parse(localStorage.getItem('cap_filter_order_v1'));
+    if (Array.isArray(saved) && saved.every(function(k){ return FIELDS.some(function(f){return f.key===k;}); })){
+      DEFAULT_FILTER_ORDER.forEach(function(k){ if (saved.indexOf(k) === -1) saved.push(k); });
+      return saved;
+    }
+  } catch(e){}
+  return DEFAULT_FILTER_ORDER.slice();
+}
+function saveFilterOrder(order){ try{ localStorage.setItem('cap_filter_order_v1', JSON.stringify(order)); }catch(e){} }
+function loadFilterVisibility(){
+  try {
+    var saved = JSON.parse(localStorage.getItem('cap_filter_visibility_v1'));
+    if (saved && typeof saved === 'object') return saved;
+  } catch(e){}
+  return {};
+}
+function saveFilterVisibility(v){ try{ localStorage.setItem('cap_filter_visibility_v1', JSON.stringify(v)); }catch(e){} }
+var filterOrder = loadFilterOrder();
+var filterVisibility = loadFilterVisibility();
+
+function updateFiltersManageMenu(){
+  var menu = document.getElementById('filtersManageMenu');
+  var hidden = filterOrder.filter(function(key){ return filterVisibility[key] === false; });
+  if (!hidden.length){
+    menu.innerHTML = '<div class="filters-manage-empty">Todos os filtros estão visíveis.</div>';
+    return;
+  }
+  menu.innerHTML = '';
+  hidden.forEach(function(key){
+    var f = FIELDS.find(function(ff){ return ff.key === key; });
+    if (!f) return;
+    var item = document.createElement('div');
+    item.className = 'filters-manage-item';
+    item.textContent = '+ ' + f.label;
+    item.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      filterVisibility[key] = true;
+      saveFilterVisibility(filterVisibility);
+      buildFilters();
+      updateFiltersManageMenu();
+    });
+    menu.appendChild(item);
+  });
+}
 
 function buildFilters(){
   filtersRoot.innerHTML = '';
-  FIELDS.forEach(function(f){
+  filterOrder.forEach(function(key){
+    if (filterVisibility[key] === false) return;
+    var f = FIELDS.find(function(ff){ return ff.key === key; });
+    if (!f) return;
     var opts = f.key === 'pag' ? ['sem'].concat(uniqueSorted('pag')) : (f.opts ? f.opts.map(function(o){return o[0];}) : uniqueSorted(f.key));
     if (state[f.key] !== 'todos' && opts.indexOf(state[f.key]) === -1) state[f.key] = 'todos';
 
@@ -958,6 +1060,43 @@ function buildFilters(){
 
     var wrap = document.createElement('div');
     wrap.className = 'filter-field ss';
+    wrap.draggable = true;
+    wrap.setAttribute('data-filter-key', key);
+
+    wrap.addEventListener('dragstart', function(ev){
+      ev.dataTransfer.setData('text/plain', key);
+      wrap.classList.add('dragging-filter');
+    });
+    wrap.addEventListener('dragend', function(){ wrap.classList.remove('dragging-filter'); });
+    wrap.addEventListener('dragover', function(ev){ ev.preventDefault(); wrap.classList.add('drop-target-filter'); });
+    wrap.addEventListener('dragleave', function(){ wrap.classList.remove('drop-target-filter'); });
+    wrap.addEventListener('drop', function(ev){
+      ev.preventDefault();
+      wrap.classList.remove('drop-target-filter');
+      var draggedKey = ev.dataTransfer.getData('text/plain');
+      if (!draggedKey || draggedKey === key) return;
+      var from = filterOrder.indexOf(draggedKey);
+      var to = filterOrder.indexOf(key);
+      if (from === -1 || to === -1) return;
+      filterOrder.splice(from, 1);
+      filterOrder.splice(to, 0, draggedKey);
+      saveFilterOrder(filterOrder);
+      buildFilters();
+    });
+
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'filter-remove';
+    removeBtn.title = 'Remover este filtro da barra';
+    removeBtn.textContent = '×';
+    removeBtn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      filterVisibility[key] = false;
+      saveFilterVisibility(filterVisibility);
+      buildFilters();
+      updateFiltersManageMenu();
+    });
+    wrap.appendChild(removeBtn);
 
     var label = document.createElement('label');
     label.textContent = f.label;
