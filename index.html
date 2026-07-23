@@ -610,16 +610,19 @@ function encodePath(path){
   return path.split('/').map(encodeURIComponent).join('/');
 }
 function ddmmyyToISO(str){
+  if (typeof str === 'number' || (typeof str === 'string' && /^\d+(\.\d+)?$/.test(str.trim()))) {
+    var serial = Number(str);
+    if (serial > 0) {
+      var d = new Date(Math.round((serial - 25569) * 86400000));
+      return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
+    }
+  }
   var m = String(str||'').match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
   if (!m) return '';
   var yy = m[3].length === 2 ? '20'+m[3] : m[3];
   return yy + '-' + m[2] + '-' + m[1];
 }
-function isoToDDMMYYYY(iso){
-  if (!iso) return '';
-  var p = iso.split('-');
-  return p[2] + '/' + p[1] + '/' + p[0];
-}
+)
 
 function graphRowToRow(v, rowIndex){
   var empresa = String(v[3]||'');
