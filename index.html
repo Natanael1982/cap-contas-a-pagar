@@ -683,6 +683,12 @@ function isoToDDMMYYYY(iso){
   if (p.length !== 3) return '';
   return p[2] + '/' + p[1] + '/' + p[0];
 }
+function ddmmyyyyToSerial(str){
+  var m = String(str||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return '';
+  var utcMs = Date.UTC(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  return Math.round(utcMs / 86400000) + 25569;
+}
 
 function graphRowToRow(v, rowIndex){
   var empresa = String(v[3]||'');
@@ -1663,7 +1669,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
 
       var linha = [
         novoId, '', '', nome, 'Envio de Boleto',
-        venc, pag,
+        ddmmyyyyToSerial(venc), pag ? ddmmyyyyToSerial(pag) : '',
         descCompleta, tipo, status, barra,
         valor, cobrado === '' ? '' : cobrado,
         anexoBoletoUrl, anexoComprovanteUrl, '', obs
