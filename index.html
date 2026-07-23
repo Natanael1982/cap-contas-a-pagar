@@ -635,6 +635,12 @@ function ddmmyyToISO(str){
   var yy = m[3].length === 2 ? '20'+m[3] : m[3];
   return yy + '-' + m[2] + '-' + m[1];
 }
+function isoToDDMMYYYY(iso){
+  if (!iso) return '';
+  var p = String(iso).split('-');
+  if (p.length !== 3) return '';
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
 
 function graphRowToRow(v, rowIndex){
   var empresa = String(v[3]||'');
