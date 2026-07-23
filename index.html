@@ -23,6 +23,12 @@
     --positive:#2fbf6e;
     --positive-dim:rgba(47,191,110,.16);
     --neutral-dim:rgba(154,160,180,.14);
+    --urgente:#ff4d4d;
+    --urgente-dim:rgba(255,77,77,.16);
+    --alerta2:#ff8a3d;
+    --alerta2-dim:rgba(255,138,61,.16);
+    --alerta3:#e8c547;
+    --alerta3-dim:rgba(232,197,71,.16);
     --chart:#3987e5;
     --chart-soft:#6da7ec;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -211,6 +217,12 @@
   .pill.hoje::before{background:var(--warning);}
   .pill.avencer{background:var(--neutral-dim);color:var(--ink-soft);}
   .pill.avencer::before{background:var(--ink-soft);}
+  .pill.urgente{background:var(--urgente-dim);color:var(--urgente);}
+  .pill.urgente::before{background:var(--urgente);}
+  .pill.alerta2{background:var(--alerta2-dim);color:var(--alerta2);}
+  .pill.alerta2::before{background:var(--alerta2);}
+  .pill.alerta3{background:var(--alerta3-dim);color:var(--alerta3);}
+  .pill.alerta3::before{background:var(--alerta3);}
   .pill.pago{background:var(--positive-dim);color:var(--positive);}
   .pill.pago::before{background:var(--positive);}
 
@@ -1013,7 +1025,13 @@ var COLUMNS = {
   status:  {label:'Status', cellCls:'', render:function(r){
     var st = STATUS_ICON[r.status];
     var pillTxt = r.status==='pago' ? ('pago '+fmtDate(parseISO(r.pag))) : r.status==='vencido' ? (r.dias+'d atraso') : r.status==='hoje' ? 'hoje' : ('faltam '+r.dias+'d');
-    return '<span class="pill '+st.cls+'">'+pillTxt+'</span>';
+    var pillCls = st.cls;
+    if (r.status === 'avencer'){
+      if (r.dias === 1){ pillTxt = 'Urgente'; pillCls = 'urgente'; }
+      else if (r.dias === 2){ pillCls = 'alerta2'; }
+      else if (r.dias === 3){ pillCls = 'alerta3'; }
+    }
+    return '<span class="pill '+pillCls+'">'+pillTxt+'</span>';
   }},
   valor:   {label:'Valor Original', cls:'num', cellCls:'num', render:function(r){ return brl(r.valor); }},
   juros:   {label:'Juros', cls:'num', cellCls:'num muted', render:function(r){ return juros(r)>0 ? brl(juros(r)) : '—'; }},
