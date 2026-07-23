@@ -138,7 +138,7 @@
   .ss-control.active{border-color:var(--chart);color:var(--chart-soft);}
   .ss-control:focus{outline:2px solid var(--chart);outline-offset:1px;}
   .ss-dropdown{
-    display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:100%;width:max-content;max-width:340px;
+    display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:280px;width:max-content;max-width:min(460px, 90vw);
     background:var(--surface-2);border:1px solid var(--border-strong);border-radius:9px;
     box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:30;padding:8px;
   }
@@ -150,8 +150,8 @@
   .ss-search:focus{outline:2px solid var(--chart);outline-offset:1px;}
   .ss-options{max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:3px;}
   .ss-opt{
-    padding:9px 10px;border-radius:6px;font-size:12.5px;line-height:1.3;color:var(--ink);cursor:pointer;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    padding:9px 10px;border-radius:6px;font-size:12.5px;line-height:1.35;color:var(--ink);cursor:pointer;
+    white-space:normal;overflow-wrap:break-word;word-break:break-word;
   }
   .ss-opt:hover{background:var(--surface-3);}
   .ss-opt.selected{background:var(--chart);color:#fff;}
@@ -1077,13 +1077,16 @@ function buildFilters(){
       wrap.classList.remove('drop-target-filter');
       var draggedKey = ev.dataTransfer.getData('text/plain');
       if (!draggedKey || draggedKey === key) return;
-      var from = filterOrder.indexOf(draggedKey);
-      var to = filterOrder.indexOf(key);
-      if (from === -1 || to === -1) return;
-      filterOrder.splice(from, 1);
-      filterOrder.splice(to, 0, draggedKey);
-      saveFilterOrder(filterOrder);
-      buildFilters();
+      pedirSenha('Digite a senha para mover este filtro:', function(ok){
+        if (!ok) return;
+        var from = filterOrder.indexOf(draggedKey);
+        var to = filterOrder.indexOf(key);
+        if (from === -1 || to === -1) return;
+        filterOrder.splice(from, 1);
+        filterOrder.splice(to, 0, draggedKey);
+        saveFilterOrder(filterOrder);
+        buildFilters();
+      });
     });
 
     var removeBtn = document.createElement('button');
@@ -1093,10 +1096,13 @@ function buildFilters(){
     removeBtn.textContent = '×';
     removeBtn.addEventListener('click', function(ev){
       ev.stopPropagation();
-      filterVisibility[key] = false;
-      saveFilterVisibility(filterVisibility);
-      buildFilters();
-      updateFiltersManageMenu();
+      pedirSenha('Digite a senha para remover este filtro da barra:', function(ok){
+        if (!ok) return;
+        filterVisibility[key] = false;
+        saveFilterVisibility(filterVisibility);
+        buildFilters();
+        updateFiltersManageMenu();
+      });
     });
     wrap.appendChild(removeBtn);
 
