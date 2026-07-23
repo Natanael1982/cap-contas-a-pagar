@@ -560,6 +560,10 @@
         </select>
         <button type="button" class="ebtn primary" id="adm_conceder">Conceder acesso</button>
       </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:10.5px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;">Restringir "Despesa de:" (opcional — nenhum marcado = vê tudo)</label>
+        <div id="adm_filtro_lista" style="max-height:150px;overflow:auto;display:flex;flex-direction:column;gap:3px;margin-top:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:8px;"></div>
+      </div>
       <div id="adm_lista"></div>
       <p style="font-size:11px;color:var(--ink-muted);margin-top:14px;">Conceder acesso compartilha o arquivo de verdade no SharePoint para esse e-mail (Editor = leitura e escrita, Visualizador = somente leitura). Revogar remove esse compartilhamento.</p>
     </div>
@@ -785,6 +789,7 @@ var DRIVE_ID = 'b!Xyf9Y4l0qUWv1kO5T5rKOn3FJmBOsbRFnpjvpPbvNvrn80E1xObESKagjmnZsZ
 var DONO_EMAIL = 'natanael.silva@sinerggia.com.br';
 var USERS_TABLE_NAME = 'TabelaUsuarios';
 var currentUserRole = null;
+var currentUserFiltroNome = null;
 var ITEM_ID = '01ZF6ARXTIQSWRHIKDQVHIHZRFMV5YVCAD';
 var TABLE_NAME = 'TabelaLancamentos';
 var ANEXOS_PATH = 'Gestão Financeira Claude/Anexos';
@@ -874,6 +879,7 @@ async function entrar(){
 function sair(){
   currentAccount = null;
   currentUserRole = null;
+  currentUserFiltroNome = null;
   msalInstance.setActiveAccount(null);
   DATA = [];
   atualizarEstadoLogin();
@@ -898,17 +904,28 @@ async function buscarUsuarios(token){
   var json = await resp.json();
   return json.value.map(function(row){
     var v = row.values[0];
-    return { _rowIndex: row.index, email: String(v[0]||'').trim(), papel: v[1]||'', status: v[2]||'', data: v[3]||'' };
+    return {
+      _rowIndex: row.index, email: String(v[0]||'').trim(), papel: v[1]||'', status: v[2]||'', data: v[3]||'',
+      filtroDespesaDe: String(v[4]||'').trim()
+    };
   });
+}
+function filtroDespesaDeParaArray(str){
+  return String(str||'').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
 }
 
 async function verificarAcesso(token){
+  currentUserFiltroNome = null;
   if (ehDono()) return 'Editor';
   var email = (currentAccount.username || '').toLowerCase();
   try {
     var usuarios = await buscarUsuarios(token);
     var match = usuarios.find(function(u){ return u.email.toLowerCase() === email; });
-    if (match && match.status === 'Aprovado') return match.papel === 'Editor' ? 'Editor' : 'Visualizador';
+    if (match && match.status === 'Aprovado'){
+      var lista = filtroDespesaDeParaArray(match.filtroDespesaDe);
+      currentUserFiltroNome = lista.length ? lista : null;
+      return match.papel === 'Editor' ? 'Editor' : 'Visualizador';
+    }
   } catch (e) { /* sem acesso ao arquivo ainda - segue como não autorizado */ }
   return null;
 }
@@ -960,6 +977,9 @@ async function carregarDados(){
     var json = await resp.json();
     DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
     DATA.forEach(normalizeRow);
+    if (currentUserFiltroNome){
+      DATA = DATA.filter(function(r){ return currentUserFiltroNome.indexOf(r.nome) !== -1; });
+    }
   } catch (e) {
     showToast('Erro ao carregar dados: ' + (e && e.message ? e.message : e));
     DATA = [];
@@ -2164,8 +2184,13 @@ function renderAdminLista(usuarios){
   }
   el.innerHTML = usuarios.map(function(u){
     var statusCls = u.status === 'Aprovado' ? 'pago' : (u.status === 'Bloqueado' ? 'vencido' : 'avencer');
+    var restricao = filtroDespesaDeParaArray(u.filtroDespesaDe);
+    var restricaoTxt = restricao.length ? ('Restrito a: ' + restricao.join(', ')) : 'Vê tudo';
     return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">'+
-      '<span style="flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+u.email+'</span>'+
+      '<span style="flex:1;min-width:0;">'+
+        '<span style="display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+u.email+'</span>'+
+        '<span style="display:block;font-size:10.5px;color:var(--ink-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+restricaoTxt+'</span>'+
+      '</span>'+
       '<span class="pill '+statusCls+'">'+u.status+'</span>'+
       '<span style="font-size:11.5px;color:var(--ink-soft);width:90px;flex:none;">'+u.papel+'</span>'+
       '<button type="button" class="ebtn" data-revoke="'+u.email.replace(/"/g,'&quot;')+'" style="padding:5px 10px;font-size:11px;flex:none;">Revogar</button>'+
@@ -2182,7 +2207,21 @@ function renderAdminLista(usuarios){
   });
 }
 
+function renderFiltroChecklist(){
+  var el = document.getElementById('adm_filtro_lista');
+  var nomes = uniqueSorted('nome');
+  if (!nomes.length){
+    el.innerHTML = '<span style="font-size:11.5px;color:var(--ink-muted);">Nenhum "Despesa de:" disponível ainda.</span>';
+    return;
+  }
+  el.innerHTML = nomes.map(function(n){
+    return '<label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink);cursor:pointer;padding:3px 0;">'+
+      '<input type="checkbox" class="adm-filtro-check" value="'+n.replace(/"/g,'&quot;')+'"> '+n+'</label>';
+  }).join('');
+}
+
 async function carregarAdminPanel(){
+  renderFiltroChecklist();
   try {
     var token = await getToken();
     var usuarios = await buscarUsuarios(token);
@@ -2193,7 +2232,7 @@ async function carregarAdminPanel(){
   }
 }
 
-async function concederAcessoGraph(token, email, papel){
+async function concederAcessoGraph(token, email, papel, filtroLista){
   var role = papel === 'Editor' ? 'write' : 'read';
   var inviteUrl = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/invite';
   var resp = await fetch(inviteUrl, {
@@ -2212,18 +2251,19 @@ async function concederAcessoGraph(token, email, papel){
   var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
   var hoje = new Date();
   var dataStr = String(hoje.getDate()).padStart(2,'0')+'/'+String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
+  var filtroStr = (filtroLista || []).join(', ');
   var usersUrl = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
   if (existente){
     await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
       method: 'PATCH',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [[email, papel, 'Aprovado', dataStr]] })
+      body: JSON.stringify({ values: [[email, papel, 'Aprovado', dataStr, filtroStr]] })
     });
   } else {
     await fetch(usersUrl, {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [[email, papel, 'Aprovado', dataStr]] })
+      body: JSON.stringify({ values: [[email, papel, 'Aprovado', dataStr, filtroStr]] })
     });
   }
 }
@@ -2266,12 +2306,13 @@ document.getElementById('adm_conceder').addEventListener('click', function(){
   var email = document.getElementById('adm_email').value.trim();
   var papel = document.getElementById('adm_papel').value;
   if (!email || email.indexOf('@') === -1){ showToast('Digite um e-mail válido.'); return; }
+  var filtroLista = Array.prototype.slice.call(document.querySelectorAll('.adm-filtro-check:checked')).map(function(cb){ return cb.value; });
   pedirSenha('Digite a senha para conceder acesso a ' + email + ':', function(ok){
     if (!ok) return;
     (async function(){
       try {
         var token = await getToken();
-        await concederAcessoGraph(token, email, papel);
+        await concederAcessoGraph(token, email, papel, filtroLista);
         showToast('Acesso concedido para ' + email + '.');
         document.getElementById('adm_email').value = '';
         await carregarAdminPanel();
