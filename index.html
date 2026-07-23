@@ -163,9 +163,7 @@
   .ss-opt.selected{background:var(--chart);color:#fff;}
 
   /* ---- reordenar/ocultar filtros ---- */
-  .filter-field{position:relative;cursor:grab;}
-  .filter-field.dragging-filter{opacity:.35;}
-  .filter-field.drop-target-filter{outline:2px dashed var(--chart);outline-offset:2px;border-radius:9px;}
+  .filter-field{position:relative;}
   .filter-remove{
     position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;
     background:var(--surface-3);border:1px solid var(--border-strong);color:var(--ink-soft);
@@ -173,6 +171,16 @@
     opacity:0;transition:opacity .12s ease;z-index:5;
   }
   .filter-field:hover .filter-remove{opacity:1;}
+  .filter-move{
+    position:absolute;bottom:-9px;right:8px;display:flex;gap:2px;
+    opacity:0;transition:opacity .12s ease;z-index:6;
+  }
+  .filter-field:hover .filter-move{opacity:1;}
+  .filter-move-btn{
+    width:17px;height:17px;border-radius:4px;background:var(--surface-3);border:1px solid var(--border-strong);
+    color:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:8px;padding:0;line-height:1;
+  }
+  .filter-move-btn:hover{background:var(--surface);color:var(--ink);border-color:var(--chart);}
   .filter-remove:hover{background:var(--critical-dim);color:var(--critical);border-color:var(--critical);}
   .filters-manage-wrap{position:relative;}
   .filters-manage-btn{
@@ -1216,33 +1224,8 @@ function buildFilters(){
 
     var wrap = document.createElement('div');
     wrap.className = 'filter-field ss';
-    wrap.draggable = true;
     wrap.setAttribute('data-filter-key', key);
     wrap.style.width = (filterWidths[key] || 160) + 'px';
-
-    wrap.addEventListener('dragstart', function(ev){
-      ev.dataTransfer.setData('text/plain', key);
-      wrap.classList.add('dragging-filter');
-    });
-    wrap.addEventListener('dragend', function(){ wrap.classList.remove('dragging-filter'); });
-    wrap.addEventListener('dragover', function(ev){ ev.preventDefault(); wrap.classList.add('drop-target-filter'); });
-    wrap.addEventListener('dragleave', function(){ wrap.classList.remove('drop-target-filter'); });
-    wrap.addEventListener('drop', function(ev){
-      ev.preventDefault();
-      wrap.classList.remove('drop-target-filter');
-      var draggedKey = ev.dataTransfer.getData('text/plain');
-      if (!draggedKey || draggedKey === key) return;
-      pedirSenha('Digite a senha para mover este filtro:', function(ok){
-        if (!ok) return;
-        var from = filterOrder.indexOf(draggedKey);
-        var to = filterOrder.indexOf(key);
-        if (from === -1 || to === -1) return;
-        filterOrder.splice(from, 1);
-        filterOrder.splice(to, 0, draggedKey);
-        saveFilterOrder(filterOrder);
-        buildFilters();
-      });
-    });
 
     var removeBtn = document.createElement('button');
     removeBtn.type = 'button';
@@ -1260,6 +1243,40 @@ function buildFilters(){
       });
     });
     wrap.appendChild(removeBtn);
+
+    var moveWrap = document.createElement('div');
+    moveWrap.className = 'filter-move';
+    var moveLeftBtn = document.createElement('button');
+    moveLeftBtn.type = 'button';
+    moveLeftBtn.className = 'filter-move-btn';
+    moveLeftBtn.title = 'Mover uma posição para a esquerda';
+    moveLeftBtn.textContent = '◀';
+    var moveRightBtn = document.createElement('button');
+    moveRightBtn.type = 'button';
+    moveRightBtn.className = 'filter-move-btn';
+    moveRightBtn.title = 'Mover uma posição para a direita';
+    moveRightBtn.textContent = '▶';
+    function moverFiltro(delta){
+      pedirSenha('Digite a senha para mover este filtro:', function(ok){
+        if (!ok) return;
+        var visiveis = filterOrder.filter(function(k){ return filterVisibility[k] !== false; });
+        var posAtual = visiveis.indexOf(key);
+        var posNova = posAtual + delta;
+        if (posNova < 0 || posNova >= visiveis.length) return;
+        var vizinho = visiveis[posNova];
+        var i1 = filterOrder.indexOf(key);
+        var i2 = filterOrder.indexOf(vizinho);
+        filterOrder[i1] = vizinho;
+        filterOrder[i2] = key;
+        saveFilterOrder(filterOrder);
+        buildFilters();
+      });
+    }
+    moveLeftBtn.addEventListener('click', function(ev){ ev.stopPropagation(); moverFiltro(-1); });
+    moveRightBtn.addEventListener('click', function(ev){ ev.stopPropagation(); moverFiltro(1); });
+    moveWrap.appendChild(moveLeftBtn);
+    moveWrap.appendChild(moveRightBtn);
+    wrap.appendChild(moveWrap);
 
     var label = document.createElement('label');
     label.textContent = f.label;
