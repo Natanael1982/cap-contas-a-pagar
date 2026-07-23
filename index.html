@@ -377,6 +377,35 @@
   .efield input[type="file"]{padding:7px 8px;font-size:12px;color:var(--ink-soft);}
   .efield .hint{font-size:10.5px;color:var(--ink-muted);}
   .efield.invalid input, .efield.invalid select{border-color:var(--critical);}
+  .date-field{position:relative;display:flex;}
+  .date-field input{flex:1;padding-right:32px;}
+  .date-toggle{
+    position:absolute;right:5px;top:50%;transform:translateY(-50%);
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;color:var(--ink-soft);cursor:pointer;border-radius:5px;padding:0;
+  }
+  .date-toggle:hover{background:var(--surface-3);color:var(--ink);}
+  .date-toggle svg{width:15px;height:15px;}
+  .date-popup{
+    display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:40;
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);padding:10px;width:230px;
+  }
+  .date-field.open .date-popup{display:block;}
+  .date-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .date-cal-head button{background:transparent;border:none;color:var(--ink-soft);cursor:pointer;padding:3px 9px;border-radius:6px;font-size:15px;line-height:1;}
+  .date-cal-head button:hover{background:var(--surface-3);color:var(--ink);}
+  .date-cal-head .lbl{font:600 12px var(--sans);color:var(--ink);text-transform:capitalize;}
+  .date-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .date-cal-grid .wd{font-size:9.5px;color:var(--ink-muted);text-align:center;padding:3px 0;text-transform:uppercase;}
+  .date-cal-grid button{
+    background:transparent;border:none;color:var(--ink);font-size:11.5px;padding:6px 0;border-radius:6px;cursor:pointer;
+  }
+  .date-cal-grid button:hover{background:var(--surface-3);}
+  .date-cal-grid button.other-month{color:var(--ink-muted);}
+  .date-cal-grid button.selected{background:var(--chart);color:#fff;}
+  .date-cal-grid button.today{outline:1px solid var(--chart);outline-offset:-1px;}
+
   .edivider{
     grid-column:1/-1;font-size:10.5px;color:var(--chart-soft);text-transform:uppercase;
     letter-spacing:.06em;margin-top:6px;padding-top:10px;border-top:1px solid var(--border);
@@ -465,11 +494,23 @@
         <div class="edivider">Datas &amp; Valores</div>
         <div class="efield">
           <label>Data do Vencimento <span class="req">*</span></label>
-          <input type="date" id="nf_venc" required>
+          <div class="date-field">
+            <input type="text" inputmode="numeric" id="nf_venc" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off" required>
+            <button type="button" class="date-toggle" aria-label="Abrir calendário">
+              <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </button>
+            <div class="date-popup"></div>
+          </div>
         </div>
         <div class="efield">
           <label>Data do Pagamento</label>
-          <input type="date" id="nf_pag">
+          <div class="date-field">
+            <input type="text" inputmode="numeric" id="nf_pag" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off">
+            <button type="button" class="date-toggle" aria-label="Abrir calendário">
+              <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </button>
+            <div class="date-popup"></div>
+          </div>
         </div>
         <div class="efield">
           <label>R$ Valor Original <span class="req">*</span></label>
@@ -1315,6 +1356,112 @@ for (var pNum = 1; pNum <= 12; pNum++){
   parcelaSelect.appendChild(opt);
 }
 
+var MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+var DIAS_PT = ['D','S','T','Q','Q','S','S'];
+
+function parseDataBR(str){
+  var m = String(str||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  var dd = Number(m[1]), mm = Number(m[2]), yyyy = Number(m[3]);
+  var d = new Date(yyyy, mm - 1, dd);
+  if (d.getFullYear() !== yyyy || d.getMonth() !== mm - 1 || d.getDate() !== dd) return null;
+  return d;
+}
+function fmtDataBR(d){
+  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+}
+function closeAllDatePopups(){
+  document.querySelectorAll('.date-field.open').forEach(function(w){ w.classList.remove('open'); });
+}
+document.addEventListener('click', function(){ closeAllDatePopups(); });
+document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') closeAllDatePopups(); });
+
+function attachDatePicker(inputEl){
+  var wrap = inputEl.closest('.date-field');
+  var toggleBtn = wrap.querySelector('.date-toggle');
+  var popup = wrap.querySelector('.date-popup');
+  var viewDate = new Date(); viewDate.setDate(1);
+
+  function renderCalendar(){
+    var selected = parseDataBR(inputEl.value);
+    var hoje = new Date(); hoje.setHours(0,0,0,0);
+    var y = viewDate.getFullYear(), m = viewDate.getMonth();
+    var firstDow = new Date(y, m, 1).getDay();
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var daysInPrevMonth = new Date(y, m, 0).getDate();
+
+    var html = '<div class="date-cal-head">' +
+      '<button type="button" data-nav="-1">&#8249;</button>' +
+      '<span class="lbl">' + MESES_PT[m] + ' de ' + y + '</span>' +
+      '<button type="button" data-nav="1">&#8250;</button></div>' +
+      '<div class="date-cal-grid">';
+    DIAS_PT.forEach(function(d){ html += '<span class="wd">' + d + '</span>'; });
+
+    for (var i = 0; i < firstDow; i++){
+      var dnum = daysInPrevMonth - firstDow + 1 + i;
+      html += '<button type="button" class="other-month" data-day="' + dnum + '" data-month-delta="-1">' + dnum + '</button>';
+    }
+    for (var day = 1; day <= daysInMonth; day++){
+      var cls = [];
+      var cellDate = new Date(y, m, day);
+      if (selected && cellDate.getTime() === selected.getTime()) cls.push('selected');
+      if (cellDate.getTime() === hoje.getTime()) cls.push('today');
+      html += '<button type="button" class="' + cls.join(' ') + '" data-day="' + day + '" data-month-delta="0">' + day + '</button>';
+    }
+    var totalCells = firstDow + daysInMonth;
+    var trailing = (7 - (totalCells % 7)) % 7;
+    for (var j = 1; j <= trailing; j++){
+      html += '<button type="button" class="other-month" data-day="' + j + '" data-month-delta="1">' + j + '</button>';
+    }
+    html += '</div>';
+    popup.innerHTML = html;
+
+    popup.querySelectorAll('[data-nav]').forEach(function(btn){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        viewDate.setMonth(viewDate.getMonth() + Number(btn.getAttribute('data-nav')));
+        renderCalendar();
+      });
+    });
+    popup.querySelectorAll('[data-day]').forEach(function(btn){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        var delta = Number(btn.getAttribute('data-month-delta'));
+        var d = new Date(y, m + delta, Number(btn.getAttribute('data-day')));
+        inputEl.value = fmtDataBR(d);
+        closePopup();
+      });
+    });
+  }
+
+  function openPopup(){
+    closeAllDatePopups();
+    var existing = parseDataBR(inputEl.value);
+    if (existing) viewDate = new Date(existing.getFullYear(), existing.getMonth(), 1);
+    else { viewDate = new Date(); viewDate.setDate(1); }
+    renderCalendar();
+    wrap.classList.add('open');
+  }
+  function closePopup(){ wrap.classList.remove('open'); }
+
+  toggleBtn.addEventListener('click', function(ev){
+    ev.stopPropagation();
+    if (wrap.classList.contains('open')) closePopup(); else openPopup();
+  });
+  popup.addEventListener('click', function(ev){ ev.stopPropagation(); });
+  wrap.addEventListener('click', function(ev){ ev.stopPropagation(); });
+
+  inputEl.addEventListener('input', function(){
+    var digits = inputEl.value.replace(/\D/g, '').slice(0, 8);
+    var out = digits;
+    if (digits.length > 4) out = digits.slice(0,2) + '/' + digits.slice(2,4) + '/' + digits.slice(4);
+    else if (digits.length > 2) out = digits.slice(0,2) + '/' + digits.slice(2);
+    inputEl.value = out;
+  });
+}
+attachDatePicker(document.getElementById('nf_venc'));
+attachDatePicker(document.getElementById('nf_pag'));
+
 function showToast(msg){
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -1400,10 +1547,10 @@ function abrirParaEdicao(rawId){
   document.getElementById('nf_desc').value = entry.desc || '';
   document.getElementById('nf_tipo').value = entry.tipo || 'Mensal';
   document.getElementById('nf_status').value = entry.pag ? 'Pago' : 'A Vencer';
-  document.getElementById('nf_venc').value = entry.venc || '';
+  document.getElementById('nf_venc').value = entry.venc ? isoToDDMMYYYY(entry.venc) : '';
   document.getElementById('nf_valor').value = (entry.valor != null ? String(entry.valor).replace('.', ',') : '');
   document.getElementById('nf_parcela').value = entry.parcela || '';
-  document.getElementById('nf_pag').value = entry.pag || '';
+  document.getElementById('nf_pag').value = entry.pag ? isoToDDMMYYYY(entry.pag) : '';
   document.getElementById('nf_cobrado').value = (entry.cobrado != null ? String(entry.cobrado).replace('.', ',') : '');
   document.getElementById('nf_barra').value = entry.barra || '';
   document.getElementById('nf_obs').value = entry.obs || '';
@@ -1449,7 +1596,17 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
     setFieldValid(valorEl, valorOk);
     if (!valorOk) ok = false;
 
-    if (!ok){ showToast('Preencha os campos obrigatórios (*) com valores válidos.'); return; }
+    var vencEl = document.getElementById('nf_venc');
+    var vencOk = !!parseDataBR(vencEl.value);
+    setFieldValid(vencEl, vencOk);
+    if (!vencOk) ok = false;
+
+    var pagEl = document.getElementById('nf_pag');
+    var pagOk = !pagEl.value.trim() || !!parseDataBR(pagEl.value);
+    setFieldValid(pagEl, pagOk);
+    if (!pagOk) ok = false;
+
+    if (!ok){ showToast('Preencha os campos obrigatórios (*) com valores válidos (datas no formato DD/MM/AAAA).'); return; }
 
     var MAX_FILE_BYTES = 4 * 1024 * 1024;
     var boletoInput = document.getElementById('nf_anexoBoleto');
@@ -1484,8 +1641,8 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       var desc = document.getElementById('nf_desc').value.trim();
       var parcela = document.getElementById('nf_parcela').value.trim();
       var descCompleta = desc + (parcela ? ' - Parcela ' + parcela : '');
-      var venc = document.getElementById('nf_venc').value;
-      var pag = document.getElementById('nf_pag').value;
+      var venc = document.getElementById('nf_venc').value.trim();
+      var pag = document.getElementById('nf_pag').value.trim();
       var valor = parseBRL(document.getElementById('nf_valor').value);
       var cobradoStr = document.getElementById('nf_cobrado').value.trim();
       var cobrado = cobradoStr ? parseBRL(cobradoStr) : '';
@@ -1496,7 +1653,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
 
       var linha = [
         novoId, '', '', nome, 'Envio de Boleto',
-        isoToDDMMYYYY(venc), pag ? isoToDDMMYYYY(pag) : '',
+        venc, pag,
         descCompleta, tipo, status, barra,
         valor, cobrado === '' ? '' : cobrado,
         anexoBoletoUrl, anexoComprovanteUrl, '', obs
