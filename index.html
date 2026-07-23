@@ -116,41 +116,6 @@
   .filter-field select:focus{outline:2px solid var(--chart);outline-offset:1px;}
   .filter-field select.active{border-color:var(--chart);color:var(--chart-soft);}
 
-  /* ---- multi-select filter ---- */
-  .filter-field.ms{position:relative;}
-  .ms-control{
-    width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;
-    background:var(--surface);border:1px solid var(--border);color:var(--ink);
-    font:12px var(--sans);padding:7px 8px;border-radius:7px;cursor:pointer;text-align:left;
-  }
-  .ms-control .ms-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
-  .ms-control .ms-chevron{width:13px;height:13px;flex:none;color:var(--ink-soft);transition:transform .12s ease;}
-  .filter-field.ms.open .ms-control .ms-chevron{transform:rotate(180deg);}
-  .ms-control.active{border-color:var(--chart);color:var(--chart-soft);}
-  .ms-control:focus{outline:2px solid var(--chart);outline-offset:1px;}
-  .ms-dropdown{
-    display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:100%;width:max-content;max-width:280px;
-    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:9px;
-    box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:30;padding:8px;
-  }
-  .filter-field.ms.open .ms-dropdown{display:block;}
-  .ms-search{
-    width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);color:var(--ink);
-    font:12px var(--sans);padding:6px 8px;border-radius:6px;margin-bottom:6px;
-  }
-  .ms-search:focus{outline:2px solid var(--chart);outline-offset:1px;}
-  .ms-quick{display:flex;gap:6px;margin-bottom:6px;}
-  .ms-quick button{
-    flex:1;background:var(--surface);border:1px solid var(--border);color:var(--ink-soft);
-    font:600 10.5px var(--sans);padding:5px 6px;border-radius:6px;cursor:pointer;
-  }
-  .ms-quick button:hover{border-color:var(--border-strong);color:var(--ink);}
-  .ms-options{max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:1px;}
-  .ms-opt{display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:6px;font-size:12px;color:var(--ink);cursor:pointer;}
-  .ms-opt:hover{background:var(--surface-3);}
-  .ms-opt input{margin:0;flex:none;}
-  .ms-empty{padding:6px;font-size:11.5px;color:var(--ink-muted);text-align:center;}
-
   @media (max-width:1180px){ .filters{grid-template-columns:repeat(4,1fr);max-width:none;} }
   @media (max-width:640px){ .filters{grid-template-columns:repeat(2,1fr);} }
 
@@ -849,7 +814,7 @@ var FIELDS = [
 ];
 
 var state = {};
-FIELDS.forEach(function(f){ state[f.key] = []; });
+FIELDS.forEach(function(f){ state[f.key] = 'todos'; });
 
 function uniqueSorted(key){
   var seen = {}; var out = [];
@@ -865,149 +830,52 @@ function uniqueSorted(key){
 }
 
 var filtersRoot = document.getElementById('filters');
-
-function closeAllFilterDropdowns(exceptWrap){
-  document.querySelectorAll('.filter-field.ms.open').forEach(function(w){
-    if (w !== exceptWrap) w.classList.remove('open');
-  });
-}
-document.addEventListener('click', function(){ closeAllFilterDropdowns(); });
-document.addEventListener('keydown', function(ev){
-  if (ev.key === 'Escape') closeAllFilterDropdowns();
-});
-
-function optLabelFor(f, v){
-  if (f.key === 'pag') return v==='sem' ? 'Sem pagamento' : fmtDate(parseISO(v));
-  if (f.opts) return f.opts.find(function(o){return o[0]===v;})[1];
-  if (f.key === 'venc') return fmtDate(parseISO(v));
-  return v;
-}
-
 function buildFilters(){
   filtersRoot.innerHTML = '';
   FIELDS.forEach(function(f){
-    var opts = f.key === 'pag' ? ['sem'].concat(uniqueSorted('pag')) : (f.opts ? f.opts.map(function(o){return o[0];}) : uniqueSorted(f.key));
-    state[f.key] = (state[f.key] || []).filter(function(v){ return opts.indexOf(v) !== -1; });
-
     var wrap = document.createElement('div');
-    wrap.className = 'filter-field ms';
-
+    wrap.className = 'filter-field';
     var label = document.createElement('label');
     label.textContent = f.label;
-
-    var control = document.createElement('button');
-    control.type = 'button';
-    control.className = 'ms-control';
-    control.innerHTML = '<span class="ms-value"></span><svg class="ms-chevron" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2"/></svg>';
-    var valueSpan = control.querySelector('.ms-value');
-
-    var dropdown = document.createElement('div');
-    dropdown.className = 'ms-dropdown';
-
-    var search = document.createElement('input');
-    search.type = 'text';
-    search.className = 'ms-search';
-    search.placeholder = 'Buscar...';
-
-    var quick = document.createElement('div');
-    quick.className = 'ms-quick';
-    var selAllBtn = document.createElement('button');
-    selAllBtn.type = 'button'; selAllBtn.textContent = 'Selecionar todos';
-    var clearOneBtn = document.createElement('button');
-    clearOneBtn.type = 'button'; clearOneBtn.textContent = 'Limpar';
-    quick.appendChild(selAllBtn); quick.appendChild(clearOneBtn);
-
-    var optionsWrap = document.createElement('div');
-    optionsWrap.className = 'ms-options';
-
-    if (!opts.length){
-      optionsWrap.innerHTML = '<div class="ms-empty">Sem opções</div>';
-    }
-
-    var rows = opts.map(function(v){
-      var row = document.createElement('label');
-      row.className = 'ms-opt';
-      var cb = document.createElement('input');
-      cb.type = 'checkbox'; cb.value = v;
-      cb.checked = state[f.key].indexOf(v) !== -1;
-      var span = document.createElement('span');
-      var lbl = optLabelFor(f, v);
-      span.textContent = lbl;
-      row.dataset.text = String(lbl).toLowerCase();
-      row.appendChild(cb); row.appendChild(span);
-      cb.addEventListener('change', function(){
-        var idx = state[f.key].indexOf(v);
-        if (cb.checked && idx === -1) state[f.key].push(v);
-        if (!cb.checked && idx !== -1) state[f.key].splice(idx, 1);
-        updateControlLabel();
-        updateClearButton();
-        render();
-      });
-      optionsWrap.appendChild(row);
-      return row;
+    var select = document.createElement('select');
+    select.id = 'f_' + f.key;
+    var optTodos = document.createElement('option');
+    optTodos.value = 'todos'; optTodos.textContent = 'Todos';
+    select.appendChild(optTodos);
+    var opts = f.key === 'pag' ? ['sem'].concat(uniqueSorted('pag')) : (f.opts ? f.opts.map(function(o){return o[0];}) : uniqueSorted(f.key));
+    if (state[f.key] !== 'todos' && opts.indexOf(state[f.key]) === -1) state[f.key] = 'todos';
+    opts.forEach(function(v){
+      var label2 = f.key === 'pag' ? (v==='sem' ? 'Sem pagamento' : fmtDate(parseISO(v))) : (f.opts ? f.opts.find(function(o){return o[0]===v;})[1] : (f.key==='venc' ? fmtDate(parseISO(v)) : v));
+      var opt = document.createElement('option');
+      opt.value = v; opt.textContent = label2;
+      select.appendChild(opt);
     });
-
-    function updateControlLabel(){
-      var sel = state[f.key];
-      valueSpan.textContent = !sel.length ? 'Todos' : (sel.length === 1 ? optLabelFor(f, sel[0]) : sel.length + ' selecionados');
-      control.classList.toggle('active', !!sel.length);
-    }
-    updateControlLabel();
-
-    search.addEventListener('input', function(){
-      var q = search.value.trim().toLowerCase();
-      rows.forEach(function(row){
-        row.style.display = (!q || row.dataset.text.indexOf(q) !== -1) ? '' : 'none';
-      });
+    select.value = state[f.key];
+    select.classList.toggle('active', state[f.key] !== 'todos');
+    select.addEventListener('change', function(){
+      state[f.key] = select.value;
+      select.classList.toggle('active', select.value !== 'todos');
+      updateClearButton();
+      render();
     });
-
-    selAllBtn.addEventListener('click', function(){
-      rows.forEach(function(row){
-        if (row.style.display === 'none') return;
-        var cb = row.querySelector('input');
-        cb.checked = true;
-        if (state[f.key].indexOf(cb.value) === -1) state[f.key].push(cb.value);
-      });
-      updateControlLabel(); updateClearButton(); render();
-    });
-    clearOneBtn.addEventListener('click', function(){
-      state[f.key] = [];
-      rows.forEach(function(row){ row.querySelector('input').checked = false; });
-      updateControlLabel(); updateClearButton(); render();
-    });
-
-    control.addEventListener('click', function(ev){
-      ev.stopPropagation();
-      var isOpen = wrap.classList.contains('open');
-      closeAllFilterDropdowns();
-      if (!isOpen){
-        wrap.classList.add('open');
-        search.value = '';
-        rows.forEach(function(row){ row.style.display = ''; });
-        search.focus();
-      }
-    });
-    dropdown.addEventListener('click', function(ev){ ev.stopPropagation(); });
-
-    dropdown.appendChild(search);
-    dropdown.appendChild(quick);
-    dropdown.appendChild(optionsWrap);
-    wrap.appendChild(label);
-    wrap.appendChild(control);
-    wrap.appendChild(dropdown);
+    wrap.appendChild(label); wrap.appendChild(select);
     filtersRoot.appendChild(wrap);
   });
 }
 
 function updateClearButton(){
   var btn = document.getElementById('clearBtn');
-  var active = FIELDS.some(function(f){ return state[f.key] && state[f.key].length; });
+  var active = FIELDS.some(function(f){ return state[f.key] !== 'todos'; });
   btn.classList.toggle('has-filters', active);
   btn.disabled = !active;
 }
 document.getElementById('clearBtn').addEventListener('click', function(){
-  FIELDS.forEach(function(f){ state[f.key] = []; });
-  buildFilters();
+  FIELDS.forEach(function(f){
+    state[f.key] = 'todos';
+    var sel = document.getElementById('f_' + f.key);
+    sel.value = 'todos';
+    sel.classList.remove('active');
+  });
   updateClearButton();
   render();
 });
@@ -1016,12 +884,9 @@ updateClearButton();
 function filtered(){
   return DATA.filter(function(r){
     return FIELDS.every(function(f){
-      var sel = state[f.key];
-      if (!sel || !sel.length) return true;
-      if (f.key === 'pag') {
-        return sel.some(function(v){ return v === 'sem' ? !r.pag : String(r.pag) === String(v); });
-      }
-      return sel.map(String).indexOf(String(r[f.key])) !== -1;
+      if (state[f.key] === 'todos') return true;
+      if (f.key === 'pag' && state[f.key] === 'sem') return !r.pag;
+      return String(r[f.key]) === String(state[f.key]);
     });
   });
 }
