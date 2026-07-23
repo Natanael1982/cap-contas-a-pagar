@@ -123,6 +123,37 @@
   .filter-field select:focus{outline:2px solid var(--chart);outline-offset:1px;}
   .filter-field select.active{border-color:var(--chart);color:var(--chart-soft);}
 
+  /* ---- filtro com busca (seleção única) ---- */
+  .filter-field.ss{position:relative;}
+  .ss-control{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;
+    background:var(--surface);border:1px solid var(--border);color:var(--ink);
+    font:12px var(--sans);padding:7px 8px;border-radius:7px;cursor:pointer;text-align:left;
+  }
+  .ss-control .ss-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .ss-control .ss-chevron{width:13px;height:13px;flex:none;color:var(--ink-soft);transition:transform .12s ease;}
+  .filter-field.ss.open .ss-control .ss-chevron{transform:rotate(180deg);}
+  .ss-control.active{border-color:var(--chart);color:var(--chart-soft);}
+  .ss-control:focus{outline:2px solid var(--chart);outline-offset:1px;}
+  .ss-dropdown{
+    display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:100%;width:max-content;max-width:260px;
+    background:var(--surface-2);border:1px solid var(--border-strong);border-radius:9px;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:30;padding:8px;
+  }
+  .filter-field.ss.open .ss-dropdown{display:block;}
+  .ss-search{
+    width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);color:var(--ink);
+    font:12px var(--sans);padding:6px 8px;border-radius:6px;margin-bottom:6px;
+  }
+  .ss-search:focus{outline:2px solid var(--chart);outline-offset:1px;}
+  .ss-options{max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:1px;}
+  .ss-opt{
+    padding:6px 8px;border-radius:6px;font-size:12px;color:var(--ink);cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .ss-opt:hover{background:var(--surface-3);}
+  .ss-opt.selected{background:var(--chart);color:#fff;}
+
   @media (max-width:1180px){ .filters{grid-template-columns:repeat(4,1fr);max-width:none;} }
   @media (max-width:640px){ .filters{grid-template-columns:repeat(2,1fr);} }
 
@@ -905,35 +936,100 @@ function uniqueSorted(key){
 }
 
 var filtersRoot = document.getElementById('filters');
+
+function closeAllFilterDropdowns(){
+  document.querySelectorAll('.filter-field.ss.open').forEach(function(w){ w.classList.remove('open'); });
+}
+document.addEventListener('click', function(){ closeAllFilterDropdowns(); });
+document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') closeAllFilterDropdowns(); });
+
 function buildFilters(){
   filtersRoot.innerHTML = '';
   FIELDS.forEach(function(f){
-    var wrap = document.createElement('div');
-    wrap.className = 'filter-field';
-    var label = document.createElement('label');
-    label.textContent = f.label;
-    var select = document.createElement('select');
-    select.id = 'f_' + f.key;
-    var optTodos = document.createElement('option');
-    optTodos.value = 'todos'; optTodos.textContent = 'Todos';
-    select.appendChild(optTodos);
     var opts = f.key === 'pag' ? ['sem'].concat(uniqueSorted('pag')) : (f.opts ? f.opts.map(function(o){return o[0];}) : uniqueSorted(f.key));
     if (state[f.key] !== 'todos' && opts.indexOf(state[f.key]) === -1) state[f.key] = 'todos';
-    opts.forEach(function(v){
-      var label2 = f.key === 'pag' ? (v==='sem' ? 'Sem pagamento' : fmtDate(parseISO(v))) : (f.opts ? f.opts.find(function(o){return o[0]===v;})[1] : (f.key==='venc' ? fmtDate(parseISO(v)) : v));
-      var opt = document.createElement('option');
-      opt.value = v; opt.textContent = label2;
-      select.appendChild(opt);
+
+    function optLabel(v){
+      if (f.key === 'pag') return v==='sem' ? 'Sem pagamento' : fmtDate(parseISO(v));
+      if (f.opts) return f.opts.find(function(o){return o[0]===v;})[1];
+      if (f.key === 'venc') return fmtDate(parseISO(v));
+      return v;
+    }
+
+    var wrap = document.createElement('div');
+    wrap.className = 'filter-field ss';
+
+    var label = document.createElement('label');
+    label.textContent = f.label;
+
+    var control = document.createElement('button');
+    control.type = 'button';
+    control.className = 'ss-control';
+    control.innerHTML = '<span class="ss-value"></span><svg class="ss-chevron" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2"/></svg>';
+    var valueSpan = control.querySelector('.ss-value');
+
+    var dropdown = document.createElement('div');
+    dropdown.className = 'ss-dropdown';
+    var search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'ss-search';
+    search.placeholder = 'Buscar...';
+    var optionsWrap = document.createElement('div');
+    optionsWrap.className = 'ss-options';
+
+    var allValues = ['todos'].concat(opts);
+    var rows = allValues.map(function(v){
+      var row = document.createElement('div');
+      row.className = 'ss-opt';
+      var lbl = v === 'todos' ? 'Todos' : optLabel(v);
+      row.textContent = lbl;
+      row.dataset.text = String(lbl).toLowerCase();
+      row.dataset.value = v;
+      if (state[f.key] === v) row.classList.add('selected');
+      row.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        state[f.key] = v;
+        updateControlLabel();
+        rows.forEach(function(r){ r.classList.toggle('selected', r.dataset.value === v); });
+        updateClearButton();
+        closeAllFilterDropdowns();
+        render();
+      });
+      optionsWrap.appendChild(row);
+      return row;
     });
-    select.value = state[f.key];
-    select.classList.toggle('active', state[f.key] !== 'todos');
-    select.addEventListener('change', function(){
-      state[f.key] = select.value;
-      select.classList.toggle('active', select.value !== 'todos');
-      updateClearButton();
-      render();
+
+    function updateControlLabel(){
+      valueSpan.textContent = state[f.key] === 'todos' ? 'Todos' : optLabel(state[f.key]);
+      control.classList.toggle('active', state[f.key] !== 'todos');
+    }
+    updateControlLabel();
+
+    search.addEventListener('input', function(){
+      var q = search.value.trim().toLowerCase();
+      rows.forEach(function(row){
+        row.style.display = (!q || row.dataset.text.indexOf(q) !== -1) ? '' : 'none';
+      });
     });
-    wrap.appendChild(label); wrap.appendChild(select);
+
+    control.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var isOpen = wrap.classList.contains('open');
+      closeAllFilterDropdowns();
+      if (!isOpen){
+        wrap.classList.add('open');
+        search.value = '';
+        rows.forEach(function(row){ row.style.display = ''; });
+        search.focus();
+      }
+    });
+    dropdown.addEventListener('click', function(ev){ ev.stopPropagation(); });
+
+    dropdown.appendChild(search);
+    dropdown.appendChild(optionsWrap);
+    wrap.appendChild(label);
+    wrap.appendChild(control);
+    wrap.appendChild(dropdown);
     filtersRoot.appendChild(wrap);
   });
 }
@@ -945,12 +1041,8 @@ function updateClearButton(){
   btn.disabled = !active;
 }
 document.getElementById('clearBtn').addEventListener('click', function(){
-  FIELDS.forEach(function(f){
-    state[f.key] = 'todos';
-    var sel = document.getElementById('f_' + f.key);
-    sel.value = 'todos';
-    sel.classList.remove('active');
-  });
+  FIELDS.forEach(function(f){ state[f.key] = 'todos'; });
+  buildFilters();
   updateClearButton();
   render();
 });
