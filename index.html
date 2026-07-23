@@ -250,6 +250,14 @@
     position:absolute;top:0;right:0;width:8px;height:100%;
     cursor:col-resize;user-select:none;z-index:2;
   }
+  .col-remove{
+    position:absolute;top:2px;right:10px;width:15px;height:15px;border-radius:50%;
+    background:var(--surface-3);border:1px solid var(--border-strong);color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;line-height:1;padding:0;
+    opacity:0;transition:opacity .12s ease;z-index:3;
+  }
+  table.cap thead th:hover .col-remove{opacity:1;}
+  .col-remove:hover{background:var(--critical-dim);color:var(--critical);border-color:var(--critical);}
   .col-resizer:hover, .col-resizer.resizing{background:var(--chart);}
   table.cap tbody td{
     padding:8px 10px;border-bottom:1px solid var(--border);
@@ -642,9 +650,18 @@
     <div class="panel">
       <div class="panel-head">
         <h2>Lançamentos</h2>
-        <span class="count" id="tableCount">147 títulos</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="filters-manage-wrap" id="columnsManageWrap">
+            <button class="filters-manage-btn" id="columnsManageBtn" type="button" title="Mostrar/ocultar colunas">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Colunas
+            </button>
+            <div class="filters-manage-menu" id="columnsManageMenu"></div>
+          </div>
+          <span class="count" id="tableCount">147 títulos</span>
+        </div>
       </div>
-      <p class="table-hint">Arraste o cabeçalho para reordenar as colunas · arraste a borda direita para redimensionar</p>
+      <p class="table-hint">Arraste o cabeçalho para reordenar as colunas · arraste a borda direita para redimensionar · passe o mouse no título pra remover</p>
       <div class="table-scroll">
         <table class="cap" id="capTable">
           <colgroup id="tableColgroup"></colgroup>
@@ -980,11 +997,13 @@ function closeAllFilterDropdowns(){
 document.addEventListener('click', function(){
   closeAllFilterDropdowns();
   document.getElementById('filtersManageWrap').classList.remove('open');
+  document.getElementById('columnsManageWrap').classList.remove('open');
 });
 document.addEventListener('keydown', function(ev){
   if (ev.key === 'Escape'){
     closeAllFilterDropdowns();
     document.getElementById('filtersManageWrap').classList.remove('open');
+    document.getElementById('columnsManageWrap').classList.remove('open');
   }
 });
 document.getElementById('filtersManageBtn').addEventListener('click', function(ev){
@@ -995,6 +1014,14 @@ document.getElementById('filtersManageBtn').addEventListener('click', function(e
   if (willOpen) updateFiltersManageMenu();
 });
 document.getElementById('filtersManageMenu').addEventListener('click', function(ev){ ev.stopPropagation(); });
+document.getElementById('columnsManageBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  var wrap = document.getElementById('columnsManageWrap');
+  var willOpen = !wrap.classList.contains('open');
+  wrap.classList.toggle('open', willOpen);
+  if (willOpen) updateColumnsManageMenu();
+});
+document.getElementById('columnsManageMenu').addEventListener('click', function(ev){ ev.stopPropagation(); });
 
 var DEFAULT_FILTER_ORDER = FIELDS.map(function(f){ return f.key; });
 function loadFilterOrder(){
@@ -1330,16 +1357,59 @@ function loadColumnWidths(){
   return widths;
 }
 function saveColumnWidths(widths){ try{ localStorage.setItem('cap_col_widths_v1', JSON.stringify(widths)); }catch(e){} }
+function loadColumnVisibility(){
+  try {
+    var saved = JSON.parse(localStorage.getItem('cap_col_visibility_v1'));
+    if (saved && typeof saved === 'object') return saved;
+  } catch(e){}
+  return {};
+}
+function saveColumnVisibility(v){ try{ localStorage.setItem('cap_col_visibility_v1', JSON.stringify(v)); }catch(e){} }
 
 var columnOrder = loadColumnOrder();
 var columnWidths = loadColumnWidths();
+var columnVisibility = loadColumnVisibility();
+
+function visibleColumnOrder(){
+  return columnOrder.filter(function(key){ return columnVisibility[key] !== false; });
+}
+
+function updateColumnsManageMenu(){
+  var menu = document.getElementById('columnsManageMenu');
+  if (!menu) return;
+  var hidden = columnOrder.filter(function(key){ return columnVisibility[key] === false; });
+  if (!hidden.length){
+    menu.innerHTML = '<div class="filters-manage-empty">Todas as colunas estão visíveis.</div>';
+    return;
+  }
+  menu.innerHTML = '';
+  hidden.forEach(function(key){
+    var col = COLUMNS[key];
+    if (!col) return;
+    var item = document.createElement('div');
+    item.className = 'filters-manage-item';
+    item.textContent = '+ ' + (col.label || key);
+    item.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      pedirSenha('Digite a senha para incluir esta coluna de volta na tabela:', function(ok){
+        if (!ok) return;
+        columnVisibility[key] = true;
+        saveColumnVisibility(columnVisibility);
+        renderTableHead();
+        render();
+        updateColumnsManageMenu();
+      });
+    });
+    menu.appendChild(item);
+  });
+}
 
 function renderTableHead(){
   var colgroup = document.getElementById('tableColgroup');
   var headRow = document.getElementById('tableHeadRow');
   colgroup.innerHTML = '';
   headRow.innerHTML = '';
-  columnOrder.forEach(function(key){
+  visibleColumnOrder().forEach(function(key){
     var col = COLUMNS[key];
     var colEl = document.createElement('col');
     colEl.style.width = (columnWidths[key] || 120) + 'px';
@@ -1375,6 +1445,24 @@ function renderTableHead(){
     resizer.addEventListener('click', function(ev){ ev.stopPropagation(); });
     th.appendChild(resizer);
 
+    var colRemoveBtn = document.createElement('button');
+    colRemoveBtn.type = 'button';
+    colRemoveBtn.className = 'col-remove';
+    colRemoveBtn.title = 'Remover esta coluna da tabela';
+    colRemoveBtn.textContent = '×';
+    colRemoveBtn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      pedirSenha('Digite a senha para remover esta coluna da tabela:', function(ok){
+        if (!ok) return;
+        columnVisibility[key] = false;
+        saveColumnVisibility(columnVisibility);
+        renderTableHead();
+        render();
+        updateColumnsManageMenu();
+      });
+    });
+    th.appendChild(colRemoveBtn);
+
     th.addEventListener('dragstart', function(ev){
       ev.dataTransfer.setData('text/plain', key);
       th.classList.add('dragging-col');
@@ -1387,14 +1475,17 @@ function renderTableHead(){
       th.classList.remove('drop-target');
       var draggedKey = ev.dataTransfer.getData('text/plain');
       if (!draggedKey || draggedKey === key) return;
-      var from = columnOrder.indexOf(draggedKey);
-      var to = columnOrder.indexOf(key);
-      if (from === -1 || to === -1) return;
-      columnOrder.splice(from, 1);
-      columnOrder.splice(to, 0, draggedKey);
-      saveColumnOrder(columnOrder);
-      renderTableHead();
-      render();
+      pedirSenha('Digite a senha para mover esta coluna:', function(ok){
+        if (!ok) return;
+        var from = columnOrder.indexOf(draggedKey);
+        var to = columnOrder.indexOf(key);
+        if (from === -1 || to === -1) return;
+        columnOrder.splice(from, 1);
+        columnOrder.splice(to, 0, draggedKey);
+        saveColumnOrder(columnOrder);
+        renderTableHead();
+        render();
+      });
     });
 
     resizer.addEventListener('mousedown', function(ev){
@@ -1428,7 +1519,7 @@ function renderTableFoot(rows){
     pago: sum(rows, function(r){return r.cobrado!=null?r.cobrado:0;})
   };
   var footRow = document.getElementById('tableFootRow');
-  footRow.innerHTML = columnOrder.map(function(key, i){
+  footRow.innerHTML = visibleColumnOrder().map(function(key, i){
     if (i === 0) return '<td>Total</td>';
     if (totals.hasOwnProperty(key)) return '<td class="num">'+brl(totals[key])+'</td>';
     return '<td></td>';
@@ -1438,13 +1529,14 @@ function renderTableFoot(rows){
 function renderTable(rows){
   var body = document.getElementById('tableBody');
   document.getElementById('tableCount').textContent = rows.length + ' títulos';
+  var visibleCols = visibleColumnOrder();
   if (!rows.length){
-    body.innerHTML = '<tr><td colspan="'+columnOrder.length+'" class="empty-note">Nenhum lançamento para os filtros selecionados.</td></tr>';
+    body.innerHTML = '<tr><td colspan="'+visibleCols.length+'" class="empty-note">Nenhum lançamento para os filtros selecionados.</td></tr>';
   } else {
     var accessor = SORT_ACCESSORS[sortState.key] || SORT_ACCESSORS.venc;
     var sorted = rows.slice().sort(function(a,b){ return compareValues(accessor(a), accessor(b)) * sortState.dir; });
     body.innerHTML = sorted.map(function(r){
-      var cells = columnOrder.map(function(key){
+      var cells = visibleCols.map(function(key){
         var col = COLUMNS[key];
         var titleAttr = col.titleAttr ? ' title="'+col.titleAttr(r)+'"' : '';
         return '<td class="'+(col.cellCls||'')+'"'+titleAttr+'>'+col.render(r)+'</td>';
