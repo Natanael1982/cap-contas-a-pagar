@@ -533,6 +533,10 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         Limpar
       </button>
+      <button class="clear-btn" id="adminBtn" type="button" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.13.31.4.55.72.68.32.13.68.13 1 0H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.7"/></svg>
+        Administração
+      </button>
       <button class="add-btn" id="addToggleBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Novo lançamento
@@ -541,6 +545,25 @@
   </div>
 
   <div class="filters" id="filters"></div>
+
+  <div class="panel entry-panel" id="adminPanel">
+    <div class="panel-head">
+      <h2>Administração de Acessos</h2>
+      <button type="button" class="ebtn ghost" id="adminCloseBtn">Fechar</button>
+    </div>
+    <div style="padding:16px;">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <input type="email" id="adm_email" placeholder="e-mail@exemplo.com" style="flex:1;min-width:220px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);padding:8px 10px;border-radius:7px;font:13px var(--sans);">
+        <select id="adm_papel" style="background:var(--surface-2);border:1px solid var(--border);color:var(--ink);padding:8px 10px;border-radius:7px;font:13px var(--sans);">
+          <option value="Visualizador">Visualizador (só vê)</option>
+          <option value="Editor">Editor (vê e lança)</option>
+        </select>
+        <button type="button" class="ebtn primary" id="adm_conceder">Conceder acesso</button>
+      </div>
+      <div id="adm_lista"></div>
+      <p style="font-size:11px;color:var(--ink-muted);margin-top:14px;">Conceder acesso compartilha o arquivo de verdade no SharePoint para esse e-mail (Editor = leitura e escrita, Visualizador = somente leitura). Revogar remove esse compartilhamento.</p>
+    </div>
+  </div>
 
   <div class="panel entry-panel" id="entryPanel">
     <div class="panel-head">
@@ -712,8 +735,16 @@
 <div class="login-overlay open" id="loginOverlay">
   <div class="login-box">
     <h2>CAP</h2>
-    <p>Entre com sua conta Microsoft da Sinerggia para ver e lançar as contas a pagar direto na planilha do SharePoint.</p>
+    <p>Entre com sua conta Microsoft para ver e lançar as contas a pagar direto na planilha do SharePoint.</p>
     <button type="button" class="ebtn primary" id="loginBtn" style="width:100%;padding:11px;">Entrar com Microsoft</button>
+  </div>
+</div>
+
+<div class="login-overlay" id="semAcessoOverlay">
+  <div class="login-box">
+    <h2>Sem acesso</h2>
+    <p>Você entrou como <b id="semAcessoEmail"></b>, mas ainda não tem acesso liberado a este aplicativo. Peça para o administrador liberar seu e-mail.</p>
+    <button type="button" class="ebtn ghost" id="semAcessoSairBtn" style="width:100%;padding:11px;">Sair</button>
   </div>
 </div>
 
@@ -743,7 +774,7 @@ var EMPRESAS_CONHECIDAS = [
 var MSAL_CONFIG = {
   auth: {
     clientId: '9291254e-8c79-4641-8d7d-c5771d82ccde',
-    authority: 'https://login.microsoftonline.com/0ea62e2f-152a-4380-bf4b-497083aa0326',
+    authority: 'https://login.microsoftonline.com/common',
     redirectUri: 'https://natanael1982.github.io/cap-contas-a-pagar/'
   },
   cache: { cacheLocation: 'localStorage' }
@@ -751,6 +782,9 @@ var MSAL_CONFIG = {
 var GRAPH_SCOPES = ['Files.ReadWrite.All'];
 var GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 var DRIVE_ID = 'b!Xyf9Y4l0qUWv1kO5T5rKOn3FJmBOsbRFnpjvpPbvNvrn80E1xObESKagjmnZsZfm';
+var DONO_EMAIL = 'natanael.silva@sinerggia.com.br';
+var USERS_TABLE_NAME = 'TabelaUsuarios';
+var currentUserRole = null;
 var ITEM_ID = '01ZF6ARXTIQSWRHIKDQVHIHZRFMV5YVCAD';
 var TABLE_NAME = 'TabelaLancamentos';
 var ANEXOS_PATH = 'Gestão Financeira Claude/Anexos';
@@ -822,7 +856,7 @@ async function initAuth(){
     }
   } catch (e) { /* segue sem login */ }
   atualizarEstadoLogin();
-  if (currentAccount) { await carregarDados(); }
+  if (currentAccount) { await processarLogin(); }
   else { buildFilters(); updateClearButton(); render(); }
 }
 
@@ -832,16 +866,18 @@ async function entrar(){
     currentAccount = result.account;
     msalInstance.setActiveAccount(currentAccount);
     atualizarEstadoLogin();
-    await carregarDados();
+    await processarLogin();
   } catch (e) {
     showToast('Não foi possível entrar: ' + (e && e.message ? e.message : e));
   }
 }
 function sair(){
   currentAccount = null;
+  currentUserRole = null;
   msalInstance.setActiveAccount(null);
   DATA = [];
   atualizarEstadoLogin();
+  document.getElementById('semAcessoOverlay').classList.remove('open');
   buildFilters(); updateClearButton(); render();
 }
 function atualizarEstadoLogin(){
@@ -849,6 +885,59 @@ function atualizarEstadoLogin(){
   document.getElementById('loginOverlay').classList.toggle('open', !logado);
   document.getElementById('userChip').style.display = logado ? 'flex' : 'none';
   if (logado) document.getElementById('userName').textContent = currentAccount.username || currentAccount.name || '';
+}
+
+function ehDono(){
+  return !!currentAccount && (currentAccount.username||'').toLowerCase() === DONO_EMAIL.toLowerCase();
+}
+
+async function buscarUsuarios(token){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
+  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  var json = await resp.json();
+  return json.value.map(function(row){
+    var v = row.values[0];
+    return { _rowIndex: row.index, email: String(v[0]||'').trim(), papel: v[1]||'', status: v[2]||'', data: v[3]||'' };
+  });
+}
+
+async function verificarAcesso(token){
+  if (ehDono()) return 'Editor';
+  var email = (currentAccount.username || '').toLowerCase();
+  try {
+    var usuarios = await buscarUsuarios(token);
+    var match = usuarios.find(function(u){ return u.email.toLowerCase() === email; });
+    if (match && match.status === 'Aprovado') return match.papel === 'Editor' ? 'Editor' : 'Visualizador';
+  } catch (e) { /* sem acesso ao arquivo ainda - segue como não autorizado */ }
+  return null;
+}
+
+function mostrarSemAcesso(){
+  document.getElementById('semAcessoEmail').textContent = currentAccount.username || currentAccount.name || '';
+  document.getElementById('semAcessoOverlay').classList.add('open');
+  document.getElementById('userChip').style.display = 'none';
+}
+
+function aplicarRestricoesPapel(){
+  document.getElementById('addToggleBtn').style.display = currentUserRole === 'Editor' ? '' : 'none';
+  document.getElementById('adminBtn').style.display = ehDono() ? '' : 'none';
+}
+
+async function processarLogin(){
+  try {
+    var token = await getToken();
+    currentUserRole = await verificarAcesso(token);
+  } catch (e) {
+    currentUserRole = null;
+  }
+  if (!currentUserRole){
+    mostrarSemAcesso();
+    return;
+  }
+  document.getElementById('semAcessoOverlay').classList.remove('open');
+  aplicarRestricoesPapel();
+  await carregarDados();
 }
 
 async function getToken(){
@@ -1313,6 +1402,7 @@ var COLUMNS = {
     return anexoIcon(r, r.anexoComprovante, r.anexoComprovanteNome, 'comp', 'Abrir comprovante');
   }},
   acao:    {label:'', cellCls:'', render:function(r){
+    if (currentUserRole !== 'Editor') return '';
     var editBtn = '<button class="row-edit" data-rawid="'+r.id+'" title="Editar lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
     var delBtn = '<button class="row-del" data-rawid="'+r.id+'" title="Remover lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>';
     return editBtn+delBtn;
@@ -1993,6 +2083,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
     var finishSubmit = async function(){
     try {
       if (!currentAccount) { showToast('Entre com sua conta Microsoft primeiro.'); return; }
+      if (currentUserRole !== 'Editor') { showToast('Seu acesso é somente leitura (Visualizador).'); return; }
       var isEditing = editingId !== null;
       var existing = isEditing ? DATA.find(function(e){ return e.id === editingId; }) : null;
       if (isEditing && !existing) { showToast('Lançamento não encontrado (pode já ter sido removido).'); editingId = null; setFormMode(false); return; }
@@ -2064,6 +2155,143 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
     setSubmitting(false);
   }
 });
+
+function renderAdminLista(usuarios){
+  var el = document.getElementById('adm_lista');
+  if (!usuarios.length){
+    el.innerHTML = '<p style="color:var(--ink-muted);font-size:12px;">Nenhum usuário cadastrado ainda (além de você).</p>';
+    return;
+  }
+  el.innerHTML = usuarios.map(function(u){
+    var statusCls = u.status === 'Aprovado' ? 'pago' : (u.status === 'Bloqueado' ? 'vencido' : 'avencer');
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">'+
+      '<span style="flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+u.email+'</span>'+
+      '<span class="pill '+statusCls+'">'+u.status+'</span>'+
+      '<span style="font-size:11.5px;color:var(--ink-soft);width:90px;flex:none;">'+u.papel+'</span>'+
+      '<button type="button" class="ebtn" data-revoke="'+u.email.replace(/"/g,'&quot;')+'" style="padding:5px 10px;font-size:11px;flex:none;">Revogar</button>'+
+    '</div>';
+  }).join('');
+  el.querySelectorAll('[data-revoke]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var email = btn.getAttribute('data-revoke');
+      pedirSenha('Digite a senha para revogar o acesso de ' + email + ':', function(ok){
+        if (!ok) return;
+        revogarAcesso(email);
+      });
+    });
+  });
+}
+
+async function carregarAdminPanel(){
+  try {
+    var token = await getToken();
+    var usuarios = await buscarUsuarios(token);
+    usuarios = usuarios.filter(function(u){ return u.email.toLowerCase() !== DONO_EMAIL.toLowerCase(); });
+    renderAdminLista(usuarios);
+  } catch (e) {
+    showToast('Erro ao carregar usuários: ' + (e && e.message ? e.message : e));
+  }
+}
+
+async function concederAcessoGraph(token, email, papel){
+  var role = papel === 'Editor' ? 'write' : 'read';
+  var inviteUrl = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/invite';
+  var resp = await fetch(inviteUrl, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requireSignIn: true,
+      sendInvitation: false,
+      roles: [role],
+      recipients: [{ email: email }]
+    })
+  });
+  if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao compartilhar no SharePoint (' + resp.status + '): ' + t); }
+
+  var usuarios = await buscarUsuarios(token);
+  var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
+  var hoje = new Date();
+  var dataStr = String(hoje.getDate()).padStart(2,'0')+'/'+String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
+  var usersUrl = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
+  if (existente){
+    await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [[email, papel, 'Aprovado', dataStr]] })
+    });
+  } else {
+    await fetch(usersUrl, {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [[email, papel, 'Aprovado', dataStr]] })
+    });
+  }
+}
+
+async function revogarAcesso(email){
+  try {
+    var token = await getToken();
+    var permUrl = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/permissions';
+    var resp = await fetch(permUrl, { headers: { Authorization: 'Bearer ' + token } });
+    if (resp.ok){
+      var permissions = (await resp.json()).value;
+      var alvo = permissions.find(function(p){
+        var e1 = p.grantedToV2 && p.grantedToV2.user && p.grantedToV2.user.email;
+        var identidades = p.grantedToIdentitiesV2 || [];
+        var e2 = identidades.map(function(g){ return g.user && g.user.email; }).filter(Boolean);
+        return (e1 && e1.toLowerCase() === email.toLowerCase()) || e2.some(function(x){ return x.toLowerCase() === email.toLowerCase(); });
+      });
+      if (alvo){
+        await fetch(permUrl + '/' + alvo.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+      }
+    }
+    var usuarios = await buscarUsuarios(token);
+    var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
+    if (existente){
+      var usersUrl = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
+      await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
+        method: 'PATCH',
+        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values: [[existente.email, existente.papel, 'Bloqueado', existente.data]] })
+      });
+    }
+    showToast('Acesso de ' + email + ' revogado.');
+    await carregarAdminPanel();
+  } catch (e) {
+    showToast('Erro ao revogar: ' + (e && e.message ? e.message : e));
+  }
+}
+
+document.getElementById('adm_conceder').addEventListener('click', function(){
+  var email = document.getElementById('adm_email').value.trim();
+  var papel = document.getElementById('adm_papel').value;
+  if (!email || email.indexOf('@') === -1){ showToast('Digite um e-mail válido.'); return; }
+  pedirSenha('Digite a senha para conceder acesso a ' + email + ':', function(ok){
+    if (!ok) return;
+    (async function(){
+      try {
+        var token = await getToken();
+        await concederAcessoGraph(token, email, papel);
+        showToast('Acesso concedido para ' + email + '.');
+        document.getElementById('adm_email').value = '';
+        await carregarAdminPanel();
+      } catch (err) {
+        showToast('Erro ao conceder acesso: ' + (err && err.message ? err.message : err));
+      }
+    })();
+  });
+});
+
+document.getElementById('adminBtn').addEventListener('click', function(){
+  var opening = !document.getElementById('adminPanel').classList.contains('open');
+  document.getElementById('entryPanel').classList.remove('open');
+  document.getElementById('adminPanel').classList.toggle('open', opening);
+  if (opening) carregarAdminPanel();
+});
+document.getElementById('adminCloseBtn').addEventListener('click', function(){
+  document.getElementById('adminPanel').classList.remove('open');
+});
+document.getElementById('semAcessoSairBtn').addEventListener('click', sair);
 
 renderTableHead();
 document.getElementById('loginBtn').addEventListener('click', entrar);
