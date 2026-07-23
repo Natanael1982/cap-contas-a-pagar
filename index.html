@@ -1027,7 +1027,7 @@ var COLUMNS = {
     var pillTxt = r.status==='pago' ? ('pago '+fmtDate(parseISO(r.pag))) : r.status==='vencido' ? (r.dias+'d atraso') : r.status==='hoje' ? 'hoje' : ('faltam '+r.dias+'d');
     var pillCls = st.cls;
     if (r.status === 'avencer'){
-      if (r.dias === 1){ pillTxt = 'Urgente'; pillCls = 'urgente'; }
+      if (r.dias === 1){ pillTxt = 'falta 1d Urgente'; pillCls = 'urgente'; }
       else if (r.dias === 2){ pillCls = 'alerta2'; }
       else if (r.dias === 3){ pillCls = 'alerta3'; }
     }
