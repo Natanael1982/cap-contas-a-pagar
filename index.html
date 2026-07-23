@@ -1035,10 +1035,13 @@ function updateFiltersManageMenu(){
     item.textContent = '+ ' + f.label;
     item.addEventListener('click', function(ev){
       ev.stopPropagation();
-      filterVisibility[key] = true;
-      saveFilterVisibility(filterVisibility);
-      buildFilters();
-      updateFiltersManageMenu();
+      pedirSenha('Digite a senha para incluir este filtro de volta na barra:', function(ok){
+        if (!ok) return;
+        filterVisibility[key] = true;
+        saveFilterVisibility(filterVisibility);
+        buildFilters();
+        updateFiltersManageMenu();
+      });
     });
     menu.appendChild(item);
   });
