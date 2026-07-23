@@ -812,6 +812,15 @@ async function removerLinhaGraph(token, rowIndex){
   var resp = await fetch(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
   if (!resp.ok && resp.status !== 204) { var t = await resp.text(); throw new Error('Falha ao remover da planilha (' + resp.status + '): ' + t); }
 }
+async function resolverRowIndexAtual(token, id){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+  if (!resp.ok) throw new Error('Não foi possível confirmar a posição da linha na planilha (HTTP ' + resp.status + ').');
+  var json = await resp.json();
+  var match = json.value.find(function(row){ return row.values[0][0] === id; });
+  if (!match) throw new Error('Lançamento não encontrado na planilha (pode ter sido removido em outra sessão).');
+  return match.index;
+}
 
 function brl(v){
   if (v === null || v === undefined) return "—";
@@ -1194,7 +1203,8 @@ function renderTable(rows){
           (async function(){
             try {
               var token = await getToken();
-              await removerLinhaGraph(token, row._rowIndex);
+              var rowIndexAtual = await resolverRowIndexAtual(token, row.id);
+              await removerLinhaGraph(token, rowIndexAtual);
               if (editingId === rawId) { editingId = null; setFormMode(false); togglePanel(false); }
               showToast('Lançamento removido.');
               await carregarDados();
@@ -1660,7 +1670,8 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       ];
 
       if (isEditing) {
-        await atualizarLinhaGraph(token, existing._rowIndex, linha);
+        var rowIndexAtual = await resolverRowIndexAtual(token, existing.id);
+        await atualizarLinhaGraph(token, rowIndexAtual, linha);
       } else {
         await adicionarLinhaGraph(token, linha);
       }
