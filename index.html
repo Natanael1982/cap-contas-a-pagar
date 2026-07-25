@@ -158,9 +158,13 @@
   .ss-opt{
     padding:9px 10px;border-radius:6px;font-size:12.5px;line-height:1.35;color:var(--ink);cursor:pointer;
     white-space:normal;overflow-wrap:break-word;word-break:break-word;
+    display:flex;align-items:center;gap:8px;
   }
   .ss-opt:hover{background:var(--surface-3);}
   .ss-opt.selected{background:var(--chart);color:#fff;}
+  .ss-opt .ss-opt-check{flex:none;width:14px;height:14px;accent-color:#fff;}
+  .ss-opt .ss-opt-text{flex:1;}
+  .ss-opt.ss-opt-all{border-bottom:1px solid var(--border);margin-bottom:3px;padding-bottom:10px;font-weight:600;}
 
   /* ---- reordenar/ocultar filtros ---- */
   .filter-field{position:relative;}
@@ -1213,7 +1217,12 @@ function buildFilters(){
     var f = FIELDS.find(function(ff){ return ff.key === key; });
     if (!f) return;
     var opts = f.key === 'pag' ? ['sem'].concat(uniqueSorted('pag')) : (f.opts ? f.opts.map(function(o){return o[0];}) : uniqueSorted(f.key));
-    if (state[f.key] !== 'todos' && opts.indexOf(state[f.key]) === -1) state[f.key] = 'todos';
+    if (Array.isArray(state[f.key])){
+      var validos = state[f.key].filter(function(v){ return opts.indexOf(v) !== -1; });
+      state[f.key] = validos.length ? validos : 'todos';
+    } else if (state[f.key] !== 'todos' && opts.indexOf(state[f.key]) === -1) {
+      state[f.key] = 'todos';
+    }
 
     function optLabel(v){
       if (f.key === 'pag') return v==='sem' ? 'Sem pagamento' : fmtDate(parseISO(v));
@@ -1296,22 +1305,48 @@ function buildFilters(){
     var optionsWrap = document.createElement('div');
     optionsWrap.className = 'ss-options';
 
+    function isSelected(v){
+      return v === 'todos' ? state[f.key] === 'todos' : (Array.isArray(state[f.key]) && state[f.key].indexOf(v) !== -1);
+    }
+
     var allValues = ['todos'].concat(opts);
     var rows = allValues.map(function(v){
       var row = document.createElement('div');
-      row.className = 'ss-opt';
+      row.className = 'ss-opt' + (v === 'todos' ? ' ss-opt-all' : '');
       var lbl = v === 'todos' ? 'Todos' : optLabel(v);
-      row.textContent = lbl;
+      if (v !== 'todos'){
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'ss-opt-check';
+        cb.tabIndex = -1;
+        row.appendChild(cb);
+      }
+      var txt = document.createElement('span');
+      txt.className = 'ss-opt-text';
+      txt.textContent = lbl;
+      row.appendChild(txt);
       row.dataset.text = String(lbl).toLowerCase();
       row.dataset.value = v;
-      if (state[f.key] === v) row.classList.add('selected');
+      if (isSelected(v)) row.classList.add('selected');
       row.addEventListener('click', function(ev){
         ev.stopPropagation();
-        state[f.key] = v;
+        if (v === 'todos'){
+          state[f.key] = 'todos';
+        } else {
+          var current = Array.isArray(state[f.key]) ? state[f.key].slice() : [];
+          var idx = current.indexOf(v);
+          if (idx === -1) current.push(v); else current.splice(idx, 1);
+          state[f.key] = current.length ? current : 'todos';
+        }
         updateControlLabel();
-        rows.forEach(function(r){ r.classList.toggle('selected', r.dataset.value === v); });
+        rows.forEach(function(r){
+          var rv = r.dataset.value;
+          var sel = isSelected(rv);
+          r.classList.toggle('selected', sel);
+          var rcb = r.querySelector('.ss-opt-check');
+          if (rcb) rcb.checked = sel;
+        });
         updateClearButton();
-        closeAllFilterDropdowns();
         render();
       });
       optionsWrap.appendChild(row);
@@ -1319,8 +1354,13 @@ function buildFilters(){
     });
 
     function updateControlLabel(){
-      valueSpan.textContent = state[f.key] === 'todos' ? 'Todos' : optLabel(state[f.key]);
-      control.classList.toggle('active', state[f.key] !== 'todos');
+      var sel = state[f.key];
+      var text;
+      if (sel === 'todos') text = 'Todos';
+      else if (sel.length === 1) text = optLabel(sel[0]);
+      else text = sel.length + ' selecionados';
+      valueSpan.textContent = text;
+      control.classList.toggle('active', sel !== 'todos');
     }
     updateControlLabel();
 
@@ -1392,12 +1432,16 @@ document.getElementById('clearBtn').addEventListener('click', function(){
 });
 updateClearButton();
 
+function rowMatchesFilterValue(r, f, v){
+  if (f.key === 'pag' && v === 'sem') return !r.pag;
+  return String(r[f.key]) === String(v);
+}
 function filtered(){
   return DATA.filter(function(r){
     return FIELDS.every(function(f){
-      if (state[f.key] === 'todos') return true;
-      if (f.key === 'pag' && state[f.key] === 'sem') return !r.pag;
-      return String(r[f.key]) === String(state[f.key]);
+      var sel = state[f.key];
+      if (sel === 'todos') return true;
+      return sel.some(function(v){ return rowMatchesFilterValue(r, f, v); });
     });
   });
 }
