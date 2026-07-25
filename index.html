@@ -926,9 +926,28 @@ function ehDono(){
   return !!currentAccount && (currentAccount.username||'').toLowerCase() === DONO_EMAIL.toLowerCase();
 }
 
+async function criarSessaoWorkbook(token){
+  try {
+    var resp = await fetch(GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/workbook/createSession', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ persistChanges: false })
+    });
+    if (!resp.ok) return null;
+    var json = await resp.json();
+    return json.id || null;
+  } catch (e) { return null; }
+}
+function headersComSessao(token, sessionId){
+  var h = { Authorization: 'Bearer ' + token };
+  if (sessionId) h['workbook-session-id'] = sessionId;
+  return h;
+}
+
 async function buscarUsuarios(token){
+  var sessionId = await criarSessaoWorkbook(token);
   var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
-  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+  var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
   if (!resp.ok) {
     var corpoErro = '';
     try { corpoErro = await resp.text(); } catch(e){}
@@ -1011,8 +1030,9 @@ async function getToken(){
 async function carregarDados(){
   try {
     var token = await getToken();
+    var sessionId = await criarSessaoWorkbook(token);
     var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
-    var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+    var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
     if (!resp.ok) {
       var corpoErro = '';
       try { corpoErro = await resp.text(); } catch(e2){}
