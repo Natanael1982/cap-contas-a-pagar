@@ -929,7 +929,11 @@ function ehDono(){
 async function buscarUsuarios(token){
   var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
   var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  if (!resp.ok) {
+    var corpoErro = '';
+    try { corpoErro = await resp.text(); } catch(e){}
+    throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+  }
   var json = await resp.json();
   return json.value.map(function(row){
     var v = row.values[0];
@@ -1009,7 +1013,11 @@ async function carregarDados(){
     var token = await getToken();
     var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
     var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    if (!resp.ok) {
+      var corpoErro = '';
+      try { corpoErro = await resp.text(); } catch(e2){}
+      throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+    }
     var json = await resp.json();
     DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
     DATA.forEach(normalizeRow);
