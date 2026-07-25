@@ -2171,7 +2171,8 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       if (!hasValue) ok = false;
     });
     var valorEl = document.getElementById('nf_valor');
-    var valorOk = parseBRL(valorEl ? valorEl.value : '') > 0;
+    var valorRaw = (valorEl ? valorEl.value : '').trim();
+    var valorOk = /^[\d.,]+$/.test(valorRaw) && parseBRL(valorRaw) >= 0;
     setFieldValid(valorEl, valorOk);
     if (!valorOk) ok = false;
 
