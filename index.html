@@ -868,13 +868,22 @@ function graphRowToRow(v, rowIndex){
   };
 }
 
+function salvarContaAtiva(homeAccountId){
+  try { localStorage.setItem('cap_msal_active_account', homeAccountId || ''); } catch(e){}
+}
+function lerContaAtivaSalva(){
+  try { return localStorage.getItem('cap_msal_active_account') || ''; } catch(e){ return ''; }
+}
+
 async function initAuth(){
   try {
     await msalInstance.initialize();
     await msalInstance.handleRedirectPromise();
     var accounts = msalInstance.getAllAccounts();
     if (accounts.length > 0){
-      currentAccount = accounts[0];
+      var idSalvo = lerContaAtivaSalva();
+      var achada = idSalvo ? accounts.find(function(a){ return a.homeAccountId === idSalvo; }) : null;
+      currentAccount = achada || accounts[0];
       msalInstance.setActiveAccount(currentAccount);
     }
   } catch (e) { /* segue sem login */ }
@@ -888,6 +897,7 @@ async function entrar(){
     var result = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES, prompt: 'select_account' });
     currentAccount = result.account;
     msalInstance.setActiveAccount(currentAccount);
+    salvarContaAtiva(currentAccount.homeAccountId);
     atualizarEstadoLogin();
     await processarLogin();
   } catch (e) {
@@ -899,6 +909,7 @@ function sair(){
   currentUserRole = null;
   currentUserFiltroNome = null;
   msalInstance.setActiveAccount(null);
+  salvarContaAtiva('');
   DATA = [];
   atualizarEstadoLogin();
   document.getElementById('semAcessoOverlay').classList.remove('open');
