@@ -144,7 +144,7 @@
   .ss-control.active{border-color:var(--chart);color:var(--chart-soft);}
   .ss-control:focus{outline:2px solid var(--chart);outline-offset:1px;}
   .ss-dropdown{
-    display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:280px;width:max-content;max-width:min(460px, 90vw);
+    display:none;position:absolute;top:calc(100% + 4px);left:0;width:max-content;max-width:min(460px, 90vw);
     background:var(--surface-2);border:1px solid var(--border-strong);border-radius:9px;
     box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:30;padding:8px;
   }
@@ -1298,6 +1298,7 @@ function buildFilters(){
 
     var dropdown = document.createElement('div');
     dropdown.className = 'ss-dropdown';
+    dropdown.style.minWidth = (filterWidths[key] || 160) + 'px';
     var search = document.createElement('input');
     search.type = 'text';
     search.className = 'ss-search';
