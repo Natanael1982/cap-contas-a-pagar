@@ -1101,6 +1101,13 @@ async function subirAnexo(token, file, prefixo, id){
   var json = await resp.json();
   return json.webUrl || '';
 }
+async function buscarLinhasAtuaisGraph(token){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+  if (!resp.ok) throw new Error('Não foi possível consultar a planilha (HTTP ' + resp.status + ').');
+  var json = await resp.json();
+  return json.value;
+}
 async function adicionarLinhaGraph(token, linha){
   var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
   var resp = await fetch(url, {
@@ -1109,6 +1116,7 @@ async function adicionarLinhaGraph(token, linha){
     body: JSON.stringify({ values: [linha] })
   });
   if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao gravar na planilha (' + resp.status + '): ' + t); }
+  return await resp.json();
 }
 async function atualizarLinhaGraph(token, rowIndex, linha){
   var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
@@ -1125,11 +1133,8 @@ async function removerLinhaGraph(token, rowIndex){
   if (!resp.ok && resp.status !== 204) { var t = await resp.text(); throw new Error('Falha ao remover da planilha (' + resp.status + '): ' + t); }
 }
 async function resolverRowIndexAtual(token, id){
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
-  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
-  if (!resp.ok) throw new Error('Não foi possível confirmar a posição da linha na planilha (HTTP ' + resp.status + ').');
-  var json = await resp.json();
-  var match = json.value.find(function(row){ return row.values[0][0] === id; });
+  var linhas = await buscarLinhasAtuaisGraph(token);
+  var match = linhas.find(function(row){ return row.values[0][0] === id; });
   if (!match) throw new Error('Lançamento não encontrado na planilha (pode ter sido removido em outra sessão).');
   return match.index;
 }
@@ -2296,7 +2301,8 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       if (isEditing && !existing) { showToast('Lançamento não encontrado (pode já ter sido removido).'); editingId = null; setFormMode(false); return; }
 
       var token = await getToken();
-      var novoId = isEditing ? existing.id : (DATA.reduce(function(m,d){ return Math.max(m, d.id); }, 0) + 1);
+      var linhasAtuaisGraph = isEditing ? null : await buscarLinhasAtuaisGraph(token);
+      var novoId = isEditing ? existing.id : (linhasAtuaisGraph.reduce(function(m,r){ return Math.max(m, r.values[0][0]); }, 0) + 1);
 
       var anexoBoletoUrl = isEditing ? (existing.anexo || '') : '';
       var anexoComprovanteUrl = isEditing ? (existing.anexoComprovante || '') : '';
@@ -2329,7 +2335,16 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
         var rowIndexAtual = await resolverRowIndexAtual(token, existing.id);
         await atualizarLinhaGraph(token, rowIndexAtual, linha);
       } else {
-        await adicionarLinhaGraph(token, linha);
+        var linhaCriada = await adicionarLinhaGraph(token, linha);
+        var linhasDepois = await buscarLinhasAtuaisGraph(token);
+        var colisao = linhasDepois.find(function(r){ return r.index !== linhaCriada.index && r.values[0][0] === novoId; });
+        if (colisao) {
+          var idCorrigido = linhasDepois.reduce(function(m,r){ return Math.max(m, r.values[0][0]); }, 0) + 1;
+          var linhaCorrigida = linha.slice();
+          linhaCorrigida[0] = idCorrigido;
+          await atualizarLinhaGraph(token, linhaCriada.index, linhaCorrigida);
+          novoId = idCorrigido;
+        }
       }
 
       showToast(isEditing ? ('Lançamento #' + novoId + ' atualizado.') : ('Lançamento #' + novoId + ' adicionado.'));
