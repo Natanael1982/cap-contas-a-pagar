@@ -884,7 +884,7 @@ async function initAuth(){
 
 async function entrar(){
   try {
-    var result = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES });
+    var result = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES, prompt: 'select_account' });
     currentAccount = result.account;
     msalInstance.setActiveAccount(currentAccount);
     atualizarEstadoLogin();
