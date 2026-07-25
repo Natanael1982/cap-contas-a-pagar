@@ -784,6 +784,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3/lib/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 var DATA = [];
 var HOJE = new Date();
@@ -944,23 +945,52 @@ function headersComSessao(token, sessionId){
   return h;
 }
 
-async function buscarUsuarios(token){
-  var sessionId = await criarSessaoWorkbook(token);
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
-  var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
+async function baixarEParsearWorkbook(token){
+  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/content';
+  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
   if (!resp.ok) {
     var corpoErro = '';
     try { corpoErro = await resp.text(); } catch(e){}
     throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
   }
-  var json = await resp.json();
-  return json.value.map(function(row){
-    var v = row.values[0];
-    return {
-      _rowIndex: row.index, email: String(v[0]||'').trim(), papel: v[1]||'', status: v[2]||'', data: v[3]||'',
-      filtroDespesaDe: String(v[4]||'').trim()
-    };
-  });
+  var buf = await resp.arrayBuffer();
+  return XLSX.read(buf, { type: 'array', cellDates: false });
+}
+function linhasDaAba(workbook, nomeAba){
+  var ws = workbook.Sheets[nomeAba];
+  if (!ws) return [];
+  var arr = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+  return arr.slice(1);
+}
+
+async function buscarUsuarios(token){
+  try {
+    var sessionId = await criarSessaoWorkbook(token);
+    var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
+    var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
+    if (!resp.ok) {
+      var corpoErro = '';
+      try { corpoErro = await resp.text(); } catch(e){}
+      throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+    }
+    var json = await resp.json();
+    return json.value.map(function(row){
+      var v = row.values[0];
+      return {
+        _rowIndex: row.index, email: String(v[0]||'').trim(), papel: v[1]||'', status: v[2]||'', data: v[3]||'',
+        filtroDespesaDe: String(v[4]||'').trim()
+      };
+    });
+  } catch (eSessao) {
+    var wb = await baixarEParsearWorkbook(token);
+    var linhas = linhasDaAba(wb, 'Usuarios');
+    return linhas.map(function(v, idx){
+      return {
+        _rowIndex: idx, email: String(v[0]||'').trim(), papel: v[1]||'', status: v[2]||'', data: v[3]||'',
+        filtroDespesaDe: String(v[4]||'').trim()
+      };
+    });
+  }
 }
 function filtroDespesaDeParaArray(str){
   return String(str||'').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
@@ -1030,16 +1060,22 @@ async function getToken(){
 async function carregarDados(){
   try {
     var token = await getToken();
-    var sessionId = await criarSessaoWorkbook(token);
-    var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
-    var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
-    if (!resp.ok) {
-      var corpoErro = '';
-      try { corpoErro = await resp.text(); } catch(e2){}
-      throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+    try {
+      var sessionId = await criarSessaoWorkbook(token);
+      var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+      var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
+      if (!resp.ok) {
+        var corpoErro = '';
+        try { corpoErro = await resp.text(); } catch(e2){}
+        throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+      }
+      var json = await resp.json();
+      DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
+    } catch (eSessao) {
+      var wb = await baixarEParsearWorkbook(token);
+      var linhas = linhasDaAba(wb, 'Base de Dados');
+      DATA = linhas.map(function(v, idx){ return graphRowToRow(v, idx); });
     }
-    var json = await resp.json();
-    DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
     DATA.forEach(normalizeRow);
     if (currentUserFiltroNome){
       DATA = DATA.filter(function(r){ return currentUserFiltroNome.indexOf(r.nome) !== -1; });
