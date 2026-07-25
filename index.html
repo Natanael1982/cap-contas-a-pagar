@@ -589,6 +589,10 @@
   <div class="panel entry-panel" id="entryPanel">
     <div class="panel-head">
       <h2>Novo lançamento</h2>
+      <div class="entry-actions-head" style="display:flex;gap:10px;">
+        <button type="button" class="ebtn ghost" id="cancelEntryBtn">Cancelar</button>
+        <button type="submit" form="entryForm" class="ebtn primary" id="entrySubmitBtn">Adicionar lançamento</button>
+      </div>
       <span class="badge-local">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
         Grava direto na planilha do SharePoint
@@ -677,12 +681,6 @@
         <div class="efield span4">
           <label>Observação</label>
           <textarea id="nf_obs" placeholder="Opcional"></textarea>
-        </div>
-      </div>
-      <div class="entry-actions" style="justify-content:flex-end;">
-        <div style="display:flex;gap:10px;">
-          <button type="button" class="ebtn ghost" id="cancelEntryBtn">Cancelar</button>
-          <button type="submit" class="ebtn primary">Adicionar lançamento</button>
         </div>
       </div>
     </form>
@@ -2056,7 +2054,7 @@ var editingId = null;
 
 function setFormMode(editing){
   var panelTitle = document.querySelector('#entryPanel .panel-head h2');
-  var submitBtn = document.querySelector('#entryForm button[type="submit"]');
+  var submitBtn = document.getElementById('entrySubmitBtn');
   if (panelTitle) panelTitle.textContent = editing ? 'Editar lançamento' : 'Novo lançamento';
   if (submitBtn) submitBtn.textContent = editing ? 'Salvar alterações' : 'Adicionar lançamento';
 }
@@ -2153,7 +2151,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
   var submitBtn = null;
   var submitBtnOriginalText = '';
   try {
-    submitBtn = document.querySelector('#entryForm button[type="submit"]');
+    submitBtn = document.getElementById('entrySubmitBtn');
     submitBtnOriginalText = submitBtn ? submitBtn.textContent : '';
   } catch (e) { /* ignore, submitBtn stays null */ }
 
