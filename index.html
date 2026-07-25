@@ -765,6 +765,7 @@
   <div class="login-box">
     <h2>Sem acesso</h2>
     <p>Você entrou como <b id="semAcessoEmail"></b>, mas ainda não tem acesso liberado a este aplicativo. Peça para o administrador liberar seu e-mail.</p>
+    <p id="semAcessoDetalhe" style="font-size:10.5px;color:var(--ink-muted);margin-top:-6px;word-break:break-word;"></p>
     <button type="button" class="ebtn ghost" id="semAcessoSairBtn" style="width:100%;padding:11px;">Sair</button>
   </div>
 </div>
@@ -931,8 +932,11 @@ function filtroDespesaDeParaArray(str){
   return String(str||'').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
 }
 
+var ultimoErroAcesso = null;
+
 async function verificarAcesso(token){
   currentUserFiltroNome = null;
+  ultimoErroAcesso = null;
   if (ehDono()) return 'Editor';
   var email = (currentAccount.username || '').toLowerCase();
   try {
@@ -943,12 +947,15 @@ async function verificarAcesso(token){
       currentUserFiltroNome = lista.length ? lista : null;
       return match.papel === 'Editor' ? 'Editor' : 'Visualizador';
     }
-  } catch (e) { /* sem acesso ao arquivo ainda - segue como não autorizado */ }
+    if (match) { ultimoErroAcesso = 'E-mail encontrado, mas status é "' + match.status + '" (precisa ser "Aprovado").'; }
+    else { ultimoErroAcesso = 'E-mail não encontrado na lista de usuários aprovados.'; }
+  } catch (e) { ultimoErroAcesso = 'Falha ao consultar a lista de usuários: ' + (e && e.message ? e.message : e); }
   return null;
 }
 
 function mostrarSemAcesso(){
   document.getElementById('semAcessoEmail').textContent = currentAccount.username || currentAccount.name || '';
+  document.getElementById('semAcessoDetalhe').textContent = ultimoErroAcesso ? ('Detalhe técnico: ' + ultimoErroAcesso) : '';
   document.getElementById('semAcessoOverlay').classList.add('open');
   document.getElementById('userChip').style.display = 'none';
 }
@@ -964,6 +971,7 @@ async function processarLogin(){
     currentUserRole = await verificarAcesso(token);
   } catch (e) {
     currentUserRole = null;
+    ultimoErroAcesso = 'Falha ao obter token de acesso: ' + (e && e.message ? e.message : e);
   }
   if (!currentUserRole){
     mostrarSemAcesso();
