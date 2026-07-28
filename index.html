@@ -90,19 +90,31 @@
   }
   .filter-field{flex:0 0 auto;width:160px;}
 
-  /* ---- gaveta lateral de filtros ---- */
+  /* ---- gaveta lateral de filtros (retrátil ao passar o mouse) ---- */
   .filters-drawer-backdrop{
     display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;
   }
-  .filters-drawer-backdrop.open{display:block;}
+  .filters-drawer-backdrop.pinned{display:block;}
   .filters-drawer{
     position:fixed;top:0;right:0;height:100vh;width:360px;max-width:88vw;
     background:var(--surface);border-left:1px solid var(--border-strong);
     box-shadow:-14px 0 40px rgba(0,0,0,.55);
-    transform:translateX(100%);transition:transform .25s ease;
+    transform:translateX(calc(100% - 40px));transition:transform .2s ease;
     z-index:901;display:flex;flex-direction:column;
   }
-  .filters-drawer.open{transform:translateX(0);}
+  .filters-drawer:hover, .filters-drawer.pinned{transform:translateX(0);}
+  .filters-peek-tab{
+    position:absolute;top:50%;left:-41px;transform:translateY(-50%);
+    width:41px;height:130px;background:var(--surface);border:1px solid var(--border-strong);border-right:none;
+    border-radius:10px 0 0 10px;box-shadow:-6px 0 16px rgba(0,0,0,.4);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+  }
+  .filters-peek-tab svg{width:15px;height:15px;color:var(--ink-soft);flex:none;}
+  .filters-peek-tab span{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font:600 12px var(--sans);letter-spacing:.06em;color:var(--ink-soft);white-space:nowrap;
+  }
+  .filters-peek-tab:hover svg, .filters-peek-tab:hover span{color:var(--chart-soft);}
   .filters-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
     padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
@@ -583,10 +595,6 @@
         <span id="userName"></span>
         <button type="button" class="ebtn ghost" id="logoutBtn">Sair</button>
       </div>
-      <button class="clear-btn" id="filtersDrawerToggleBtn" type="button" title="Abrir filtros">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-        Filtros
-      </button>
       <button class="clear-btn" id="clearBtn" type="button" title="Limpar todos os filtros">
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         Limpar
@@ -604,6 +612,10 @@
 
   <div class="filters-drawer-backdrop" id="filtersDrawerBackdrop"></div>
   <div class="filters-drawer" id="filtersDrawer">
+    <div class="filters-peek-tab" id="filtersPeekTab" title="Passe o mouse ou clique para abrir os filtros">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <span>Filtros</span>
+    </div>
     <div class="filters-drawer-head">
       <h2>Filtros</h2>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -1276,17 +1288,17 @@ document.addEventListener('keydown', function(ev){
   }
 });
 function abrirGavetaFiltros(){
-  document.getElementById('filtersDrawer').classList.add('open');
-  document.getElementById('filtersDrawerBackdrop').classList.add('open');
+  document.getElementById('filtersDrawer').classList.add('pinned');
+  document.getElementById('filtersDrawerBackdrop').classList.add('pinned');
 }
 function fecharGavetaFiltros(){
-  document.getElementById('filtersDrawer').classList.remove('open');
-  document.getElementById('filtersDrawerBackdrop').classList.remove('open');
+  document.getElementById('filtersDrawer').classList.remove('pinned');
+  document.getElementById('filtersDrawerBackdrop').classList.remove('pinned');
 }
-document.getElementById('filtersDrawerToggleBtn').addEventListener('click', function(ev){
+document.getElementById('filtersPeekTab').addEventListener('click', function(ev){
   ev.stopPropagation();
-  var jaAberta = document.getElementById('filtersDrawer').classList.contains('open');
-  if (jaAberta) fecharGavetaFiltros(); else abrirGavetaFiltros();
+  var jaFixada = document.getElementById('filtersDrawer').classList.contains('pinned');
+  if (jaFixada) fecharGavetaFiltros(); else abrirGavetaFiltros();
 });
 document.getElementById('filtersDrawerCloseBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
