@@ -90,6 +90,30 @@
     flex:none;
   }
   .filter-field{flex:0 0 auto;width:160px;}
+
+  /* ---- gaveta lateral de filtros ---- */
+  .filters-drawer-backdrop{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;
+  }
+  .filters-drawer-backdrop.open{display:block;}
+  .filters-drawer{
+    position:fixed;top:0;right:0;height:100vh;width:360px;max-width:88vw;
+    background:var(--surface);border-left:1px solid var(--border-strong);
+    box-shadow:-14px 0 40px rgba(0,0,0,.55);
+    transform:translateX(100%);transition:transform .25s ease;
+    z-index:901;display:flex;flex-direction:column;
+  }
+  .filters-drawer.open{transform:translateX(0);}
+  .filters-drawer-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
+  }
+  .filters-drawer-head h2{font-size:15px;margin:0;font-weight:700;}
+  .filters-drawer-body{padding:16px 18px;overflow:auto;flex:1;min-height:0;}
+  .filters-drawer .filters{display:flex;flex-direction:column;gap:14px;margin-bottom:0;}
+  .filters-drawer .filter-field{width:100% !important;}
+  .filters-drawer .filter-resizer{display:none;}
+  @media (max-width:640px){ .filters-drawer{width:100%;max-width:100%;} }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
     cursor:col-resize;user-select:none;z-index:6;
@@ -562,13 +586,10 @@
         <span id="userName"></span>
         <button type="button" class="ebtn ghost" id="logoutBtn">Sair</button>
       </div>
-      <div class="filters-manage-wrap" id="filtersManageWrap">
-        <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar/ocultar filtros">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-          Filtros
-        </button>
-        <div class="filters-manage-menu" id="filtersManageMenu"></div>
-      </div>
+      <button class="clear-btn" id="filtersDrawerToggleBtn" type="button" title="Abrir filtros">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        Filtros
+      </button>
       <button class="clear-btn" id="clearBtn" type="button" title="Limpar todos os filtros">
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         Limpar
@@ -584,7 +605,25 @@
     </div>
   </div>
 
-  <div class="filters" id="filters"></div>
+  <div class="filters-drawer-backdrop" id="filtersDrawerBackdrop"></div>
+  <div class="filters-drawer" id="filtersDrawer">
+    <div class="filters-drawer-head">
+      <h2>Filtros</h2>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="filters-manage-wrap" id="filtersManageWrap">
+          <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar de volta um filtro oculto">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Gerenciar
+          </button>
+          <div class="filters-manage-menu" id="filtersManageMenu"></div>
+        </div>
+        <button type="button" class="ebtn ghost" id="filtersDrawerCloseBtn">Fechar</button>
+      </div>
+    </div>
+    <div class="filters-drawer-body">
+      <div class="filters" id="filters"></div>
+    </div>
+  </div>
 
   <div class="panel entry-panel" id="adminPanel">
     <div class="panel-head">
@@ -1241,8 +1280,27 @@ document.addEventListener('keydown', function(ev){
     closeAllFilterDropdowns();
     document.getElementById('filtersManageWrap').classList.remove('open');
     document.getElementById('columnsManageWrap').classList.remove('open');
+    fecharGavetaFiltros();
   }
 });
+function abrirGavetaFiltros(){
+  document.getElementById('filtersDrawer').classList.add('open');
+  document.getElementById('filtersDrawerBackdrop').classList.add('open');
+}
+function fecharGavetaFiltros(){
+  document.getElementById('filtersDrawer').classList.remove('open');
+  document.getElementById('filtersDrawerBackdrop').classList.remove('open');
+}
+document.getElementById('filtersDrawerToggleBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  var jaAberta = document.getElementById('filtersDrawer').classList.contains('open');
+  if (jaAberta) fecharGavetaFiltros(); else abrirGavetaFiltros();
+});
+document.getElementById('filtersDrawerCloseBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  fecharGavetaFiltros();
+});
+document.getElementById('filtersDrawerBackdrop').addEventListener('click', fecharGavetaFiltros);
 document.getElementById('filtersManageBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
   var wrap = document.getElementById('filtersManageWrap');
