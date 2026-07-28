@@ -65,7 +65,6 @@
     min-height:100%;
     display:flex;
     flex-direction:column;
-    overflow:hidden;
   }
 
   /* ---- header + filters ---- */
@@ -346,10 +345,10 @@
   .attach.off{color:var(--ink-muted);opacity:.3;pointer-events:none;}
 
   /* ---- bottom: chart + ranking ---- */
-  .bottom{display:grid;grid-template-columns:1fr 1.3fr;gap:14px;flex:0 0 auto;max-height:230px;}
-  .bottom .panel{display:flex;flex-direction:column;min-height:0;}
+  .bottom{display:grid;grid-template-columns:1fr 1.3fr;gap:14px;flex:0 0 auto;}
+  .bottom .panel{display:flex;flex-direction:column;}
   .bottom .panel-head{flex:none;}
-  @media (max-width:760px){ .bottom{grid-template-columns:1fr;max-height:none;} }
+  @media (max-width:760px){ .bottom{grid-template-columns:1fr;} }
 
   .rank-body{padding:12px 16px 14px;flex:1;min-height:0;overflow:auto;}
   .rank-row{
