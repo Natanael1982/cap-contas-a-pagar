@@ -103,6 +103,7 @@
     z-index:901;display:flex;flex-direction:column;
   }
   .filters-drawer:hover, .filters-drawer.pinned{transform:translateX(0);}
+  .filters-drawer.force-closed{transform:translateX(calc(-100% + 40px)) !important;}
   .filters-peek-tab{
     position:absolute;top:50%;right:-41px;transform:translateY(-50%);
     width:41px;height:130px;background:var(--surface);border:1px solid var(--border-strong);border-left:none;
@@ -317,7 +318,10 @@
     overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;
   }
   table.cap tbody td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  table.cap tbody tr{cursor:pointer;}
   table.cap tbody tr:hover td{background:var(--surface-2);}
+  table.cap tbody tr.active td{background:var(--chart);color:#fff;}
+  table.cap tbody tr.active td .muted{color:rgba(255,255,255,.75);}
   table.cap .muted{color:var(--ink-muted);font-size:11px;}
   table.cap .desc-cell{overflow:hidden;text-overflow:ellipsis;}
   table.cap tfoot td{
@@ -1292,9 +1296,14 @@ function abrirGavetaFiltros(){
   document.getElementById('filtersDrawerBackdrop').classList.add('pinned');
 }
 function fecharGavetaFiltros(){
-  document.getElementById('filtersDrawer').classList.remove('pinned');
+  var drawer = document.getElementById('filtersDrawer');
+  drawer.classList.remove('pinned');
+  drawer.classList.add('force-closed');
   document.getElementById('filtersDrawerBackdrop').classList.remove('pinned');
 }
+document.getElementById('filtersDrawer').addEventListener('mouseleave', function(){
+  this.classList.remove('force-closed');
+});
 document.getElementById('filtersPeekTab').addEventListener('click', function(ev){
   ev.stopPropagation();
   var jaFixada = document.getElementById('filtersDrawer').classList.contains('pinned');
@@ -1923,13 +1932,18 @@ function renderTable(rows){
   } else {
     var accessor = SORT_ACCESSORS[sortState.key] || SORT_ACCESSORS.venc;
     var sorted = rows.slice().sort(function(a,b){ return compareValues(accessor(a), accessor(b)) * sortState.dir; });
+    var nomeAtivoTbl = Array.isArray(state.nome) ? state.nome : null;
+    var descAtivoTbl = Array.isArray(state.desc) ? state.desc : null;
     body.innerHTML = sorted.map(function(r){
       var cells = visibleCols.map(function(key){
         var col = COLUMNS[key];
         var titleAttr = col.titleAttr ? ' title="'+col.titleAttr(r)+'"' : '';
         return '<td class="'+(col.cellCls||'')+'"'+titleAttr+'>'+col.render(r)+'</td>';
       }).join('');
-      return '<tr>'+cells+'</tr>';
+      var nomeAttrTbl = String(r.nome||'').replace(/"/g,'&quot;');
+      var descAttrTbl = String(r.desc||'').replace(/"/g,'&quot;');
+      var ativoTbl = !!(nomeAtivoTbl && nomeAtivoTbl.indexOf(r.nome) !== -1 && descAtivoTbl && descAtivoTbl.indexOf(r.desc) !== -1);
+      return '<tr data-nome="'+nomeAttrTbl+'" data-desc="'+descAttrTbl+'"'+(ativoTbl?' class="active"':'')+'>'+cells+'</tr>';
     }).join('');
     body.querySelectorAll('.row-edit').forEach(function(btn){
       btn.addEventListener('click', function(){
@@ -2086,6 +2100,21 @@ document.getElementById('descRankBody').addEventListener('click', function(ev){
   var desc = descEl.getAttribute('data-desc');
   var jaSelecionado = Array.isArray(state.desc) && state.desc.length===1 && state.desc[0]===desc;
   state.desc = jaSelecionado ? 'todos' : [desc];
+  buildFilters();
+  updateClearButton();
+  render();
+});
+
+document.getElementById('tableBody').addEventListener('click', function(ev){
+  if (ev.target.closest('.row-edit, .row-del, .attach-file, .attach')) return;
+  var trEl = ev.target.closest('tr[data-nome]');
+  if (!trEl) return;
+  var nomeTbl = trEl.getAttribute('data-nome');
+  var descTbl = trEl.getAttribute('data-desc');
+  var jaSelecionadoTbl = Array.isArray(state.nome) && state.nome.length===1 && state.nome[0]===nomeTbl &&
+    Array.isArray(state.desc) && state.desc.length===1 && state.desc[0]===descTbl;
+  if (jaSelecionadoTbl) { state.nome = 'todos'; state.desc = 'todos'; }
+  else { state.nome = [nomeTbl]; state.desc = [descTbl]; }
   buildFilters();
   updateClearButton();
   render();
