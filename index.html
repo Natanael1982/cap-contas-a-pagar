@@ -89,70 +89,40 @@
   }
   .filter-field{flex:0 0 auto;width:160px;}
 
-  /* ---- gaveta lateral de filtros (retrátil ao passar o mouse) ---- */
-  .filters-drawer-backdrop{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;
+  /* ---- Modelo C: barra de ícones fixa no topo + popover ao clicar (sem hover) ---- */
+  .quick-icons{display:flex;gap:10px;flex:none;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:9px;background:var(--surface);border:1px solid var(--border);
+    color:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+    transition:border-color .12s ease, color .12s ease;
   }
-  .filters-drawer-backdrop.pinned{display:block;}
-  .filters-drawer{
-    position:fixed;top:0;left:0;height:100vh;width:360px;max-width:88vw;
-    background:var(--surface);border-right:1px solid var(--border-strong);
-    box-shadow:14px 0 40px rgba(0,0,0,.55);
-    transform:translateX(-100%);transition:transform .2s ease;
-    z-index:901;display:flex;flex-direction:column;
+  .icon-btn svg{width:17px;height:17px;}
+  .icon-btn:hover{border-color:var(--border-strong);color:var(--ink);}
+  .icon-btn.active{border-color:var(--chart);color:var(--chart-soft);}
+
+  .filters-drawer, .actions-drawer{
+    display:none;position:fixed;top:64px;right:24px;width:360px;max-width:92vw;max-height:75vh;
+    background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;
+    box-shadow:0 24px 60px rgba(0,0,0,.55);
+    z-index:901;flex-direction:column;overflow:hidden;
   }
-  .filters-drawer:hover, .filters-drawer.pinned{transform:translateX(0);}
-  .filters-drawer.force-closed{transform:translateX(-100%) !important;}
-  .filters-peek-tab{
-    position:absolute;top:24px;right:-41px;
-    width:41px;height:48px;background:var(--surface);border:1px solid var(--border-strong);border-left:none;
-    border-radius:0 10px 10px 0;box-shadow:6px 0 16px rgba(0,0,0,.4);
-    display:flex;align-items:center;justify-content:center;cursor:pointer;
-  }
-  .filters-peek-tab svg{width:16px;height:16px;color:var(--ink-soft);flex:none;}
-  .filters-peek-tab:hover svg{color:var(--chart-soft);}
-  .filters-drawer-head{
+  .actions-drawer{width:300px;}
+  .filters-drawer.open, .actions-drawer.open{display:flex;}
+  .filters-drawer-head, .actions-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
-    padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
+    padding:14px 16px;border-bottom:1px solid var(--border);flex:none;
   }
-  .filters-drawer-head h2{font-size:15px;margin:0;font-weight:700;}
-  .filters-drawer-body{padding:16px 18px;overflow:auto;flex:1;min-height:0;}
+  .filters-drawer-head h2, .actions-drawer-head h2{font-size:14px;margin:0;font-weight:700;}
+  .filters-drawer-body{padding:14px 16px;overflow:auto;flex:1;min-height:0;}
   .filters-drawer .filters{display:flex;flex-direction:column;gap:14px;margin-bottom:0;}
   .filters-drawer .filter-field{width:100% !important;}
   .filters-drawer .filter-resizer{display:none;}
-  @media (max-width:640px){ .filters-drawer{width:100%;max-width:100%;} }
-
-  /* ---- gaveta lateral de ações (retrátil ao passar o mouse, lado direito) ---- */
-  .actions-drawer-backdrop{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;
-  }
-  .actions-drawer-backdrop.pinned{display:block;}
-  .actions-drawer{
-    position:fixed;top:0;right:0;height:100vh;width:320px;max-width:88vw;
-    background:var(--surface);border-left:1px solid var(--border-strong);
-    box-shadow:-14px 0 40px rgba(0,0,0,.55);
-    transform:translateX(100%);transition:transform .2s ease;
-    z-index:901;display:flex;flex-direction:column;
-  }
-  .actions-drawer:hover, .actions-drawer.pinned{transform:translateX(0);}
-  .actions-drawer.force-closed{transform:translateX(100%) !important;}
-  .actions-peek-tab{
-    position:absolute;top:24px;left:-41px;
-    width:41px;height:48px;background:var(--surface);border:1px solid var(--border-strong);border-right:none;
-    border-radius:10px 0 0 10px;box-shadow:-6px 0 16px rgba(0,0,0,.4);
-    display:flex;align-items:center;justify-content:center;cursor:pointer;
-  }
-  .actions-peek-tab svg{width:16px;height:16px;color:var(--ink-soft);flex:none;}
-  .actions-peek-tab:hover svg{color:var(--chart-soft);}
-  .actions-drawer-head{
-    display:flex;justify-content:space-between;align-items:center;gap:10px;
-    padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
-  }
-  .actions-drawer-head h2{font-size:15px;margin:0;font-weight:700;}
-  .actions-drawer-body{padding:16px 18px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;}
+  .actions-drawer-body{padding:14px 16px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;}
   .actions-drawer-body .user-chip{width:100%;justify-content:space-between;}
   .actions-drawer-body .clear-btn, .actions-drawer-body .add-btn{width:100%;justify-content:center;height:auto;padding:10px 14px;}
-  @media (max-width:640px){ .actions-drawer{width:100%;max-width:100%;} }
+  @media (max-width:640px){
+    .filters-drawer, .actions-drawer{left:12px;right:12px;width:auto;max-width:none;top:60px;}
+  }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
     cursor:col-resize;user-select:none;z-index:6;
@@ -608,13 +578,17 @@
       <h1>CAP</h1>
       <p>Contas a Pagar</p>
     </div>
+    <div class="quick-icons">
+      <button class="icon-btn" id="filtersIconBtn" type="button" title="Filtros">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="actionsIconBtn" type="button" title="Ações">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
+      </button>
+    </div>
   </div>
 
-  <div class="actions-drawer-backdrop" id="actionsDrawerBackdrop"></div>
   <div class="actions-drawer" id="actionsDrawer">
-    <div class="actions-peek-tab" id="actionsPeekTab" title="Passe o mouse ou clique para abrir as ações">
-      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
-    </div>
     <div class="actions-drawer-head">
       <h2>Ações</h2>
       <button type="button" class="ebtn ghost" id="actionsDrawerCloseBtn">Fechar</button>
@@ -640,11 +614,7 @@
     </div>
   </div>
 
-  <div class="filters-drawer-backdrop" id="filtersDrawerBackdrop"></div>
   <div class="filters-drawer" id="filtersDrawer">
-    <div class="filters-peek-tab" id="filtersPeekTab" title="Passe o mouse ou clique para abrir os filtros">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-    </div>
     <div class="filters-drawer-head">
       <h2>Filtros</h2>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -1307,6 +1277,8 @@ document.addEventListener('click', function(){
   closeAllFilterDropdowns();
   document.getElementById('filtersManageWrap').classList.remove('open');
   document.getElementById('columnsManageWrap').classList.remove('open');
+  fecharGavetaFiltros();
+  fecharGavetaAcoes();
 });
 document.addEventListener('keydown', function(ev){
   if (ev.key === 'Escape'){
@@ -1318,52 +1290,44 @@ document.addEventListener('keydown', function(ev){
   }
 });
 function abrirGavetaFiltros(){
-  document.getElementById('filtersDrawer').classList.add('pinned');
-  document.getElementById('filtersDrawerBackdrop').classList.add('pinned');
+  document.getElementById('filtersDrawer').classList.add('open');
+  document.getElementById('filtersIconBtn').classList.add('active');
 }
 function fecharGavetaFiltros(){
-  var drawer = document.getElementById('filtersDrawer');
-  drawer.classList.remove('pinned');
-  drawer.classList.add('force-closed');
-  document.getElementById('filtersDrawerBackdrop').classList.remove('pinned');
+  document.getElementById('filtersDrawer').classList.remove('open');
+  document.getElementById('filtersIconBtn').classList.remove('active');
 }
-document.getElementById('filtersDrawer').addEventListener('mouseleave', function(){
-  this.classList.remove('force-closed');
-});
-document.getElementById('filtersPeekTab').addEventListener('click', function(ev){
+document.getElementById('filtersIconBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
-  var jaFixada = document.getElementById('filtersDrawer').classList.contains('pinned');
-  if (jaFixada) fecharGavetaFiltros(); else abrirGavetaFiltros();
+  var jaAberta = document.getElementById('filtersDrawer').classList.contains('open');
+  fecharGavetaAcoes();
+  if (jaAberta) fecharGavetaFiltros(); else abrirGavetaFiltros();
 });
+document.getElementById('filtersDrawer').addEventListener('click', function(ev){ ev.stopPropagation(); });
 document.getElementById('filtersDrawerCloseBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
   fecharGavetaFiltros();
 });
-document.getElementById('filtersDrawerBackdrop').addEventListener('click', fecharGavetaFiltros);
 
 function abrirGavetaAcoes(){
-  document.getElementById('actionsDrawer').classList.add('pinned');
-  document.getElementById('actionsDrawerBackdrop').classList.add('pinned');
+  document.getElementById('actionsDrawer').classList.add('open');
+  document.getElementById('actionsIconBtn').classList.add('active');
 }
 function fecharGavetaAcoes(){
-  var drawer = document.getElementById('actionsDrawer');
-  drawer.classList.remove('pinned');
-  drawer.classList.add('force-closed');
-  document.getElementById('actionsDrawerBackdrop').classList.remove('pinned');
+  document.getElementById('actionsDrawer').classList.remove('open');
+  document.getElementById('actionsIconBtn').classList.remove('active');
 }
-document.getElementById('actionsDrawer').addEventListener('mouseleave', function(){
-  this.classList.remove('force-closed');
-});
-document.getElementById('actionsPeekTab').addEventListener('click', function(ev){
+document.getElementById('actionsIconBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
-  var jaFixada = document.getElementById('actionsDrawer').classList.contains('pinned');
-  if (jaFixada) fecharGavetaAcoes(); else abrirGavetaAcoes();
+  var jaAberta = document.getElementById('actionsDrawer').classList.contains('open');
+  fecharGavetaFiltros();
+  if (jaAberta) fecharGavetaAcoes(); else abrirGavetaAcoes();
 });
+document.getElementById('actionsDrawer').addEventListener('click', function(ev){ ev.stopPropagation(); });
 document.getElementById('actionsDrawerCloseBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
   fecharGavetaAcoes();
 });
-document.getElementById('actionsDrawerBackdrop').addEventListener('click', fecharGavetaAcoes);
 document.getElementById('filtersManageBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
   var wrap = document.getElementById('filtersManageWrap');
