@@ -361,18 +361,19 @@
   .rank-row .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2a5fae,var(--chart));}
   .rank-row .amt{flex:0 0 84px;text-align:right;font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;}
 
-  .rank-cols{display:flex;align-items:flex-end;gap:22px;height:100%;padding:6px 4px;overflow-x:auto;}
-  .rank-col{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:96px;}
-  .rank-col-amt{font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;margin-bottom:6px;white-space:nowrap;}
-  .rank-col-bar{position:relative;width:36px;height:120px;background:var(--surface-2);border-radius:5px;overflow:hidden;flex:none;}
-  .rank-col-track{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column-reverse;}
-  .rank-col-track .seg{width:100%;}
+  .rank-cols{display:flex;align-items:flex-start;height:100%;padding:10px 4px;overflow-x:auto;}
+  .rank-col{display:flex;flex-direction:column;flex:0 0 auto;min-width:160px;padding:0 22px;}
+  .rank-col:first-child{padding-left:2px;}
+  .rank-col:not(:first-child){border-left:1px solid var(--border);}
   .rank-col-name{
-    margin-top:8px;font-size:11.5px;color:var(--ink-soft);text-align:center;
-    max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:2px;
+    max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
-  .rank-col-detail{margin-top:5px;display:flex;flex-direction:column;align-items:center;gap:2px;}
-  .rank-col-detail .rank-detail-item{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;color:var(--ink-muted);white-space:nowrap;}
+  .rank-col-total{font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-soft);margin-bottom:10px;}
+  .rank-col-list{display:flex;flex-direction:column;gap:7px;}
+  .rank-col-item{display:flex;align-items:center;gap:7px;font-size:11.5px;white-space:nowrap;}
+  .rank-col-item .rank-col-item-lbl{color:var(--ink-muted);flex:1;}
+  .rank-col-item .rank-col-item-val{font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
 
   .rank-legend{display:flex;flex-wrap:wrap;gap:12px;padding:0 16px 12px;flex:none;}
   .rank-legend-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-muted);}
@@ -778,7 +779,7 @@
       <div class="rank-body" id="rankBody"></div>
       <div class="rank-legend">
         <span class="rank-legend-item"><span class="rank-swatch rank-swatch-pago"></span>Pago</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Vencido</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Em atraso</span>
         <span class="rank-legend-item"><span class="rank-swatch rank-swatch-hoje"></span>Vence hoje</span>
         <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
       </div>
@@ -1992,23 +1993,17 @@ function renderRanking(rows){
   }).sort(function(a,b){return b.total-a.total;});
   document.getElementById('rankCount').textContent = entries.length + (entries.length===1 ? ' pessoa' : ' pessoas');
   var top = entries.slice(0, 10);
-  var max = top.length ? top[0].total : 1;
-  var STATUS_LBL = {pago:'Pago', vencido:'Vencido', hoje:'Vence hoje', avencer:'A vencer'};
+  var STATUS_LBL = {pago:'Pago', vencido:'Em atraso', hoje:'Vence hoje', avencer:'A vencer'};
   document.getElementById('rankBody').innerHTML = top.length ? '<div class="rank-cols">' + top.map(function(e){
-    var pct = (e.total/max*100).toFixed(1);
-    var segs = ['pago','vencido','hoje','avencer'].map(function(k){
-      var p = e.total > 0 ? (e[k]/e.total*100) : 0;
-      if (p <= 0) return '';
-      return '<span class="seg seg-'+k+'" style="height:'+p.toFixed(2)+'%" title="'+STATUS_LBL[k]+': '+brl(e[k])+'"></span>';
-    }).join('');
-    var detalhes = ['pago','vencido','hoje','avencer'].filter(function(k){ return e[k] > 0; }).map(function(k){
-      return '<span class="rank-detail-item"><span class="rank-swatch rank-swatch-'+k+'"></span>'+STATUS_LBL[k]+' '+brl(e[k])+'</span>';
+    var itens = ['pago','vencido','hoje','avencer'].filter(function(k){ return e[k] > 0; }).map(function(k){
+      return '<div class="rank-col-item"><span class="rank-swatch rank-swatch-'+k+'"></span>'+
+        '<span class="rank-col-item-lbl">'+STATUS_LBL[k]+'</span>'+
+        '<span class="rank-col-item-val">'+brl(e[k])+'</span></div>';
     }).join('');
     return '<div class="rank-col">'+
-      '<span class="rank-col-amt">'+brl(e.total)+'</span>'+
-      '<div class="rank-col-bar"><div class="rank-col-track" style="height:'+pct+'%">'+segs+'</div></div>'+
       '<span class="rank-col-name" title="'+e.nome+'">'+e.nome+'</span>'+
-      (detalhes ? '<div class="rank-col-detail">'+detalhes+'</div>' : '')+
+      '<span class="rank-col-total">Total: '+brl(e.total)+'</span>'+
+      '<div class="rank-col-list">'+itens+'</div>'+
       '</div>';
   }).join('') + '</div>' : '<div class="empty-note">Sem dados para os filtros selecionados.</div>';
 }
