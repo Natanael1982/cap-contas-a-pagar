@@ -89,7 +89,7 @@
   }
   .filter-field{flex:0 0 auto;width:160px;}
 
-  /* ---- Modelo C: barra de ícones fixa no topo + popover ao clicar (sem hover) ---- */
+  /* ---- Modelo D: ícones fixos no topo + popover central (modal) ---- */
   .quick-icons{display:flex;gap:10px;flex:none;}
   .icon-btn{
     width:38px;height:38px;border-radius:9px;background:var(--surface);border:1px solid var(--border);
@@ -100,14 +100,18 @@
   .icon-btn:hover{border-color:var(--border-strong);color:var(--ink);}
   .icon-btn.active{border-color:var(--chart);color:var(--chart-soft);}
 
-  .filters-drawer, .actions-drawer{
-    display:none;position:fixed;top:64px;right:24px;width:360px;max-width:92vw;max-height:75vh;
-    background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;
-    box-shadow:0 24px 60px rgba(0,0,0,.55);
-    z-index:901;flex-direction:column;overflow:hidden;
+  .filters-modal-overlay, .actions-modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(5,6,10,.65);
+    align-items:center;justify-content:center;z-index:1000;
   }
-  .actions-drawer{width:300px;}
-  .filters-drawer.open, .actions-drawer.open{display:flex;}
+  .filters-modal-overlay.open, .actions-modal-overlay.open{display:flex;}
+  .filters-drawer, .actions-drawer{
+    display:flex;position:relative;width:400px;max-width:92vw;max-height:80vh;
+    background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+    flex-direction:column;overflow:hidden;
+  }
+  .actions-drawer{width:320px;}
   .filters-drawer-head, .actions-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
     padding:14px 16px;border-bottom:1px solid var(--border);flex:none;
@@ -121,7 +125,7 @@
   .actions-drawer-body .user-chip{width:100%;justify-content:space-between;}
   .actions-drawer-body .clear-btn, .actions-drawer-body .add-btn{width:100%;justify-content:center;height:auto;padding:10px 14px;}
   @media (max-width:640px){
-    .filters-drawer, .actions-drawer{left:12px;right:12px;width:auto;max-width:none;top:60px;}
+    .filters-drawer, .actions-drawer{width:92vw;max-width:none;}
   }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
@@ -588,6 +592,7 @@
     </div>
   </div>
 
+  <div class="actions-modal-overlay" id="actionsModalOverlay">
   <div class="actions-drawer" id="actionsDrawer">
     <div class="actions-drawer-head">
       <h2>Ações</h2>
@@ -613,7 +618,9 @@
       </button>
     </div>
   </div>
+  </div>
 
+  <div class="filters-modal-overlay" id="filtersModalOverlay">
   <div class="filters-drawer" id="filtersDrawer">
     <div class="filters-drawer-head">
       <h2>Filtros</h2>
@@ -631,6 +638,7 @@
     <div class="filters-drawer-body">
       <div class="filters" id="filters"></div>
     </div>
+  </div>
   </div>
 
   <div class="panel entry-panel" id="adminPanel">
@@ -1290,19 +1298,20 @@ document.addEventListener('keydown', function(ev){
   }
 });
 function abrirGavetaFiltros(){
-  document.getElementById('filtersDrawer').classList.add('open');
+  document.getElementById('filtersModalOverlay').classList.add('open');
   document.getElementById('filtersIconBtn').classList.add('active');
 }
 function fecharGavetaFiltros(){
-  document.getElementById('filtersDrawer').classList.remove('open');
+  document.getElementById('filtersModalOverlay').classList.remove('open');
   document.getElementById('filtersIconBtn').classList.remove('active');
 }
 document.getElementById('filtersIconBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
-  var jaAberta = document.getElementById('filtersDrawer').classList.contains('open');
+  var jaAberta = document.getElementById('filtersModalOverlay').classList.contains('open');
   fecharGavetaAcoes();
   if (jaAberta) fecharGavetaFiltros(); else abrirGavetaFiltros();
 });
+document.getElementById('filtersModalOverlay').addEventListener('click', fecharGavetaFiltros);
 document.getElementById('filtersDrawer').addEventListener('click', function(ev){ ev.stopPropagation(); });
 document.getElementById('filtersDrawerCloseBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
@@ -1310,19 +1319,20 @@ document.getElementById('filtersDrawerCloseBtn').addEventListener('click', funct
 });
 
 function abrirGavetaAcoes(){
-  document.getElementById('actionsDrawer').classList.add('open');
+  document.getElementById('actionsModalOverlay').classList.add('open');
   document.getElementById('actionsIconBtn').classList.add('active');
 }
 function fecharGavetaAcoes(){
-  document.getElementById('actionsDrawer').classList.remove('open');
+  document.getElementById('actionsModalOverlay').classList.remove('open');
   document.getElementById('actionsIconBtn').classList.remove('active');
 }
 document.getElementById('actionsIconBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
-  var jaAberta = document.getElementById('actionsDrawer').classList.contains('open');
+  var jaAberta = document.getElementById('actionsModalOverlay').classList.contains('open');
   fecharGavetaFiltros();
   if (jaAberta) fecharGavetaAcoes(); else abrirGavetaAcoes();
 });
+document.getElementById('actionsModalOverlay').addEventListener('click', fecharGavetaAcoes);
 document.getElementById('actionsDrawer').addEventListener('click', function(ev){ ev.stopPropagation(); });
 document.getElementById('actionsDrawerCloseBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
