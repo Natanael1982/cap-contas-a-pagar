@@ -345,40 +345,10 @@
   .attach svg{width:13px;height:13px;}
   .attach.off{color:var(--ink-muted);opacity:.3;pointer-events:none;}
 
-  /* ---- status/aging panel ---- */
-  .aging{padding:10px 14px;}
-  .aging-row{
-    display:flex;align-items:center;gap:10px;padding:7px 0;
-  }
-  .aging-row .lbl{
-    width:92px;flex:none;font-size:11.5px;color:var(--ink-soft);
-  }
-  .aging-row .track{
-    flex:1;height:7px;background:var(--surface-2);border-radius:4px;overflow:hidden;
-  }
-  .aging-row .fill{height:100%;border-radius:4px;background:var(--chart);}
-  .aging-row .amt{
-    width:88px;flex:none;text-align:right;font:600 11.5px var(--mono);
-    font-variant-numeric:tabular-nums;
-  }
-  .aging-divider{height:1px;background:var(--border);margin:6px 14px;}
-  .status-totals{padding:8px 14px 14px;flex:1;min-height:0;overflow:auto;}
-  .st-row{
-    display:flex;align-items:center;gap:10px;padding:6px 0;
-  }
-  .st-row .swatch{width:11px;height:11px;border-radius:3px;flex:none;}
-  .st-row.st-hoje .swatch{background:var(--warning);}
-  .st-row.st-vencido .swatch{background:var(--atrasado);}
-  .st-row.st-pago .swatch{background:var(--positive);}
-  .st-row.st-avencer .swatch{background:var(--ink-muted);}
-  .st-row .lbl{flex:1;font-size:12px;color:var(--ink-soft);}
-  .st-row .amt{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;}
-
   /* ---- bottom: chart + ranking ---- */
-  .bottom{display:grid;grid-template-columns:1.3fr 1fr 0.8fr;gap:14px;flex:0 0 auto;max-height:230px;}
+  .bottom{display:grid;grid-template-columns:1fr 1.3fr;gap:14px;flex:0 0 auto;max-height:230px;}
   .bottom .panel{display:flex;flex-direction:column;min-height:0;}
   .bottom .panel-head{flex:none;}
-  @media (max-width:1180px){ .bottom{grid-template-columns:1fr 1fr;} }
   @media (max-width:760px){ .bottom{grid-template-columns:1fr;max-height:none;} }
 
   .rank-body{padding:12px 16px 14px;flex:1;min-height:0;overflow:auto;}
@@ -387,13 +357,21 @@
     flex:0 0 150px;font-size:11.5px;color:var(--ink-soft);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
-  .rank-row .track{flex:1;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;}
+  .rank-row .track{flex:1;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;display:flex;}
   .rank-row .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2a5fae,var(--chart));}
+  .rank-row .fillwrap{display:flex;height:100%;}
+  .rank-row .track .seg{height:100%;}
   .rank-row .amt{flex:0 0 84px;text-align:right;font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;}
 
+  .rank-legend{display:flex;flex-wrap:wrap;gap:12px;padding:0 16px 12px;flex:none;}
+  .rank-legend-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-muted);}
+  .rank-swatch{width:9px;height:9px;border-radius:2px;flex:none;}
+  .rank-swatch-pago, .seg-pago{background:var(--positive);}
+  .rank-swatch-vencido, .seg-vencido{background:var(--atrasado);}
+  .rank-swatch-hoje, .seg-hoje{background:var(--warning);}
+  .rank-swatch-avencer, .seg-avencer{background:var(--ink-muted);}
+
   .empty-note{padding:20px 16px;text-align:center;color:var(--ink-muted);font-size:12px;}
-  .foot-note{margin:14px 4px 0;font-size:11px;color:var(--ink-muted);line-height:1.6;flex:none;}
-  .foot-note b{color:var(--ink-soft);}
 
   /* ---- new-entry pill + delete ---- */
   .pill.novo{background:var(--positive-dim);color:var(--positive);margin-left:6px;}
@@ -787,17 +765,14 @@
         <span class="count" id="rankCount"></span>
       </div>
       <div class="rank-body" id="rankBody"></div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><h2>Status</h2></div>
-      <div class="status-totals" id="statusTotals"></div>
+      <div class="rank-legend">
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-pago"></span>Pago</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Vencido</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-hoje"></span>Vence hoje</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
+      </div>
     </div>
   </div>
-
-  <p class="foot-note">
-    <b>Fonte:</b> planilha "Gestão Financeira Pessoal.xlsx" no SharePoint (sincronização em tempo real). Lançamentos adicionados aqui são gravados direto na planilha, com os anexos enviados como arquivos reais.
-  </p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1971,22 +1946,6 @@ function renderTable(rows){
   renderTableFoot(rows);
 }
 
-function renderAging(rows){
-  var venc = rows.filter(function(r){return r.status==='vencido';});
-  var hoje = rows.filter(function(r){return r.status==='hoje';});
-  var avencer = rows.filter(function(r){return r.status==='avencer';});
-  var pagos = rows.filter(function(r){return r.status==='pago';});
-  var totals = [
-    {cls:'st-hoje', lbl:'Vence Hoje', v: sum(hoje,function(r){return r.valor;})},
-    {cls:'st-vencido', lbl:'Vencido', v: sum(venc,function(r){return r.valor;})},
-    {cls:'st-pago', lbl:'Pago', v: sum(pagos,function(r){return pago(r);})},
-    {cls:'st-avencer', lbl:'A Vencer', v: sum(avencer,function(r){return r.valor;})}
-  ];
-  document.getElementById('statusTotals').innerHTML = totals.map(function(t){
-    return '<div class="st-row '+t.cls+'"><span class="swatch"></span><span class="lbl">'+t.lbl+'</span><span class="amt">'+brl(t.v)+'</span></div>';
-  }).join('');
-}
-
 function renderDescRanking(rows){
   var byDesc = {};
   rows.forEach(function(r){
@@ -2008,16 +1967,31 @@ function renderDescRanking(rows){
 function renderRanking(rows){
   var byNome = {};
   rows.forEach(function(r){
-    byNome[r.nome] = (byNome[r.nome]||0) + r.valor;
+    if (!byNome[r.nome]) byNome[r.nome] = {total:0, pago:0, vencido:0, hoje:0, avencer:0};
+    var b = byNome[r.nome];
+    b.total += r.valor;
+    if (r.status === 'pago') b.pago += r.valor;
+    else if (r.status === 'vencido') b.vencido += r.valor;
+    else if (r.status === 'hoje') b.hoje += r.valor;
+    else b.avencer += r.valor;
   });
-  var entries = Object.keys(byNome).map(function(k){return {nome:k, total:byNome[k]};}).sort(function(a,b){return b.total-a.total;});
+  var entries = Object.keys(byNome).map(function(k){
+    var b = byNome[k];
+    return {nome:k, total:b.total, pago:b.pago, vencido:b.vencido, hoje:b.hoje, avencer:b.avencer};
+  }).sort(function(a,b){return b.total-a.total;});
   document.getElementById('rankCount').textContent = entries.length + (entries.length===1 ? ' pessoa' : ' pessoas');
   var top = entries.slice(0, 10);
   var max = top.length ? top[0].total : 1;
+  var STATUS_LBL = {pago:'Pago', vencido:'Vencido', hoje:'Vence hoje', avencer:'A vencer'};
   document.getElementById('rankBody').innerHTML = top.length ? top.map(function(e){
     var pct = (e.total/max*100).toFixed(1);
+    var segs = ['pago','vencido','hoje','avencer'].map(function(k){
+      var p = e.total > 0 ? (e[k]/e.total*100) : 0;
+      if (p <= 0) return '';
+      return '<span class="seg seg-'+k+'" style="width:'+p.toFixed(2)+'%" title="'+STATUS_LBL[k]+': '+brl(e[k])+'"></span>';
+    }).join('');
     return '<div class="rank-row"><span class="name" title="'+e.nome+'">'+e.nome+'</span>'+
-      '<span class="track"><span class="fill" style="width:'+pct+'%"></span></span>'+
+      '<span class="track"><span class="fillwrap" style="width:'+pct+'%">'+segs+'</span></span>'+
       '<span class="amt">'+brl(e.total)+'</span></div>';
   }).join('') : '<div class="empty-note">Sem dados para os filtros selecionados.</div>';
 }
@@ -2026,7 +2000,6 @@ function render(){
   var rows = filtered();
   renderKpis(rows);
   renderTable(rows);
-  renderAging(rows);
   renderDescRanking(rows);
   renderRanking(rows);
 }
