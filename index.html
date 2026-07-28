@@ -78,9 +78,6 @@
   }
   .brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);}
 
-  .header-actions{
-    display:flex;align-items:center;gap:10px;flex:none;
-  }
   .filters{
     display:flex;
     flex-wrap:wrap;
@@ -126,6 +123,42 @@
   .filters-drawer .filter-field{width:100% !important;}
   .filters-drawer .filter-resizer{display:none;}
   @media (max-width:640px){ .filters-drawer{width:100%;max-width:100%;} }
+
+  /* ---- gaveta lateral de ações (retrátil ao passar o mouse, lado direito) ---- */
+  .actions-drawer-backdrop{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;
+  }
+  .actions-drawer-backdrop.pinned{display:block;}
+  .actions-drawer{
+    position:fixed;top:0;right:0;height:100vh;width:320px;max-width:88vw;
+    background:var(--surface);border-left:1px solid var(--border-strong);
+    box-shadow:-14px 0 40px rgba(0,0,0,.55);
+    transform:translateX(calc(100% - 40px));transition:transform .2s ease;
+    z-index:901;display:flex;flex-direction:column;
+  }
+  .actions-drawer:hover, .actions-drawer.pinned{transform:translateX(0);}
+  .actions-drawer.force-closed{transform:translateX(calc(100% - 40px)) !important;}
+  .actions-peek-tab{
+    position:absolute;top:50%;left:-41px;transform:translateY(-50%);
+    width:41px;height:130px;background:var(--surface);border:1px solid var(--border-strong);border-right:none;
+    border-radius:10px 0 0 10px;box-shadow:-6px 0 16px rgba(0,0,0,.4);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+  }
+  .actions-peek-tab svg{width:15px;height:15px;color:var(--ink-soft);flex:none;}
+  .actions-peek-tab span{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font:600 12px var(--sans);letter-spacing:.06em;color:var(--ink-soft);white-space:nowrap;
+  }
+  .actions-peek-tab:hover svg, .actions-peek-tab:hover span{color:var(--chart-soft);}
+  .actions-drawer-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
+  }
+  .actions-drawer-head h2{font-size:15px;margin:0;font-weight:700;}
+  .actions-drawer-body{padding:16px 18px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;}
+  .actions-drawer-body .user-chip{width:100%;justify-content:space-between;}
+  .actions-drawer-body .clear-btn, .actions-drawer-body .add-btn{width:100%;justify-content:center;height:auto;padding:10px 14px;}
+  @media (max-width:640px){ .actions-drawer{width:100%;max-width:100%;} }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
     cursor:col-resize;user-select:none;z-index:6;
@@ -211,16 +244,6 @@
     opacity:0;transition:opacity .12s ease;z-index:5;
   }
   .filter-field:hover .filter-remove{opacity:1;}
-  .filter-move{
-    position:absolute;bottom:-9px;right:8px;display:flex;gap:2px;
-    opacity:0;transition:opacity .12s ease;z-index:6;
-  }
-  .filter-field:hover .filter-move{opacity:1;}
-  .filter-move-btn{
-    width:17px;height:17px;border-radius:4px;background:var(--surface-3);border:1px solid var(--border-strong);
-    color:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:8px;padding:0;line-height:1;
-  }
-  .filter-move-btn:hover{background:var(--surface);color:var(--ink);border-color:var(--chart);}
   .filter-remove:hover{background:var(--critical-dim);color:var(--critical);border-color:var(--critical);}
   .filters-manage-wrap{position:relative;}
   .filters-manage-btn{
@@ -570,8 +593,6 @@
     .brand h1{font-size:19px;}
     .brand p{font-size:11.5px;}
     .head-row{gap:10px;margin-bottom:12px;}
-    .header-actions{flex-wrap:wrap;gap:8px;width:100%;}
-    .header-actions .user-chip{order:-1;width:100%;justify-content:space-between;}
     .filters{gap:8px;margin-bottom:14px;}
     .filter-field{width:calc(50% - 4px) !important;}
     .kpis{gap:8px;margin-bottom:12px;}
@@ -593,7 +614,19 @@
       <h1>CAP</h1>
       <p>Contas a Pagar</p>
     </div>
-    <div class="header-actions">
+  </div>
+
+  <div class="actions-drawer-backdrop" id="actionsDrawerBackdrop"></div>
+  <div class="actions-drawer" id="actionsDrawer">
+    <div class="actions-peek-tab" id="actionsPeekTab" title="Passe o mouse ou clique para abrir as ações">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
+      <span>Ações</span>
+    </div>
+    <div class="actions-drawer-head">
+      <h2>Ações</h2>
+      <button type="button" class="ebtn ghost" id="actionsDrawerCloseBtn">Fechar</button>
+    </div>
+    <div class="actions-drawer-body">
       <div class="user-chip" id="userChip" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/></svg>
         <span id="userName"></span>
@@ -1289,6 +1322,7 @@ document.addEventListener('keydown', function(ev){
     document.getElementById('filtersManageWrap').classList.remove('open');
     document.getElementById('columnsManageWrap').classList.remove('open');
     fecharGavetaFiltros();
+    fecharGavetaAcoes();
   }
 });
 function abrirGavetaFiltros(){
@@ -1314,6 +1348,30 @@ document.getElementById('filtersDrawerCloseBtn').addEventListener('click', funct
   fecharGavetaFiltros();
 });
 document.getElementById('filtersDrawerBackdrop').addEventListener('click', fecharGavetaFiltros);
+
+function abrirGavetaAcoes(){
+  document.getElementById('actionsDrawer').classList.add('pinned');
+  document.getElementById('actionsDrawerBackdrop').classList.add('pinned');
+}
+function fecharGavetaAcoes(){
+  var drawer = document.getElementById('actionsDrawer');
+  drawer.classList.remove('pinned');
+  drawer.classList.add('force-closed');
+  document.getElementById('actionsDrawerBackdrop').classList.remove('pinned');
+}
+document.getElementById('actionsDrawer').addEventListener('mouseleave', function(){
+  this.classList.remove('force-closed');
+});
+document.getElementById('actionsPeekTab').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  var jaFixada = document.getElementById('actionsDrawer').classList.contains('pinned');
+  if (jaFixada) fecharGavetaAcoes(); else abrirGavetaAcoes();
+});
+document.getElementById('actionsDrawerCloseBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  fecharGavetaAcoes();
+});
+document.getElementById('actionsDrawerBackdrop').addEventListener('click', fecharGavetaAcoes);
 document.getElementById('filtersManageBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
   var wrap = document.getElementById('filtersManageWrap');
@@ -1434,40 +1492,6 @@ function buildFilters(){
       });
     });
     wrap.appendChild(removeBtn);
-
-    var moveWrap = document.createElement('div');
-    moveWrap.className = 'filter-move';
-    var moveLeftBtn = document.createElement('button');
-    moveLeftBtn.type = 'button';
-    moveLeftBtn.className = 'filter-move-btn';
-    moveLeftBtn.title = 'Mover uma posição para a esquerda';
-    moveLeftBtn.textContent = '◀';
-    var moveRightBtn = document.createElement('button');
-    moveRightBtn.type = 'button';
-    moveRightBtn.className = 'filter-move-btn';
-    moveRightBtn.title = 'Mover uma posição para a direita';
-    moveRightBtn.textContent = '▶';
-    function moverFiltro(delta){
-      pedirSenha('Digite a senha para mover este filtro:', function(ok){
-        if (!ok) return;
-        var visiveis = filterOrder.filter(function(k){ return filterVisibility[k] !== false; });
-        var posAtual = visiveis.indexOf(key);
-        var posNova = posAtual + delta;
-        if (posNova < 0 || posNova >= visiveis.length) return;
-        var vizinho = visiveis[posNova];
-        var i1 = filterOrder.indexOf(key);
-        var i2 = filterOrder.indexOf(vizinho);
-        filterOrder[i1] = vizinho;
-        filterOrder[i2] = key;
-        saveFilterOrder(filterOrder);
-        buildFilters();
-      });
-    }
-    moveLeftBtn.addEventListener('click', function(ev){ ev.stopPropagation(); moverFiltro(-1); });
-    moveRightBtn.addEventListener('click', function(ev){ ev.stopPropagation(); moverFiltro(1); });
-    moveWrap.appendChild(moveLeftBtn);
-    moveWrap.appendChild(moveRightBtn);
-    wrap.appendChild(moveWrap);
 
     var label = document.createElement('label');
     label.textContent = f.label;
