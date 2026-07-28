@@ -352,7 +352,14 @@
   @media (max-width:760px){ .bottom{grid-template-columns:1fr;max-height:none;} }
 
   .rank-body{padding:12px 16px 14px;flex:1;min-height:0;overflow:auto;}
-  .rank-row{display:flex;align-items:center;gap:10px;padding:7px 0;}
+  .rank-row{
+    display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;
+    cursor:pointer;border-radius:6px;
+  }
+  .rank-row:hover{background:var(--surface-3);}
+  .rank-row.active{background:var(--chart);}
+  .rank-row.active .name, .rank-row.active .amt{color:#fff;}
+  #descRankBody:has(.rank-row.active) .rank-row:not(.active){opacity:.45;}
   .rank-row .name{
     flex:0 0 150px;font-size:11.5px;color:var(--ink-soft);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -1981,9 +1988,12 @@ function renderDescRanking(rows){
   document.getElementById('descRankCount').textContent = entries.length + (entries.length===1 ? ' descrição' : ' descrições');
   var top = entries.slice(0, 10);
   var max = top.length ? top[0].total : 1;
+  var descAtivo = Array.isArray(state.desc) ? state.desc : null;
   document.getElementById('descRankBody').innerHTML = top.length ? top.map(function(e){
     var pct = (e.total/max*100).toFixed(1);
-    return '<div class="rank-row"><span class="name" title="'+e.desc+'">'+e.desc+'</span>'+
+    var descAttr = e.desc.replace(/"/g,'&quot;');
+    var ativo = !!(descAtivo && descAtivo.indexOf(e.desc) !== -1);
+    return '<div class="rank-row'+(ativo?' active':'')+'" data-desc="'+descAttr+'" title="Clique para filtrar por '+descAttr+'"><span class="name" title="'+e.desc+'">'+e.desc+'</span>'+
       '<span class="track"><span class="fill" style="width:'+pct+'%"></span></span>'+
       '<span class="amt">'+brl(e.total)+'</span></div>';
   }).join('') : '<div class="empty-note">Sem dados para os filtros selecionados.</div>';
@@ -2031,7 +2041,7 @@ function render(){
   var rows = filtered();
   renderKpis(rows);
   renderTable(rows);
-  renderDescRanking(rows);
+  renderDescRanking(filtered(['desc']));
   renderRanking(filtered(['nome','status']));
 }
 
@@ -2039,14 +2049,31 @@ document.getElementById('rankBody').addEventListener('click', function(ev){
   var itemEl = ev.target.closest('.rank-col-item');
   var nameEl = ev.target.closest('.rank-col-name');
   if (itemEl) {
-    state.nome = [itemEl.getAttribute('data-nome')];
-    state.status = [itemEl.getAttribute('data-status')];
+    var nome1 = itemEl.getAttribute('data-nome');
+    var status1 = itemEl.getAttribute('data-status');
+    var jaSelecionado1 = Array.isArray(state.nome) && state.nome.length===1 && state.nome[0]===nome1 &&
+      Array.isArray(state.status) && state.status.length===1 && state.status[0]===status1;
+    if (jaSelecionado1) { state.nome = 'todos'; state.status = 'todos'; }
+    else { state.nome = [nome1]; state.status = [status1]; }
   } else if (nameEl) {
-    state.nome = [nameEl.getAttribute('data-nome')];
-    state.status = 'todos';
+    var nome2 = nameEl.getAttribute('data-nome');
+    var jaSelecionado2 = Array.isArray(state.nome) && state.nome.length===1 && state.nome[0]===nome2 && state.status === 'todos';
+    if (jaSelecionado2) { state.nome = 'todos'; }
+    else { state.nome = [nome2]; state.status = 'todos'; }
   } else {
     return;
   }
+  buildFilters();
+  updateClearButton();
+  render();
+});
+
+document.getElementById('descRankBody').addEventListener('click', function(ev){
+  var descEl = ev.target.closest('.rank-row[data-desc]');
+  if (!descEl) return;
+  var desc = descEl.getAttribute('data-desc');
+  var jaSelecionado = Array.isArray(state.desc) && state.desc.length===1 && state.desc[0]===desc;
+  state.desc = jaSelecionado ? 'todos' : [desc];
   buildFilters();
   updateClearButton();
   render();
