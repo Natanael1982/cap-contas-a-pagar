@@ -371,6 +371,9 @@
     cursor:pointer;border-radius:5px;margin:-3px -6px 4px;padding:3px 6px;
   }
   .rank-col-name:hover{background:var(--surface-3);color:var(--chart-soft);}
+  .rank-col-name.active{background:var(--chart);color:#fff;}
+  .rank-col.active{opacity:1;}
+  .rank-cols:has(.rank-col.active) .rank-col:not(.active){opacity:.45;}
   .rank-col-total{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-soft);margin-bottom:14px;}
   .rank-col-list{display:flex;flex-direction:column;gap:10px;}
   .rank-col-item{
@@ -378,6 +381,8 @@
     cursor:pointer;border-radius:5px;margin:0 -6px;padding:3px 6px;
   }
   .rank-col-item:hover{background:var(--surface-3);}
+  .rank-col-item.active{background:var(--chart);}
+  .rank-col-item.active .rank-col-item-lbl, .rank-col-item.active .rank-col-item-val{color:#fff;}
   .rank-col-item .rank-col-item-lbl{color:var(--ink-muted);flex:1;}
   .rank-col-item .rank-col-item-val{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
 
@@ -1586,9 +1591,11 @@ function rowMatchesFilterValue(r, f, v){
   if (f.key === 'pag' && v === 'sem') return !r.pag;
   return String(r[f.key]) === String(v);
 }
-function filtered(){
+function filtered(excluirChaves){
+  excluirChaves = excluirChaves || [];
   return DATA.filter(function(r){
     return FIELDS.every(function(f){
+      if (excluirChaves.indexOf(f.key) !== -1) return true;
       var sel = state[f.key];
       if (sel === 'todos') return true;
       return sel.some(function(v){ return rowMatchesFilterValue(r, f, v); });
@@ -2000,16 +2007,20 @@ function renderRanking(rows){
   document.getElementById('rankCount').textContent = entries.length + (entries.length===1 ? ' pessoa' : ' pessoas');
   var top = entries.slice(0, 10);
   var STATUS_LBL = {pago:'Pago', vencido:'Em atraso', hoje:'Vence hoje', avencer:'A vencer'};
+  var nomeAtivo = Array.isArray(state.nome) ? state.nome : null;
+  var statusAtivo = Array.isArray(state.status) ? state.status : null;
   document.getElementById('rankBody').innerHTML = top.length ? '<div class="rank-cols">' + top.map(function(e){
     var nomeAttr = e.nome.replace(/"/g,'&quot;');
+    var nomeSelecionado = !!(nomeAtivo && nomeAtivo.indexOf(e.nome) !== -1);
     var itens = ['pago','vencido','hoje','avencer'].filter(function(k){ return e[k] > 0; }).map(function(k){
-      return '<div class="rank-col-item" data-nome="'+nomeAttr+'" data-status="'+k+'" title="Clique para filtrar">'+
+      var itemAtivo = nomeSelecionado && !!(statusAtivo && statusAtivo.indexOf(k) !== -1);
+      return '<div class="rank-col-item'+(itemAtivo?' active':'')+'" data-nome="'+nomeAttr+'" data-status="'+k+'" title="Clique para filtrar">'+
         '<span class="rank-swatch rank-swatch-'+k+'"></span>'+
         '<span class="rank-col-item-lbl">'+STATUS_LBL[k]+'</span>'+
         '<span class="rank-col-item-val">'+brl(e[k])+'</span></div>';
     }).join('');
-    return '<div class="rank-col">'+
-      '<span class="rank-col-name" data-nome="'+nomeAttr+'" title="Clique para filtrar por '+nomeAttr+'">'+e.nome+'</span>'+
+    return '<div class="rank-col'+(nomeSelecionado?' active':'')+'">'+
+      '<span class="rank-col-name'+(nomeSelecionado?' active':'')+'" data-nome="'+nomeAttr+'" title="Clique para filtrar por '+nomeAttr+'">'+e.nome+'</span>'+
       '<span class="rank-col-total">Total: '+brl(e.total)+'</span>'+
       '<div class="rank-col-list">'+itens+'</div>'+
       '</div>';
@@ -2021,7 +2032,7 @@ function render(){
   renderKpis(rows);
   renderTable(rows);
   renderDescRanking(rows);
-  renderRanking(rows);
+  renderRanking(filtered(['nome','status']));
 }
 
 document.getElementById('rankBody').addEventListener('click', function(ev){
@@ -2032,6 +2043,7 @@ document.getElementById('rankBody').addEventListener('click', function(ev){
     state.status = [itemEl.getAttribute('data-status')];
   } else if (nameEl) {
     state.nome = [nameEl.getAttribute('data-nome')];
+    state.status = 'todos';
   } else {
     return;
   }
