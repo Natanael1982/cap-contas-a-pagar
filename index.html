@@ -33,6 +33,8 @@
     --alerta3-dim:rgba(232,197,71,.16);
     --chart:#3987e5;
     --chart-soft:#6da7ec;
+    --select:#c9ccd6;
+    --select-ink:#1a1d27;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --mono:ui-monospace,"Cascadia Code","SFMono-Regular",Consolas,"Liberation Mono",monospace;
     color-scheme: dark;
@@ -103,16 +105,12 @@
   .filters-drawer.force-closed{transform:translateX(calc(-100% + 40px)) !important;}
   .filters-peek-tab{
     position:absolute;top:50%;right:-41px;transform:translateY(-50%);
-    width:41px;height:130px;background:var(--surface);border:1px solid var(--border-strong);border-left:none;
+    width:41px;height:48px;background:var(--surface);border:1px solid var(--border-strong);border-left:none;
     border-radius:0 10px 10px 0;box-shadow:6px 0 16px rgba(0,0,0,.4);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
   }
-  .filters-peek-tab svg{width:15px;height:15px;color:var(--ink-soft);flex:none;}
-  .filters-peek-tab span{
-    writing-mode:vertical-rl;transform:rotate(180deg);
-    font:600 12px var(--sans);letter-spacing:.06em;color:var(--ink-soft);white-space:nowrap;
-  }
-  .filters-peek-tab:hover svg, .filters-peek-tab:hover span{color:var(--chart-soft);}
+  .filters-peek-tab svg{width:16px;height:16px;color:var(--ink-soft);flex:none;}
+  .filters-peek-tab:hover svg{color:var(--chart-soft);}
   .filters-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
     padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
@@ -140,16 +138,12 @@
   .actions-drawer.force-closed{transform:translateX(calc(100% - 40px)) !important;}
   .actions-peek-tab{
     position:absolute;top:50%;left:-41px;transform:translateY(-50%);
-    width:41px;height:130px;background:var(--surface);border:1px solid var(--border-strong);border-right:none;
+    width:41px;height:48px;background:var(--surface);border:1px solid var(--border-strong);border-right:none;
     border-radius:10px 0 0 10px;box-shadow:-6px 0 16px rgba(0,0,0,.4);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
   }
-  .actions-peek-tab svg{width:15px;height:15px;color:var(--ink-soft);flex:none;}
-  .actions-peek-tab span{
-    writing-mode:vertical-rl;transform:rotate(180deg);
-    font:600 12px var(--sans);letter-spacing:.06em;color:var(--ink-soft);white-space:nowrap;
-  }
-  .actions-peek-tab:hover svg, .actions-peek-tab:hover span{color:var(--chart-soft);}
+  .actions-peek-tab svg{width:16px;height:16px;color:var(--ink-soft);flex:none;}
+  .actions-peek-tab:hover svg{color:var(--chart-soft);}
   .actions-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
     padding:16px 18px;border-bottom:1px solid var(--border);flex:none;
@@ -343,8 +337,8 @@
   table.cap tbody td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;}
   table.cap tbody tr{cursor:pointer;}
   table.cap tbody tr:hover td{background:var(--surface-2);}
-  table.cap tbody tr.active td{background:var(--chart);color:#fff;}
-  table.cap tbody tr.active td .muted{color:rgba(255,255,255,.75);}
+  table.cap tbody tr.active td{background:var(--select);color:var(--select-ink);}
+  table.cap tbody tr.active td .muted{color:rgba(26,29,39,.65);}
   table.cap .muted{color:var(--ink-muted);font-size:11px;}
   table.cap .desc-cell{overflow:hidden;text-overflow:ellipsis;}
   table.cap tfoot td{
@@ -396,8 +390,8 @@
     cursor:pointer;border-radius:6px;
   }
   .rank-row:hover{background:var(--surface-3);}
-  .rank-row.active{background:var(--chart);}
-  .rank-row.active .name, .rank-row.active .amt{color:#fff;}
+  .rank-row.active{background:var(--select);}
+  .rank-row.active .name, .rank-row.active .amt{color:var(--select-ink);}
   #descRankBody:has(.rank-row.active) .rank-row:not(.active){opacity:.45;}
   .rank-row .name{
     flex:0 0 150px;font-size:11.5px;color:var(--ink-soft);
@@ -417,7 +411,7 @@
     cursor:pointer;border-radius:5px;margin:-3px -6px 4px;padding:3px 6px;
   }
   .rank-col-name:hover{background:var(--surface-3);color:var(--chart-soft);}
-  .rank-col-name.active{background:var(--chart);color:#fff;}
+  .rank-col-name.active{background:var(--select);color:var(--select-ink);}
   .rank-col.active{opacity:1;}
   .rank-cols:has(.rank-col.active) .rank-col:not(.active){opacity:.45;}
   .rank-col-total{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-soft);margin-bottom:14px;}
@@ -427,8 +421,8 @@
     cursor:pointer;border-radius:5px;margin:0 -6px;padding:3px 6px;
   }
   .rank-col-item:hover{background:var(--surface-3);}
-  .rank-col-item.active{background:var(--chart);}
-  .rank-col-item.active .rank-col-item-lbl, .rank-col-item.active .rank-col-item-val{color:#fff;}
+  .rank-col-item.active{background:var(--select);}
+  .rank-col-item.active .rank-col-item-lbl, .rank-col-item.active .rank-col-item-val{color:var(--select-ink);}
   .rank-col-item .rank-col-item-lbl{color:var(--ink-muted);flex:1;}
   .rank-col-item .rank-col-item-val{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
 
@@ -620,7 +614,6 @@
   <div class="actions-drawer" id="actionsDrawer">
     <div class="actions-peek-tab" id="actionsPeekTab" title="Passe o mouse ou clique para abrir as ações">
       <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
-      <span>Ações</span>
     </div>
     <div class="actions-drawer-head">
       <h2>Ações</h2>
@@ -651,7 +644,6 @@
   <div class="filters-drawer" id="filtersDrawer">
     <div class="filters-peek-tab" id="filtersPeekTab" title="Passe o mouse ou clique para abrir os filtros">
       <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-      <span>Filtros</span>
     </div>
     <div class="filters-drawer-head">
       <h2>Filtros</h2>
