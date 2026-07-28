@@ -361,19 +361,25 @@
   .rank-row .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2a5fae,var(--chart));}
   .rank-row .amt{flex:0 0 84px;text-align:right;font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;}
 
-  .rank-cols{display:flex;align-items:flex-start;height:100%;padding:10px 4px;overflow-x:auto;}
-  .rank-col{display:flex;flex-direction:column;flex:0 0 auto;min-width:160px;padding:0 22px;}
-  .rank-col:first-child{padding-left:2px;}
+  .rank-cols{display:flex;align-items:stretch;justify-content:space-evenly;height:100%;padding:14px 10px;overflow-x:auto;gap:10px;}
+  .rank-col{display:flex;flex-direction:column;flex:0 1 220px;padding:0 24px;}
+  .rank-col:first-child{padding-left:6px;}
   .rank-col:not(:first-child){border-left:1px solid var(--border);}
   .rank-col-name{
-    font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:2px;
-    max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:4px;
+    max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    cursor:pointer;border-radius:5px;margin:-3px -6px 4px;padding:3px 6px;
   }
-  .rank-col-total{font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-soft);margin-bottom:10px;}
-  .rank-col-list{display:flex;flex-direction:column;gap:7px;}
-  .rank-col-item{display:flex;align-items:center;gap:7px;font-size:11.5px;white-space:nowrap;}
+  .rank-col-name:hover{background:var(--surface-3);color:var(--chart-soft);}
+  .rank-col-total{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-soft);margin-bottom:14px;}
+  .rank-col-list{display:flex;flex-direction:column;gap:10px;}
+  .rank-col-item{
+    display:flex;align-items:center;gap:8px;font-size:12.5px;white-space:nowrap;
+    cursor:pointer;border-radius:5px;margin:0 -6px;padding:3px 6px;
+  }
+  .rank-col-item:hover{background:var(--surface-3);}
   .rank-col-item .rank-col-item-lbl{color:var(--ink-muted);flex:1;}
-  .rank-col-item .rank-col-item-val{font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
+  .rank-col-item .rank-col-item-val{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
 
   .rank-legend{display:flex;flex-wrap:wrap;gap:12px;padding:0 16px 12px;flex:none;}
   .rank-legend-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-muted);}
@@ -1995,13 +2001,15 @@ function renderRanking(rows){
   var top = entries.slice(0, 10);
   var STATUS_LBL = {pago:'Pago', vencido:'Em atraso', hoje:'Vence hoje', avencer:'A vencer'};
   document.getElementById('rankBody').innerHTML = top.length ? '<div class="rank-cols">' + top.map(function(e){
+    var nomeAttr = e.nome.replace(/"/g,'&quot;');
     var itens = ['pago','vencido','hoje','avencer'].filter(function(k){ return e[k] > 0; }).map(function(k){
-      return '<div class="rank-col-item"><span class="rank-swatch rank-swatch-'+k+'"></span>'+
+      return '<div class="rank-col-item" data-nome="'+nomeAttr+'" data-status="'+k+'" title="Clique para filtrar">'+
+        '<span class="rank-swatch rank-swatch-'+k+'"></span>'+
         '<span class="rank-col-item-lbl">'+STATUS_LBL[k]+'</span>'+
         '<span class="rank-col-item-val">'+brl(e[k])+'</span></div>';
     }).join('');
     return '<div class="rank-col">'+
-      '<span class="rank-col-name" title="'+e.nome+'">'+e.nome+'</span>'+
+      '<span class="rank-col-name" data-nome="'+nomeAttr+'" title="Clique para filtrar por '+nomeAttr+'">'+e.nome+'</span>'+
       '<span class="rank-col-total">Total: '+brl(e.total)+'</span>'+
       '<div class="rank-col-list">'+itens+'</div>'+
       '</div>';
@@ -2015,6 +2023,22 @@ function render(){
   renderDescRanking(rows);
   renderRanking(rows);
 }
+
+document.getElementById('rankBody').addEventListener('click', function(ev){
+  var itemEl = ev.target.closest('.rank-col-item');
+  var nameEl = ev.target.closest('.rank-col-name');
+  if (itemEl) {
+    state.nome = [itemEl.getAttribute('data-nome')];
+    state.status = [itemEl.getAttribute('data-status')];
+  } else if (nameEl) {
+    state.nome = [nameEl.getAttribute('data-nome')];
+  } else {
+    return;
+  }
+  buildFilters();
+  updateClearButton();
+  render();
+});
 
 /* ---- entry form ---- */
 var dlist = document.getElementById('empresaList');
