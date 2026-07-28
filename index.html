@@ -98,13 +98,13 @@
     position:fixed;top:0;left:0;height:100vh;width:360px;max-width:88vw;
     background:var(--surface);border-right:1px solid var(--border-strong);
     box-shadow:14px 0 40px rgba(0,0,0,.55);
-    transform:translateX(calc(-100% + 40px));transition:transform .2s ease;
+    transform:translateX(-100%);transition:transform .2s ease;
     z-index:901;display:flex;flex-direction:column;
   }
   .filters-drawer:hover, .filters-drawer.pinned{transform:translateX(0);}
-  .filters-drawer.force-closed{transform:translateX(calc(-100% + 40px)) !important;}
+  .filters-drawer.force-closed{transform:translateX(-100%) !important;}
   .filters-peek-tab{
-    position:absolute;top:50%;right:-41px;transform:translateY(-50%);
+    position:absolute;top:24px;right:-41px;
     width:41px;height:48px;background:var(--surface);border:1px solid var(--border-strong);border-left:none;
     border-radius:0 10px 10px 0;box-shadow:6px 0 16px rgba(0,0,0,.4);
     display:flex;align-items:center;justify-content:center;cursor:pointer;
@@ -131,13 +131,13 @@
     position:fixed;top:0;right:0;height:100vh;width:320px;max-width:88vw;
     background:var(--surface);border-left:1px solid var(--border-strong);
     box-shadow:-14px 0 40px rgba(0,0,0,.55);
-    transform:translateX(calc(100% - 40px));transition:transform .2s ease;
+    transform:translateX(100%);transition:transform .2s ease;
     z-index:901;display:flex;flex-direction:column;
   }
   .actions-drawer:hover, .actions-drawer.pinned{transform:translateX(0);}
-  .actions-drawer.force-closed{transform:translateX(calc(100% - 40px)) !important;}
+  .actions-drawer.force-closed{transform:translateX(100%) !important;}
   .actions-peek-tab{
-    position:absolute;top:50%;left:-41px;transform:translateY(-50%);
+    position:absolute;top:24px;left:-41px;
     width:41px;height:48px;background:var(--surface);border:1px solid var(--border-strong);border-right:none;
     border-radius:10px 0 0 10px;box-shadow:-6px 0 16px rgba(0,0,0,.4);
     display:flex;align-items:center;justify-content:center;cursor:pointer;
