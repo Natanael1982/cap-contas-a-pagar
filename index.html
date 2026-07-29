@@ -83,12 +83,12 @@
   .filters{
     display:flex;
     flex-wrap:wrap;
-    gap:8px;
+    gap:10px;
     flex:none;
   }
-  .filter-field{flex:0 0 auto;width:auto;}
+  .filter-field{flex:0 0 auto;width:160px;}
 
-  /* ---- ícone fixo de Ações (modal central) ---- */
+  /* ---- ícones fixos no topo (Filtros + Ações), abrem modal central ---- */
   .quick-icons{display:flex;gap:10px;flex:none;}
   .icon-btn{
     width:38px;height:38px;border-radius:9px;background:var(--surface);border:1px solid var(--border);
@@ -99,65 +99,32 @@
   .icon-btn:hover{border-color:var(--border-strong);color:var(--ink);}
   .icon-btn.active{border-color:var(--chart);color:var(--chart-soft);}
 
-  .actions-modal-overlay{
+  .filters-modal-overlay, .actions-modal-overlay{
     display:none;position:fixed;inset:0;background:rgba(5,6,10,.65);
     align-items:center;justify-content:center;z-index:1000;
   }
-  .actions-modal-overlay.open{display:flex;}
-  .actions-drawer{
-    display:flex;position:relative;width:320px;max-width:92vw;max-height:80vh;
+  .filters-modal-overlay.open, .actions-modal-overlay.open{display:flex;}
+  .filters-drawer, .actions-drawer{
+    display:flex;position:relative;width:400px;max-width:92vw;max-height:80vh;
     background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;
     box-shadow:0 30px 80px rgba(0,0,0,.6);
     flex-direction:column;overflow:hidden;
   }
-  .actions-drawer-head{
+  .actions-drawer{width:320px;}
+  .filters-drawer-head, .actions-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
     padding:14px 16px;border-bottom:1px solid var(--border);flex:none;
   }
-  .actions-drawer-head h2{font-size:14px;margin:0;font-weight:700;}
+  .filters-drawer-head h2, .actions-drawer-head h2{font-size:14px;margin:0;font-weight:700;}
+  .filters-drawer-body{padding:14px 16px;overflow:auto;flex:1;min-height:0;}
+  .filters-drawer .filters{display:flex;flex-direction:column;gap:14px;}
+  .filters-drawer .filter-field{width:100% !important;}
+  .filters-drawer .filter-resizer{display:none;}
   .actions-drawer-body{padding:14px 16px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;}
   .actions-drawer-body .user-chip{width:100%;justify-content:space-between;}
   .actions-drawer-body .clear-btn, .actions-drawer-body .add-btn{width:100%;justify-content:center;height:auto;padding:10px 14px;}
   @media (max-width:640px){
-    .actions-drawer{width:92vw;max-width:none;}
-  }
-
-  /* ---- Modelo H: linha fixa no computador, vira botão + tela cheia no celular ---- */
-  .filters-inline-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 16px 0;}
-  .filter-field label{display:none;}
-  .ss-control{width:auto;border-radius:999px;padding:6px 14px;gap:8px;}
-  .ss-control.active{background:var(--chart);border-color:var(--chart);color:#fff;}
-  .ss-control.active .ss-chevron{color:#fff;}
-  .filter-chip-add{
-    width:30px;height:30px;border-radius:50%;background:var(--surface);border:1px dashed var(--border-strong);
-    color:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
-  }
-  .filter-chip-add svg{width:14px;height:14px;}
-  .filter-chip-add:hover{border-color:var(--chart);color:var(--chart-soft);}
-  .filters-panel-wrap{display:contents;}
-  .filters-mobile-toggle{
-    display:none;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);
-    color:var(--ink-soft);font:600 12px var(--sans);padding:8px 14px;border-radius:999px;cursor:pointer;flex:none;
-  }
-  .filters-mobile-toggle svg{width:15px;height:15px;flex:none;}
-  .filters-mobile-count{
-    background:var(--chart);color:#fff;border-radius:999px;padding:1px 7px;font-size:10.5px;font-weight:700;
-  }
-  .filters-panel-close-row{display:none;}
-  @media (max-width:640px){
-    .filters-mobile-toggle{display:flex;}
-    .filters-panel-wrap{display:none;}
-    .filters-panel-wrap.open{
-      display:flex;flex-direction:column;gap:14px;position:fixed;inset:0;z-index:1000;
-      background:var(--surface);padding:16px;overflow:auto;
-    }
-    .filters-panel-wrap.open .filters-panel-close-row{
-      display:flex;justify-content:space-between;align-items:center;
-    }
-    .filters-panel-close-row .filters-panel-title{font-weight:700;font-size:14px;}
-    .filters-panel-wrap.open .filters{flex-direction:column;}
-    .filters-panel-wrap.open .filter-field{width:100% !important;}
-    .filters-panel-wrap.open .ss-control{border-radius:8px;width:100%;}
+    .filters-drawer, .actions-drawer{width:92vw;max-width:none;}
   }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
@@ -611,6 +578,9 @@
       <p>Contas a Pagar</p>
     </div>
     <div class="quick-icons">
+      <button class="icon-btn" id="filtersIconBtn" type="button" title="Filtros">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
       <button class="icon-btn" id="actionsIconBtn" type="button" title="Ações">
         <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
       </button>
@@ -641,6 +611,27 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Novo lançamento
       </button>
+    </div>
+  </div>
+  </div>
+
+  <div class="filters-modal-overlay" id="filtersModalOverlay">
+  <div class="filters-drawer" id="filtersDrawer">
+    <div class="filters-drawer-head">
+      <h2>Filtros</h2>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="filters-manage-wrap" id="filtersManageWrap">
+          <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar de volta um filtro oculto">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Gerenciar
+          </button>
+          <div class="filters-manage-menu" id="filtersManageMenu"></div>
+        </div>
+        <button type="button" class="ebtn ghost" id="filtersDrawerCloseBtn">Fechar</button>
+      </div>
+    </div>
+    <div class="filters-drawer-body">
+      <div class="filters" id="filters"></div>
     </div>
   </div>
   </div>
@@ -785,26 +776,6 @@
             <div class="filters-manage-menu" id="columnsManageMenu"></div>
           </div>
           <span class="count" id="tableCount">147 títulos</span>
-        </div>
-      </div>
-      <div class="filters-inline-row">
-        <button class="filters-mobile-toggle" id="filtersMobileToggle" type="button">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span>Filtros</span>
-          <span class="filters-mobile-count" id="filtersMobileCount" style="display:none;"></span>
-        </button>
-        <div class="filters-panel-wrap" id="filtersPanelWrap">
-          <div class="filters-panel-close-row">
-            <span class="filters-panel-title">Filtros</span>
-            <button type="button" class="ebtn ghost" id="filtersPanelCloseBtn">Fechar</button>
-          </div>
-          <div class="filters" id="filters"></div>
-          <div class="filters-manage-wrap" id="filtersManageWrap">
-            <button class="filter-chip-add" id="filtersManageBtn" type="button" title="Adicionar de volta um filtro oculto">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </button>
-            <div class="filters-manage-menu" id="filtersManageMenu"></div>
-          </div>
         </div>
       </div>
       <p class="table-hint">Arraste o cabeçalho para reordenar as colunas · arraste a borda direita para redimensionar · passe o mouse no título pra remover</p>
@@ -1302,15 +1273,6 @@ function uniqueSorted(key){
 
 var filtersRoot = document.getElementById('filters');
 
-document.getElementById('filtersMobileToggle').addEventListener('click', function(ev){
-  ev.stopPropagation();
-  document.getElementById('filtersPanelWrap').classList.add('open');
-});
-document.getElementById('filtersPanelCloseBtn').addEventListener('click', function(ev){
-  ev.stopPropagation();
-  document.getElementById('filtersPanelWrap').classList.remove('open');
-});
-
 function closeAllFilterDropdowns(){
   document.querySelectorAll('.filter-field.ss.open').forEach(function(w){ w.classList.remove('open'); });
 }
@@ -1318,6 +1280,7 @@ document.addEventListener('click', function(){
   closeAllFilterDropdowns();
   document.getElementById('filtersManageWrap').classList.remove('open');
   document.getElementById('columnsManageWrap').classList.remove('open');
+  fecharGavetaFiltros();
   fecharGavetaAcoes();
 });
 document.addEventListener('keydown', function(ev){
@@ -1325,8 +1288,30 @@ document.addEventListener('keydown', function(ev){
     closeAllFilterDropdowns();
     document.getElementById('filtersManageWrap').classList.remove('open');
     document.getElementById('columnsManageWrap').classList.remove('open');
+    fecharGavetaFiltros();
     fecharGavetaAcoes();
   }
+});
+
+function abrirGavetaFiltros(){
+  document.getElementById('filtersModalOverlay').classList.add('open');
+  document.getElementById('filtersIconBtn').classList.add('active');
+}
+function fecharGavetaFiltros(){
+  document.getElementById('filtersModalOverlay').classList.remove('open');
+  document.getElementById('filtersIconBtn').classList.remove('active');
+}
+document.getElementById('filtersIconBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  var jaAberta = document.getElementById('filtersModalOverlay').classList.contains('open');
+  fecharGavetaAcoes();
+  if (jaAberta) fecharGavetaFiltros(); else abrirGavetaFiltros();
+});
+document.getElementById('filtersModalOverlay').addEventListener('click', fecharGavetaFiltros);
+document.getElementById('filtersDrawer').addEventListener('click', function(ev){ ev.stopPropagation(); });
+document.getElementById('filtersDrawerCloseBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  fecharGavetaFiltros();
 });
 
 function abrirGavetaAcoes(){
@@ -1340,6 +1325,7 @@ function fecharGavetaAcoes(){
 document.getElementById('actionsIconBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
   var jaAberta = document.getElementById('actionsModalOverlay').classList.contains('open');
+  fecharGavetaFiltros();
   if (jaAberta) fecharGavetaAcoes(); else abrirGavetaAcoes();
 });
 document.getElementById('actionsModalOverlay').addEventListener('click', fecharGavetaAcoes);
@@ -1542,7 +1528,7 @@ function buildFilters(){
       if (sel === 'todos') text = 'Todos';
       else if (sel.length === 1) text = optLabel(sel[0]);
       else text = sel.length + ' selecionados';
-      valueSpan.textContent = f.label + ': ' + text;
+      valueSpan.textContent = text;
       control.classList.toggle('active', sel !== 'todos');
     }
     updateControlLabel();
@@ -1603,12 +1589,9 @@ function buildFilters(){
 
 function updateClearButton(){
   var btn = document.getElementById('clearBtn');
-  var ativos = FIELDS.filter(function(f){ return state[f.key] !== 'todos'; });
-  btn.classList.toggle('has-filters', ativos.length > 0);
-  btn.disabled = ativos.length === 0;
-  var count = document.getElementById('filtersMobileCount');
-  if (ativos.length > 0) { count.textContent = ativos.length; count.style.display = ''; }
-  else { count.style.display = 'none'; }
+  var active = FIELDS.some(function(f){ return state[f.key] !== 'todos'; });
+  btn.classList.toggle('has-filters', active);
+  btn.disabled = !active;
 }
 document.getElementById('clearBtn').addEventListener('click', function(){
   FIELDS.forEach(function(f){ state[f.key] = 'todos'; });
