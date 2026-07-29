@@ -122,7 +122,7 @@
     .actions-drawer{width:92vw;max-width:none;}
   }
 
-  /* ---- Modelo F: chips de filtro inline (estilo Notion/Airtable) ---- */
+  /* ---- Modelo H: linha fixa no computador, vira botão + tela cheia no celular ---- */
   .filters-inline-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 16px 0;}
   .filter-field label{display:none;}
   .ss-control{width:auto;border-radius:999px;padding:6px 14px;gap:8px;}
@@ -134,6 +134,31 @@
   }
   .filter-chip-add svg{width:14px;height:14px;}
   .filter-chip-add:hover{border-color:var(--chart);color:var(--chart-soft);}
+  .filters-panel-wrap{display:contents;}
+  .filters-mobile-toggle{
+    display:none;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);
+    color:var(--ink-soft);font:600 12px var(--sans);padding:8px 14px;border-radius:999px;cursor:pointer;flex:none;
+  }
+  .filters-mobile-toggle svg{width:15px;height:15px;flex:none;}
+  .filters-mobile-count{
+    background:var(--chart);color:#fff;border-radius:999px;padding:1px 7px;font-size:10.5px;font-weight:700;
+  }
+  .filters-panel-close-row{display:none;}
+  @media (max-width:640px){
+    .filters-mobile-toggle{display:flex;}
+    .filters-panel-wrap{display:none;}
+    .filters-panel-wrap.open{
+      display:flex;flex-direction:column;gap:14px;position:fixed;inset:0;z-index:1000;
+      background:var(--surface);padding:16px;overflow:auto;
+    }
+    .filters-panel-wrap.open .filters-panel-close-row{
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .filters-panel-close-row .filters-panel-title{font-weight:700;font-size:14px;}
+    .filters-panel-wrap.open .filters{flex-direction:column;}
+    .filters-panel-wrap.open .filter-field{width:100% !important;}
+    .filters-panel-wrap.open .ss-control{border-radius:8px;width:100%;}
+  }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
     cursor:col-resize;user-select:none;z-index:6;
@@ -763,12 +788,23 @@
         </div>
       </div>
       <div class="filters-inline-row">
-        <div class="filters" id="filters"></div>
-        <div class="filters-manage-wrap" id="filtersManageWrap">
-          <button class="filter-chip-add" id="filtersManageBtn" type="button" title="Adicionar de volta um filtro oculto">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          </button>
-          <div class="filters-manage-menu" id="filtersManageMenu"></div>
+        <button class="filters-mobile-toggle" id="filtersMobileToggle" type="button">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span>Filtros</span>
+          <span class="filters-mobile-count" id="filtersMobileCount" style="display:none;"></span>
+        </button>
+        <div class="filters-panel-wrap" id="filtersPanelWrap">
+          <div class="filters-panel-close-row">
+            <span class="filters-panel-title">Filtros</span>
+            <button type="button" class="ebtn ghost" id="filtersPanelCloseBtn">Fechar</button>
+          </div>
+          <div class="filters" id="filters"></div>
+          <div class="filters-manage-wrap" id="filtersManageWrap">
+            <button class="filter-chip-add" id="filtersManageBtn" type="button" title="Adicionar de volta um filtro oculto">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <div class="filters-manage-menu" id="filtersManageMenu"></div>
+          </div>
         </div>
       </div>
       <p class="table-hint">Arraste o cabeçalho para reordenar as colunas · arraste a borda direita para redimensionar · passe o mouse no título pra remover</p>
@@ -1266,6 +1302,15 @@ function uniqueSorted(key){
 
 var filtersRoot = document.getElementById('filters');
 
+document.getElementById('filtersMobileToggle').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  document.getElementById('filtersPanelWrap').classList.add('open');
+});
+document.getElementById('filtersPanelCloseBtn').addEventListener('click', function(ev){
+  ev.stopPropagation();
+  document.getElementById('filtersPanelWrap').classList.remove('open');
+});
+
 function closeAllFilterDropdowns(){
   document.querySelectorAll('.filter-field.ss.open').forEach(function(w){ w.classList.remove('open'); });
 }
@@ -1558,9 +1603,12 @@ function buildFilters(){
 
 function updateClearButton(){
   var btn = document.getElementById('clearBtn');
-  var active = FIELDS.some(function(f){ return state[f.key] !== 'todos'; });
-  btn.classList.toggle('has-filters', active);
-  btn.disabled = !active;
+  var ativos = FIELDS.filter(function(f){ return state[f.key] !== 'todos'; });
+  btn.classList.toggle('has-filters', ativos.length > 0);
+  btn.disabled = ativos.length === 0;
+  var count = document.getElementById('filtersMobileCount');
+  if (ativos.length > 0) { count.textContent = ativos.length; count.style.display = ''; }
+  else { count.style.display = 'none'; }
 }
 document.getElementById('clearBtn').addEventListener('click', function(){
   FIELDS.forEach(function(f){ state[f.key] = 'todos'; });
