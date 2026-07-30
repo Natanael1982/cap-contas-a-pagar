@@ -100,23 +100,22 @@
   .icon-btn:hover{border-color:var(--border-strong);color:var(--ink);}
   .icon-btn.active{border-color:var(--chart);color:var(--chart-soft);}
 
-  .filters-modal-overlay, .actions-modal-overlay{
+  .actions-modal-overlay{
     display:none;position:fixed;inset:0;background:rgba(5,6,10,.65);
     align-items:center;justify-content:center;z-index:1000;
   }
-  .filters-modal-overlay.open, .actions-modal-overlay.open{display:flex;}
-  .filters-drawer, .actions-drawer{
-    display:flex;position:relative;width:400px;max-width:92vw;max-height:80vh;
+  .actions-modal-overlay.open{display:flex;}
+  .actions-drawer{
+    display:flex;position:relative;width:320px;max-width:92vw;max-height:80vh;
     background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;
     box-shadow:0 30px 80px rgba(0,0,0,.6);
     flex-direction:column;overflow:hidden;
   }
-  .actions-drawer{width:320px;}
   .filters-drawer-head, .actions-drawer-head{
     display:flex;justify-content:space-between;align-items:center;gap:10px;
     padding:14px 16px;border-bottom:1px solid var(--border);flex:none;
   }
-  .filters-drawer-head h2, .actions-drawer-head h2{font-size:14px;margin:0;font-weight:700;}
+  .filters-drawer-head h2, .actions-drawer-head h2{font-size:14px;margin:0;font-weight:700;white-space:nowrap;}
   .filters-drawer-body{padding:14px 16px;overflow:auto;flex:1;min-height:0;}
   .filters-drawer .filters{display:flex;flex-direction:column;gap:14px;}
   .filters-drawer .filter-field{width:100% !important;}
@@ -124,7 +123,18 @@
   .actions-drawer-body{padding:14px 16px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;}
   .actions-drawer-body .clear-btn, .actions-drawer-body .add-btn{width:100%;justify-content:center;height:auto;padding:10px 14px;}
   @media (max-width:640px){
-    .filters-drawer, .actions-drawer{width:92vw;max-width:none;}
+    .actions-drawer{width:92vw;max-width:none;}
+  }
+  /* ---- Filtros: painel retrátil ao lado da tabela ---- */
+  .filters-drawer{
+    display:flex;flex-direction:column;overflow:hidden;
+    flex:none;width:0;opacity:0;min-width:0;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    transition:width .18s ease, opacity .18s ease;
+  }
+  .filters-drawer.open{width:280px;opacity:1;margin-right:14px;}
+  @media (max-width:760px){
+    .filters-drawer.open{width:100%;margin-right:0;margin-bottom:14px;}
   }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
@@ -258,8 +268,9 @@
   .kpi.k-positive .v{color:var(--positive);}
 
   /* ---- middle: table + status ---- */
-  .middle{margin-bottom:14px;flex:1 1 auto;min-height:300px;max-height:400px;display:flex;flex-direction:column;}
-  .middle .panel{flex:1;display:flex;flex-direction:column;min-height:0;}
+  .middle{margin-bottom:14px;flex:1 1 auto;min-height:300px;max-height:400px;display:flex;flex-direction:row;}
+  .middle .panel{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0;}
+  @media (max-width:760px){ .middle{flex-direction:column;max-height:none;} }
 
   .panel{
     background:var(--surface);border:1px solid var(--border);border-radius:12px;
@@ -580,10 +591,6 @@
         <span id="userName"></span>
         <button type="button" class="ebtn ghost" id="logoutBtn">Sair</button>
       </div>
-      <button class="clear-btn" id="clearBtn" type="button" title="Limpar todos os filtros">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-        Limpar
-      </button>
       <div class="quick-icons">
         <button class="icon-btn" id="actionsIconBtn" type="button" title="Ações">
           <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg>
@@ -611,27 +618,6 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Novo lançamento
       </button>
-    </div>
-  </div>
-  </div>
-
-  <div class="filters-modal-overlay" id="filtersModalOverlay">
-  <div class="filters-drawer" id="filtersDrawer">
-    <div class="filters-drawer-head">
-      <h2>Filtros</h2>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="filters-manage-wrap" id="filtersManageWrap">
-          <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar de volta um filtro oculto">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-            Gerenciar
-          </button>
-          <div class="filters-manage-menu" id="filtersManageMenu"></div>
-        </div>
-        <button type="button" class="ebtn ghost" id="filtersDrawerCloseBtn">Fechar</button>
-      </div>
-    </div>
-    <div class="filters-drawer-body">
-      <div class="filters" id="filters"></div>
     </div>
   </div>
   </div>
@@ -758,6 +744,24 @@
   <div class="kpis" id="kpis"></div>
 
   <div class="middle">
+    <div class="filters-drawer" id="filtersDrawer">
+      <div class="filters-drawer-head">
+        <h2>Filtros</h2>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="filters-manage-wrap" id="filtersManageWrap">
+            <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar de volta um filtro oculto">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Gerenciar
+            </button>
+            <div class="filters-manage-menu" id="filtersManageMenu"></div>
+          </div>
+          <button type="button" class="ebtn ghost" id="filtersDrawerCloseBtn">Fechar</button>
+        </div>
+      </div>
+      <div class="filters-drawer-body">
+        <div class="filters" id="filters"></div>
+      </div>
+    </div>
     <div class="panel">
       <div class="panel-head">
         <h2>Lançamentos</h2>
@@ -769,7 +773,14 @@
             </button>
             <div class="filters-manage-menu" id="columnsManageMenu"></div>
           </div>
-          <span class="count" id="tableCount">147 títulos</span>
+          <button class="clear-btn" id="clearBtn" type="button" title="Limpar todos os filtros">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.83l8-8a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13 20" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13.5 8.5 18 13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Limpar
+          </button>
+          <button class="clear-btn" id="exportExcelBtn" type="button" title="Exportar para Excel">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0-4-4m4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Exportar Excel
+          </button>
         </div>
       </div>
       <p class="table-hint">Arraste o cabeçalho para reordenar as colunas · arraste a borda direita para redimensionar · passe o mouse no título pra remover</p>
@@ -1288,20 +1299,19 @@ document.addEventListener('keydown', function(ev){
 });
 
 function abrirGavetaFiltros(){
-  document.getElementById('filtersModalOverlay').classList.add('open');
+  document.getElementById('filtersDrawer').classList.add('open');
   document.getElementById('filtersIconBtn').classList.add('active');
 }
 function fecharGavetaFiltros(){
-  document.getElementById('filtersModalOverlay').classList.remove('open');
+  document.getElementById('filtersDrawer').classList.remove('open');
   document.getElementById('filtersIconBtn').classList.remove('active');
 }
 document.getElementById('filtersIconBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
-  var jaAberta = document.getElementById('filtersModalOverlay').classList.contains('open');
+  var jaAberta = document.getElementById('filtersDrawer').classList.contains('open');
   fecharGavetaAcoes();
   if (jaAberta) fecharGavetaFiltros(); else abrirGavetaFiltros();
 });
-document.getElementById('filtersModalOverlay').addEventListener('click', fecharGavetaFiltros);
 document.getElementById('filtersDrawer').addEventListener('click', function(ev){ ev.stopPropagation(); });
 document.getElementById('filtersDrawerCloseBtn').addEventListener('click', function(ev){
   ev.stopPropagation();
@@ -1594,6 +1604,36 @@ document.getElementById('clearBtn').addEventListener('click', function(){
   render();
 });
 updateClearButton();
+
+var EXPORT_LABEL = {dcto:'Dcto', empresa:'Despesa de', desc:'Descrição', parcela:'Parcela', venc:'Vencimento', status:'Status', valor:'Valor Original', juros:'Juros', pago:'Valor Pago', obs:'Observação'};
+var EXPORT_VALUE = {
+  dcto:    function(r){ return r.barra || r.id; },
+  empresa: function(r){ return r.nome || ''; },
+  desc:    function(r){ return r.desc || ''; },
+  parcela: function(r){ return r.parcela || ''; },
+  venc:    function(r){ return fmtDate(r.vencDate); },
+  status:  function(r){ return (STATUS_ICON[r.status]||{}).label || r.status; },
+  valor:   function(r){ return r.valor || 0; },
+  juros:   function(r){ return juros(r); },
+  pago:    function(r){ return r.cobrado != null ? r.cobrado : ''; },
+  obs:     function(r){ return r.obs || ''; }
+};
+document.getElementById('exportExcelBtn').addEventListener('click', function(){
+  var rows = filtered();
+  var accessor = SORT_ACCESSORS[sortState.key] || SORT_ACCESSORS.venc;
+  var sorted = rows.slice().sort(function(a,b){ return compareValues(accessor(a), accessor(b)) * sortState.dir; });
+  var cols = visibleColumnOrder().filter(function(key){ return EXPORT_VALUE.hasOwnProperty(key); });
+  var aoa = [cols.map(function(key){ return EXPORT_LABEL[key] || key; }).concat(['Data Pagamento'])];
+  sorted.forEach(function(r){
+    var linha = cols.map(function(key){ return EXPORT_VALUE[key](r); });
+    linha.push(r.pag ? fmtDate(parseISO(r.pag)) : '');
+    aoa.push(linha);
+  });
+  var ws = XLSX.utils.aoa_to_sheet(aoa);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Contas a Pagar');
+  XLSX.writeFile(wb, 'Contas a Pagar - ' + fmtDate(new Date()).replace(/\//g,'-') + '.xlsx');
+});
 
 function rowMatchesFilterValue(r, f, v){
   if (f.key === 'pag' && v === 'sem') return !r.pag;
@@ -1905,7 +1945,6 @@ function renderTableFoot(rows){
 
 function renderTable(rows){
   var body = document.getElementById('tableBody');
-  document.getElementById('tableCount').textContent = rows.length + ' títulos';
   var visibleCols = visibleColumnOrder();
   if (!rows.length){
     body.innerHTML = '<tr><td colspan="'+visibleCols.length+'" class="empty-note">Nenhum lançamento para os filtros selecionados.</td></tr>';
