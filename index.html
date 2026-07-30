@@ -711,7 +711,7 @@
         </div>
         <div class="efield">
           <label>Parcela</label>
-          <input type="text" inputmode="numeric" id="nf_parcela" placeholder="Única" maxlength="3">
+          <input type="text" inputmode="numeric" id="nf_parcela" placeholder="Ex.: 1/34" maxlength="7">
         </div>
 
         <div class="edivider">Anexos &amp; Observação</div>
@@ -925,7 +925,7 @@ function graphRowToRow(v, rowIndex){
   if (mEmp) { nome = mEmp[1]; doc = mEmp[2]; }
   var descFull = String(v[7]||'');
   var desc = descFull, parcela = '';
-  var mParc = descFull.match(/^(.*) - Parcela (\d+)$/);
+  var mParc = descFull.match(/^(.*) - Parcela ([\d/]+)$/);
   if (mParc) { desc = mParc[1]; parcela = mParc[2]; }
   return {
     id: v[0], _rowIndex: rowIndex,
@@ -2269,7 +2269,10 @@ bindCurrencyMask(document.getElementById('nf_valor'));
 bindCurrencyMask(document.getElementById('nf_cobrado'));
 
 document.getElementById('nf_parcela').addEventListener('input', function(){
-  this.value = this.value.replace(/\D/g, '').slice(0, 3);
+  var v = this.value.replace(/[^\d/]/g, '');
+  var barra = v.indexOf('/');
+  if (barra !== -1) v = v.slice(0, barra + 1) + v.slice(barra + 1).replace(/\//g, '');
+  this.value = v.slice(0, 7);
 });
 
 function showToast(msg){
