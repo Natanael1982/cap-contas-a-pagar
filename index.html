@@ -679,6 +679,7 @@
         <div class="efield">
           <label>Tipo de Despesa</label>
           <select id="nf_tipo">
+            <option value="Outras">Outras</option>
             <option value="Mensal">Mensal</option>
             <option value="Decimestral">Decimestral</option>
             <option value="Anual">Anual</option>
@@ -730,13 +731,13 @@
         <div class="edivider">Anexos &amp; Observação</div>
         <div class="efield span2">
           <label>Anexo - Boleto (arquivo)</label>
-          <input type="file" id="nf_anexoBoleto" accept=".pdf,.jpg,.jpeg,.png">
-          <span class="hint">PDF ou imagem, até 2MB</span>
+          <input type="file" id="nf_anexoBoleto" accept=".pdf,.jpg,.jpeg,.png" capture="environment">
+          <span class="hint">PDF ou imagem, até 2MB — tire uma foto ou escolha um arquivo</span>
         </div>
         <div class="efield span2">
           <label>Anexo - Comprovante (arquivo)</label>
-          <input type="file" id="nf_anexoComprovante" accept=".pdf,.jpg,.jpeg,.png">
-          <span class="hint">PDF ou imagem, até 2MB</span>
+          <input type="file" id="nf_anexoComprovante" accept=".pdf,.jpg,.jpeg,.png" capture="environment">
+          <span class="hint">PDF ou imagem, até 2MB — tire uma foto ou escolha um arquivo</span>
         </div>
         <div class="efield span2">
           <label>Código de Barra</label>
@@ -2306,6 +2307,9 @@ addToggleBtn.addEventListener('click', function(){
     document.getElementById('entryForm').reset();
     setFormMode(false);
   }
+  if (opening && editingId === null){
+    document.getElementById('nf_pag').value = fmtDataBR(new Date());
+  }
   togglePanel(opening);
 });
 document.getElementById('cancelEntryBtn').addEventListener('click', function(){
@@ -2504,6 +2508,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
         document.getElementById('nf_nome').value = keepNome;
         document.getElementById('nf_tipo').value = 'Mensal';
         document.getElementById('nf_status').value = 'A Vencer';
+        document.getElementById('nf_pag').value = fmtDataBR(new Date());
         document.getElementById('nf_desc').focus();
       } else {
         togglePanel(false);
