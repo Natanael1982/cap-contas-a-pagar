@@ -135,7 +135,7 @@
   .filters-drawer.open{width:280px;opacity:1;margin-right:14px;}
   @media (max-width:760px){
     .filters-drawer{width:auto;height:0;}
-    .filters-drawer.open{width:100%;height:auto;margin-right:0;margin-bottom:14px;}
+    .filters-drawer.open{width:100%;height:auto;max-height:220px;margin-right:0;margin-bottom:14px;}
   }
   .filter-resizer{
     position:absolute;top:18px;right:-6px;bottom:0;width:10px;
@@ -271,7 +271,7 @@
   /* ---- middle: table + status ---- */
   .middle{margin-bottom:14px;flex:1 1 auto;min-height:300px;max-height:400px;display:flex;flex-direction:row;}
   .middle .panel{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0;}
-  @media (max-width:760px){ .middle{flex-direction:column;max-height:none;} }
+  @media (max-width:760px){ .middle{flex-direction:column;} }
 
   .panel{
     background:var(--surface);border:1px solid var(--border);border-radius:12px;
@@ -1284,7 +1284,6 @@ document.addEventListener('click', function(){
   closeAllFilterDropdowns();
   document.getElementById('filtersManageWrap').classList.remove('open');
   document.getElementById('columnsManageWrap').classList.remove('open');
-  fecharGavetaFiltros();
   fecharGavetaAcoes();
 });
 document.addEventListener('keydown', function(ev){
@@ -1292,7 +1291,6 @@ document.addEventListener('keydown', function(ev){
     closeAllFilterDropdowns();
     document.getElementById('filtersManageWrap').classList.remove('open');
     document.getElementById('columnsManageWrap').classList.remove('open');
-    fecharGavetaFiltros();
     fecharGavetaAcoes();
   }
 });
