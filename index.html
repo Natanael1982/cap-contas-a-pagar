@@ -606,10 +606,6 @@
       <button type="button" class="ebtn ghost" id="actionsDrawerCloseBtn">Fechar</button>
     </div>
     <div class="actions-drawer-body">
-      <button class="clear-btn" id="filtersIconBtn" type="button" title="Filtros">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Filtros
-      </button>
       <button class="clear-btn" id="adminBtn" type="button" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.13.31.4.55.72.68.32.13.68.13 1 0H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.7"/></svg>
         Administração
@@ -713,9 +709,7 @@
         </div>
         <div class="efield">
           <label>Parcela</label>
-          <select id="nf_parcela">
-            <option value="">Única</option>
-          </select>
+          <input type="text" inputmode="numeric" id="nf_parcela" placeholder="Única" maxlength="3">
         </div>
 
         <div class="edivider">Anexos &amp; Observação</div>
@@ -766,6 +760,10 @@
       <div class="panel-head">
         <h2>Lançamentos</h2>
         <div style="display:flex;align-items:center;gap:10px;">
+          <button class="clear-btn" id="filtersIconBtn" type="button" title="Filtros">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Filtros
+          </button>
           <div class="filters-manage-wrap" id="columnsManageWrap">
             <button class="filters-manage-btn" id="columnsManageBtn" type="button" title="Mostrar/ocultar colunas">
               <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -2146,14 +2144,6 @@ EMPRESAS_CONHECIDAS.forEach(function(e){
   opt.value = e[0];
   dlist.appendChild(opt);
 });
-var parcelaSelect = document.getElementById('nf_parcela');
-for (var pNum = 1; pNum <= 12; pNum++){
-  var opt = document.createElement('option');
-  opt.value = String(pNum);
-  opt.textContent = String(pNum);
-  parcelaSelect.appendChild(opt);
-}
-
 var MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 var DIAS_PT = ['D','S','T','Q','Q','S','S'];
 
@@ -2260,6 +2250,28 @@ function attachDatePicker(inputEl){
 attachDatePicker(document.getElementById('nf_venc'));
 attachDatePicker(document.getElementById('nf_pag'));
 
+function digitsToBRL(digitsStr){
+  var digits = String(digitsStr||'').replace(/\D/g, '');
+  digits = digits.replace(/^0+(?=\d)/, '');
+  if (!digits) return '';
+  while (digits.length < 3) digits = '0' + digits;
+  var intPart = digits.slice(0, -2).replace(/^0+(?=\d)/, '') || '0';
+  var centPart = digits.slice(-2);
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return intPart + ',' + centPart;
+}
+function bindCurrencyMask(inputEl){
+  inputEl.addEventListener('input', function(){
+    inputEl.value = digitsToBRL(inputEl.value);
+  });
+}
+bindCurrencyMask(document.getElementById('nf_valor'));
+bindCurrencyMask(document.getElementById('nf_cobrado'));
+
+document.getElementById('nf_parcela').addEventListener('input', function(){
+  this.value = this.value.replace(/\D/g, '').slice(0, 3);
+});
+
 function showToast(msg){
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -2346,10 +2358,10 @@ function abrirParaEdicao(rawId){
   document.getElementById('nf_tipo').value = entry.tipo || 'Mensal';
   document.getElementById('nf_status').value = entry.pag ? 'Pago' : 'A Vencer';
   document.getElementById('nf_venc').value = entry.venc ? isoToDDMMYYYY(entry.venc) : '';
-  document.getElementById('nf_valor').value = (entry.valor != null ? String(entry.valor).replace('.', ',') : '');
+  document.getElementById('nf_valor').value = (entry.valor != null ? digitsToBRL(String(Math.round(entry.valor*100))) : '');
   document.getElementById('nf_parcela').value = entry.parcela || '';
   document.getElementById('nf_pag').value = entry.pag ? isoToDDMMYYYY(entry.pag) : '';
-  document.getElementById('nf_cobrado').value = (entry.cobrado != null ? String(entry.cobrado).replace('.', ',') : '');
+  document.getElementById('nf_cobrado').value = (entry.cobrado != null ? digitsToBRL(String(Math.round(entry.cobrado*100))) : '');
   document.getElementById('nf_barra').value = entry.barra || '';
   document.getElementById('nf_obs').value = entry.obs || '';
   document.getElementById('nf_anexoBoleto').value = '';
