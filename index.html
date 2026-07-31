@@ -1021,9 +1021,9 @@ function ehDono(){
   return !!currentAccount && (currentAccount.username||'').toLowerCase() === DONO_EMAIL.toLowerCase();
 }
 
-async function criarSessaoWorkbook(token){
+async function criarSessaoWorkbook(token, driveId, itemId){
   try {
-    var resp = await fetch(GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/workbook/createSession', {
+    var resp = await fetch(GRAPH_BASE + '/drives/' + driveId + '/items/' + itemId + '/workbook/createSession', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify({ persistChanges: false })
@@ -1039,8 +1039,8 @@ function headersComSessao(token, sessionId){
   return h;
 }
 
-async function baixarEParsearWorkbook(token){
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + '/content';
+async function baixarEParsearWorkbook(token, driveId, itemId){
+  var url = GRAPH_BASE + '/drives/' + driveId + '/items/' + itemId + '/content';
   var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
   if (!resp.ok) {
     var corpoErro = '';
@@ -1049,6 +1049,36 @@ async function baixarEParsearWorkbook(token){
   }
   var buf = await resp.arrayBuffer();
   return XLSX.read(buf, { type: 'array', cellDates: false });
+}
+
+// Convidados (contas externas/pessoais com permissão real via /invite) não
+// conseguem acessar o arquivo pelo endereço direto do dono (/drives/{id}/items/{id})
+// — a API do Graph exige resolver o item pela lista "Compartilhado comigo".
+// O dono usa sempre o endereço direto (mais rápido, sem essa resolução extra).
+var arquivoAlvoCache = null;
+async function resolverItemCompartilhado(token, itemIdAlvo){
+  var url = GRAPH_BASE + '/me/drive/sharedWithMe?allowexternal=true';
+  var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+  if (!resp.ok) {
+    var corpoErro = '';
+    try { corpoErro = await resp.text(); } catch(e){}
+    throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+  }
+  var json = await resp.json();
+  var itens = json.value || [];
+  var match = itens.find(function(it){ return it.remoteItem && it.remoteItem.id === itemIdAlvo; });
+  if (!match) throw new Error('Arquivo não encontrado em "Compartilhado comigo".');
+  return { driveId: match.remoteItem.parentReference.driveId, itemId: match.remoteItem.id };
+}
+async function obterArquivoAlvo(token, driveIdPadrao, itemIdPadrao){
+  if (ehDono()) return { driveId: driveIdPadrao, itemId: itemIdPadrao };
+  if (arquivoAlvoCache) return arquivoAlvoCache;
+  try {
+    arquivoAlvoCache = await resolverItemCompartilhado(token, itemIdPadrao);
+  } catch (e) {
+    arquivoAlvoCache = { driveId: driveIdPadrao, itemId: itemIdPadrao };
+  }
+  return arquivoAlvoCache;
 }
 function linhasDaAba(workbook, nomeAba){
   var ws = workbook.Sheets[nomeAba];
@@ -1179,9 +1209,10 @@ async function getToken(){
 async function carregarDados(){
   try {
     var token = await getToken();
+    var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
     try {
-      var sessionId = await criarSessaoWorkbook(token);
-      var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+      var sessionId = await criarSessaoWorkbook(token, alvo.driveId, alvo.itemId);
+      var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows";
       var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
       if (!resp.ok) {
         var corpoErro = '';
@@ -1191,7 +1222,7 @@ async function carregarDados(){
       var json = await resp.json();
       DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
     } catch (eSessao) {
-      var wb = await baixarEParsearWorkbook(token);
+      var wb = await baixarEParsearWorkbook(token, alvo.driveId, alvo.itemId);
       var linhas = linhasDaAba(wb, 'Base de Dados');
       DATA = linhas.map(function(v, idx){ return graphRowToRow(v, idx); });
     }
@@ -1221,14 +1252,16 @@ async function subirAnexo(token, file, prefixo, id){
   return json.webUrl || '';
 }
 async function buscarLinhasAtuaisGraph(token){
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+  var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+  var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows";
   var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
   if (!resp.ok) throw new Error('Não foi possível consultar a planilha (HTTP ' + resp.status + ').');
   var json = await resp.json();
   return json.value;
 }
 async function adicionarLinhaGraph(token, linha){
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows";
+  var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+  var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows";
   var resp = await fetch(url, {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
@@ -1238,7 +1271,8 @@ async function adicionarLinhaGraph(token, linha){
   return await resp.json();
 }
 async function atualizarLinhaGraph(token, rowIndex, linha){
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
+  var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+  var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
   var resp = await fetch(url, {
     method: 'PATCH',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
@@ -1247,7 +1281,8 @@ async function atualizarLinhaGraph(token, rowIndex, linha){
   if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao atualizar a planilha (' + resp.status + '): ' + t); }
 }
 async function removerLinhaGraph(token, rowIndex){
-  var url = GRAPH_BASE + '/drives/' + DRIVE_ID + '/items/' + ITEM_ID + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
+  var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+  var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')';
   var resp = await fetch(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
   if (!resp.ok && resp.status !== 204) { var t = await resp.text(); throw new Error('Falha ao remover da planilha (' + resp.status + '): ' + t); }
 }
