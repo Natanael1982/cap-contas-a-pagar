@@ -158,7 +158,7 @@
   .clear-btn.has-filters{border-color:var(--critical);color:var(--critical);}
   .clear-btn.has-filters:hover{background:var(--critical-dim);}
   .filter-field label{
-    display:block;font-size:10px;color:var(--ink-muted);
+    display:block;font-size:10px;color:var(--ink);
     text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;
   }
   .filter-field select{
@@ -187,7 +187,8 @@
     background:var(--surface);border:1px solid var(--border);color:var(--ink);
     font:12px var(--sans);padding:7px 8px;border-radius:7px;cursor:pointer;text-align:left;
   }
-  .ss-control .ss-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .ss-control .ss-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;color:var(--ink-muted);}
+  .ss-control.active .ss-value{color:var(--chart-soft);}
   .ss-control .ss-chevron{width:13px;height:13px;flex:none;color:var(--ink-soft);transition:transform .12s ease;}
   .filter-field.ss.open .ss-control .ss-chevron{transform:rotate(180deg);}
   .ss-control.active{border-color:var(--chart);color:var(--chart-soft);}
