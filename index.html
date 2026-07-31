@@ -2031,7 +2031,7 @@ function renderDescRanking(rows){
   });
   var entries = Object.keys(byDesc).map(function(k){return {desc:k, total:byDesc[k]};}).sort(function(a,b){return b.total-a.total;});
   document.getElementById('descRankCount').textContent = entries.length + (entries.length===1 ? ' descrição' : ' descrições');
-  var top = entries.slice(0, 10);
+  var top = entries;
   var max = top.length ? top[0].total : 1;
   var descAtivo = Array.isArray(state.desc) ? state.desc : null;
   document.getElementById('descRankBody').innerHTML = top.length ? top.map(function(e){
@@ -2060,7 +2060,7 @@ function renderRanking(rows){
     return {nome:k, total:b.total, pago:b.pago, vencido:b.vencido, hoje:b.hoje, avencer:b.avencer};
   }).sort(function(a,b){return b.total-a.total;});
   document.getElementById('rankCount').textContent = entries.length + (entries.length===1 ? ' pessoa' : ' pessoas');
-  var top = entries.slice(0, 10);
+  var top = entries;
   var STATUS_LBL = {pago:'Pago', vencido:'Em atraso', hoje:'Vence hoje', avencer:'A vencer'};
   var nomeAtivo = Array.isArray(state.nome) ? state.nome : null;
   var statusAtivo = Array.isArray(state.status) ? state.status : null;
