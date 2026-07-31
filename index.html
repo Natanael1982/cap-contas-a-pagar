@@ -216,7 +216,10 @@
   .ss-opt.ss-opt-all{border-bottom:1px solid var(--border);margin-bottom:3px;padding-bottom:10px;font-weight:600;}
 
   /* ---- reordenar/ocultar filtros ---- */
-  .filter-field{position:relative;}
+  .filter-field{position:relative;cursor:grab;}
+  .filter-field.dragging-filter{opacity:.4;}
+  .filter-field.filter-drop-target{outline:2px dashed var(--chart);outline-offset:2px;border-radius:6px;}
+  .filter-field .ss-control{cursor:pointer;}
   .filter-remove{
     position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;
     background:var(--surface-3);border:1px solid var(--border-strong);color:var(--ink-soft);
@@ -1441,6 +1444,31 @@ function buildFilters(){
     wrap.className = 'filter-field ss';
     wrap.setAttribute('data-filter-key', key);
     wrap.style.width = (filterWidths[key] || 160) + 'px';
+    wrap.draggable = true;
+    wrap.title = 'Arraste para mover este filtro';
+    wrap.addEventListener('dragstart', function(ev){
+      ev.dataTransfer.setData('text/plain', key);
+      wrap.classList.add('dragging-filter');
+    });
+    wrap.addEventListener('dragend', function(){ wrap.classList.remove('dragging-filter'); });
+    wrap.addEventListener('dragover', function(ev){ ev.preventDefault(); wrap.classList.add('filter-drop-target'); });
+    wrap.addEventListener('dragleave', function(){ wrap.classList.remove('filter-drop-target'); });
+    wrap.addEventListener('drop', function(ev){
+      ev.preventDefault();
+      wrap.classList.remove('filter-drop-target');
+      var draggedKey = ev.dataTransfer.getData('text/plain');
+      if (!draggedKey || draggedKey === key) return;
+      pedirSenha('Digite a senha para mover este filtro:', function(ok){
+        if (!ok) return;
+        var from = filterOrder.indexOf(draggedKey);
+        var to = filterOrder.indexOf(key);
+        if (from === -1 || to === -1) return;
+        filterOrder.splice(from, 1);
+        filterOrder.splice(to, 0, draggedKey);
+        saveFilterOrder(filterOrder);
+        buildFilters();
+      });
+    });
 
     var removeBtn = document.createElement('button');
     removeBtn.type = 'button';
@@ -1668,17 +1696,18 @@ var STATUS_ICON = {
 
 function renderKpis(rows){
   var total = sum(rows, function(r){return r.valor;});
-  var jur = sum(rows, function(r){return juros(r);});
   var pg = sum(rows, function(r){return pago(r);});
   var venc = rows.filter(function(r){return r.status==='vencido';});
   var vencSum = sum(venc, function(r){return r.valor;});
+  var aVencer = rows.filter(function(r){return r.status==='avencer';});
+  var aVencerSum = sum(aVencer, function(r){return r.valor;});
 
   var pagos = rows.filter(function(r){return r.status==='pago';});
   var cards = [
     {lbl:'Despesas', v:brl(total), sub:rows.length+' títulos', icon:'$', cls:''},
     {lbl:'Pago', v:brl(pg), sub:pagos.length+' títulos', icon:'$', cls:'k-positive'},
     {lbl:'Vencido', v:brl(vencSum), sub:venc.length+' títulos', icon:'$', cls:'k-critical'},
-    {lbl:'Juros', v:brl(jur), sub:rows.filter(function(r){return juros(r)>0;}).length+' títulos', icon:'$', cls:'k-warning'},
+    {lbl:'A Vencer', v:brl(aVencerSum), sub:aVencer.length+' títulos', icon:'$', cls:''},
     {lbl:'Títulos', v:String(rows.length), sub:'lançamentos', icon:'#', cls:''}
   ];
   var root = document.getElementById('kpis');
