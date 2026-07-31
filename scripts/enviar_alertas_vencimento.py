@@ -145,7 +145,7 @@ def montar_mensagens(itens):
 
 def texto_alerta_consolidado(agrupado):
     """Uma mensagem só, com os vencimentos de todo mundo agrupados por pessoa."""
-    linhas = ["📋 CAP - Contas a vencer"]
+    linhas = ["CAP - Contas a vencer"]
 
     def bloco(chave, titulo):
         pessoas_com_itens = {n: g[chave] for n, g in agrupado.items() if g[chave]}
@@ -157,8 +157,8 @@ def texto_alerta_consolidado(agrupado):
             for it in pessoas_com_itens[nome]:
                 linhas.append(f"- {it['desc']}: {brl(it['valor'])}")
 
-    bloco("hoje", "📅 VENCE HOJE:")
-    bloco("amanha", "⏰ VENCE AMANHÃ:")
+    bloco("hoje", "VENCE HOJE:")
+    bloco("amanha", "VENCE AMANHÃ:")
     linhas.append(f"\nAcesse: {LINK_DASHBOARD}")
     return "\n".join(linhas)
 
