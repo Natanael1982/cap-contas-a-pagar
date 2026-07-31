@@ -777,6 +777,10 @@
       <div class="panel-head">
         <h2>Lançamentos</h2>
         <div style="display:flex;align-items:center;gap:10px;">
+          <button class="clear-btn" id="mesAtualBtn" type="button" title="Filtrar pelo mês atual">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Mês Atual
+          </button>
           <button class="clear-btn" id="filtersIconBtn" type="button" title="Filtros">
             <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             Filtros
@@ -992,11 +996,18 @@ function sair(){
   document.getElementById('semAcessoOverlay').classList.remove('open');
   buildFilters(); updateClearButton(); render();
 }
+function primeiroNome(account){
+  var nome = (account && account.name) ? String(account.name).trim() : '';
+  if (nome) return nome.split(' ')[0];
+  var user = (account && account.username) || '';
+  var parte = user.split('@')[0].split('.')[0];
+  return parte ? parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase() : '';
+}
 function atualizarEstadoLogin(){
   var logado = !!currentAccount;
   document.getElementById('loginOverlay').classList.toggle('open', !logado);
   document.getElementById('userChip').style.display = logado ? 'flex' : 'none';
-  if (logado) document.getElementById('userName').textContent = currentAccount.username || currentAccount.name || '';
+  if (logado) document.getElementById('userName').textContent = 'Olá! ' + primeiroNome(currentAccount);
 }
 
 function ehDono(){
@@ -1630,6 +1641,15 @@ document.getElementById('clearBtn').addEventListener('click', function(){
   render();
 });
 updateClearButton();
+
+document.getElementById('mesAtualBtn').addEventListener('click', function(){
+  var chaveAtual = mesAno(new Date());
+  var jaAtivo = Array.isArray(state._mesano) && state._mesano.length === 1 && state._mesano[0] === chaveAtual;
+  state._mesano = jaAtivo ? 'todos' : [chaveAtual];
+  buildFilters();
+  updateClearButton();
+  render();
+});
 
 var EXPORT_LABEL = {dcto:'Dcto', empresa:'Despesa de', desc:'Descrição', parcela:'Parcela', venc:'Vencimento', status:'Status', valor:'Valor Original', juros:'Juros', pago:'Valor Pago', obs:'Observação'};
 var EXPORT_VALUE = {
