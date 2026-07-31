@@ -8,6 +8,10 @@ listando — agrupado por pessoa — todo lançamento NÃO PAGO vencendo HOJE ou
 AMANHÃ. Só o número/e-mail do dono precisa estar cadastrado em TabelaContatos
 (evita ter que pedir confirmação de WhatsApp de cada pessoa da planilha).
 
+O e-mail também vem com o boleto anexado (arquivo real) do primeiro
+lançamento pendente que tiver um "Anexo - Boleto" cadastrado. O WhatsApp
+(CallMeBot, plano gratuito) não suporta anexo, só texto.
+
 Roda 1x por dia via GitHub Actions (.github/workflows/alertas-vencimento.yml).
 
 Este arquivo é publicado no repositório PÚBLICO do CAP no GitHub (roda via
@@ -15,6 +19,7 @@ GitHub Actions) — por isso o Client Secret NUNCA fica escrito aqui, só vem
 da variável de ambiente CAP_CLIENT_SECRET (Secret do repositório no GitHub).
 """
 
+import base64
 import os
 import sys
 from datetime import date, datetime, timedelta
@@ -96,7 +101,8 @@ def carregar_lancamentos(headers):
             continue  # sem data de vencimento ou já pago -> não entra no alerta
         desc = str(v[7] or "")
         valor = v[11] if len(v) > 11 else 0
-        itens.append({"nome": nome, "venc": venc, "desc": desc, "valor": valor})
+        anexo = str(v[13] or "") if len(v) > 13 else ""
+        itens.append({"nome": nome, "venc": venc, "desc": desc, "valor": valor, "anexo": anexo})
     return itens
 
 
@@ -150,16 +156,44 @@ def texto_alerta_consolidado(agrupado):
     return "\n".join(linhas)
 
 
-def enviar_email(headers, destino, assunto, corpo):
-    url = f"{GRAPH}/users/{REMETENTE_EMAIL}/sendMail"
-    body = {
-        "message": {
-            "subject": assunto,
-            "body": {"contentType": "Text", "content": corpo},
-            "toRecipients": [{"emailAddress": {"address": destino}}],
-        },
-        "saveToSentItems": "true",
+def primeiro_anexo(agrupado):
+    """Primeiro lançamento (hoje antes de amanhã, ordem alfabética por pessoa) com boleto anexado."""
+    for chave in ("hoje", "amanha"):
+        for nome in sorted(agrupado):
+            for it in agrupado[nome][chave]:
+                if it.get("anexo"):
+                    return it
+    return None
+
+
+def baixar_anexo(headers, url):
+    """Baixa um arquivo do SharePoint a partir do link salvo na planilha, via API de Shares do Graph."""
+    share_id = "u!" + base64.urlsafe_b64encode(url.encode("utf-8")).decode("ascii").rstrip("=")
+
+    meta_resp = requests.get(f"{GRAPH}/shares/{share_id}/driveItem", headers=headers)
+    meta_resp.raise_for_status()
+    nome_arquivo = meta_resp.json().get("name") or "boleto.pdf"
+
+    conteudo_resp = requests.get(f"{GRAPH}/shares/{share_id}/driveItem/content", headers=headers)
+    conteudo_resp.raise_for_status()
+    return nome_arquivo, conteudo_resp.content
+
+
+def enviar_email(headers, destino, assunto, corpo, anexo=None):
+    message = {
+        "subject": assunto,
+        "body": {"contentType": "Text", "content": corpo},
+        "toRecipients": [{"emailAddress": {"address": destino}}],
     }
+    if anexo:
+        nome_arquivo, conteudo_bytes = anexo
+        message["attachments"] = [{
+            "@odata.type": "#microsoft.graph.fileAttachment",
+            "name": nome_arquivo,
+            "contentBytes": base64.b64encode(conteudo_bytes).decode("ascii"),
+        }]
+    url = f"{GRAPH}/users/{REMETENTE_EMAIL}/sendMail"
+    body = {"message": message, "saveToSentItems": "true"}
     resp = requests.post(url, headers={**headers, "Content-Type": "application/json"}, json=body)
     resp.raise_for_status()
 
@@ -191,9 +225,18 @@ def main():
 
     texto = texto_alerta_consolidado(agrupado)
 
+    anexo = None
+    item_com_anexo = primeiro_anexo(agrupado)
+    if item_com_anexo:
+        try:
+            anexo = baixar_anexo(headers, item_com_anexo["anexo"])
+            print(f"Anexo de '{item_com_anexo['desc']}' baixado ({anexo[0]}).")
+        except Exception as exc:
+            print(f"Aviso: falha ao baixar anexo de '{item_com_anexo['desc']}': {exc}")
+
     if contato["email"]:
         try:
-            enviar_email(headers, contato["email"], "CAP - Contas a vencer", texto)
+            enviar_email(headers, contato["email"], "CAP - Contas a vencer", texto, anexo=anexo)
             print(f"E-mail enviado para {contato['email']}.")
         except Exception as exc:
             print(f"ERRO ao enviar e-mail: {exc}")
