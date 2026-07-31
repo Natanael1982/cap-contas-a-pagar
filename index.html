@@ -2115,7 +2115,7 @@ function render(){
   var rows = filtered();
   renderKpis(rows);
   renderTable(rows);
-  renderDescRanking(filtered(['desc']));
+  renderDescRanking(filtered());
   renderRanking(filtered(['nome','status']));
 }
 
