@@ -291,13 +291,12 @@
   .panel-head h2{font-size:13px;margin:0;font-weight:600;}
   .panel-head .count{font-size:11.5px;color:var(--ink-muted);font-family:var(--mono);}
 
-  .table-hint{margin:0;padding:8px 16px 0;font-size:10.5px;color:var(--ink-muted);flex:none;}
   .table-scroll{flex:1;min-height:0;overflow:auto;}
   table.cap{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
   table.cap thead th{
     position:sticky;top:0;background:var(--surface-2);
     text-align:left;padding:8px 18px 8px 10px;font-size:10px;text-transform:uppercase;
-    letter-spacing:.04em;color:var(--ink-muted);border-bottom:1px solid var(--border);
+    letter-spacing:.04em;color:var(--ink);border-bottom:1px solid var(--border);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1;
     cursor:grab;box-sizing:border-box;
   }
@@ -579,7 +578,6 @@
     .kpi .icon{width:28px;height:28px;}
     .panel-head{flex-wrap:wrap;gap:8px;}
     .table-scroll{-webkit-overflow-scrolling:touch;}
-    .table-hint{display:none;}
     .entry-grid{grid-template-columns:1fr !important;}
     .efield.span2, .efield.span4{grid-column:1/-1 !important;}
     .rank-row .name{flex-basis:100px;}
@@ -595,7 +593,7 @@
     <div class="head-right">
       <button class="add-btn" id="addToggleBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Lançamentos
+        Novo
       </button>
       <div class="user-chip" id="userChip" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none"><path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/></svg>
@@ -617,6 +615,13 @@
       <button type="button" class="ebtn ghost" id="actionsDrawerCloseBtn">Fechar</button>
     </div>
     <div class="actions-drawer-body">
+      <div class="filters-manage-wrap" id="filtersManageWrap">
+        <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar de volta um filtro oculto">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Gerenciar
+        </button>
+        <div class="filters-manage-menu" id="filtersManageMenu"></div>
+      </div>
       <div class="filters-manage-wrap" id="columnsManageWrap">
         <button class="filters-manage-btn" id="columnsManageBtn" type="button" title="Mostrar/ocultar colunas">
           <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -662,10 +667,6 @@
   <div class="panel entry-panel" id="entryPanel">
     <div class="panel-head">
       <h2>Novo lançamento</h2>
-      <div class="entry-actions-head" style="display:flex;gap:10px;">
-        <button type="button" class="ebtn ghost" id="cancelEntryBtn">Cancelar</button>
-        <button type="submit" form="entryForm" class="ebtn primary" id="entrySubmitBtn">Adicionar lançamento</button>
-      </div>
     </div>
     <form id="entryForm">
       <div class="entry-grid">
@@ -751,6 +752,10 @@
           <textarea id="nf_obs" placeholder="Opcional"></textarea>
         </div>
       </div>
+      <div class="entry-actions-bottom" style="display:flex;justify-content:flex-end;gap:10px;padding:16px;border-top:1px solid var(--border);">
+        <button type="button" class="ebtn ghost" id="cancelEntryBtn">Cancelar</button>
+        <button type="submit" class="ebtn primary" id="entrySubmitBtn">Adicionar lançamento</button>
+      </div>
     </form>
   </div>
 
@@ -761,13 +766,6 @@
       <div class="filters-drawer-head">
         <h2>Filtros</h2>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="filters-manage-wrap" id="filtersManageWrap">
-            <button class="filters-manage-btn" id="filtersManageBtn" type="button" title="Mostrar de volta um filtro oculto">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-              Gerenciar
-            </button>
-            <div class="filters-manage-menu" id="filtersManageMenu"></div>
-          </div>
           <button type="button" class="ebtn ghost" id="filtersDrawerCloseBtn">Fechar</button>
         </div>
       </div>
@@ -789,7 +787,6 @@
           </button>
         </div>
       </div>
-      <p class="table-hint">Arraste o cabeçalho para reordenar as colunas · arraste a borda direita para redimensionar · passe o mouse no título pra remover</p>
       <div class="table-scroll">
         <table class="cap" id="capTable">
           <colgroup id="tableColgroup"></colgroup>
