@@ -147,18 +147,18 @@ def texto_alerta_consolidado(agrupado):
     """Uma mensagem só, com os vencimentos de todo mundo agrupados por pessoa."""
     linhas = ["CAP - Contas a vencer"]
 
-    def bloco(chave, titulo):
+    def bloco(chave, titulo, data_ref):
         pessoas_com_itens = {n: g[chave] for n, g in agrupado.items() if g[chave]}
         if not pessoas_com_itens:
             return
-        linhas.append(f"\n{titulo}")
+        linhas.append(f"\n{titulo} ({data_ref.strftime('%d/%m/%Y')}):")
         for nome in sorted(pessoas_com_itens):
             linhas.append(f"\n{nome}:")
             for it in pessoas_com_itens[nome]:
                 linhas.append(f"- {it['desc']}: {brl(it['valor'])}")
 
-    bloco("hoje", "VENCE HOJE:")
-    bloco("amanha", "VENCE AMANHÃ:")
+    bloco("hoje", "VENCE HOJE", HOJE_BR)
+    bloco("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
     linhas.append(f"\nAcesse: {LINK_DASHBOARD}")
     return "\n".join(linhas)
 
