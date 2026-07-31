@@ -72,10 +72,17 @@ def ler_tabela(headers, nome_tabela):
     return linhas
 
 
-def parse_data_br(txt):
-    txt = str(txt or "").strip()
+def parse_data_planilha(v):
+    """Data pode vir como número serial do Excel (ex.: 46233) ou como texto dd/mm/aaaa."""
+    if v is None or v == "":
+        return None
+    if isinstance(v, (int, float)):
+        return date(1899, 12, 30) + timedelta(days=int(v))
+    txt = str(v).strip()
     if not txt:
         return None
+    if txt.replace(".", "", 1).isdigit():
+        return date(1899, 12, 30) + timedelta(days=int(float(txt)))
     try:
         return datetime.strptime(txt, "%d/%m/%Y").date()
     except ValueError:
@@ -95,8 +102,8 @@ def carregar_lancamentos(headers):
     for v in linhas:
         empresa = str(v[3] or "")
         nome = empresa.split(" - ")[0] if " - " in empresa else empresa
-        venc = parse_data_br(v[5])
-        pag = parse_data_br(v[6]) if len(v) > 6 else None
+        venc = parse_data_planilha(v[5])
+        pag = parse_data_planilha(v[6]) if len(v) > 6 else None
         if not venc or pag:
             continue  # sem data de vencimento ou já pago -> não entra no alerta
         desc = str(v[7] or "")
