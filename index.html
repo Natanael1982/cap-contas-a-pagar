@@ -1703,15 +1703,10 @@ function renderKpis(rows){
   var aVencerSum = sum(aVencer, function(r){return r.valor;});
 
   var pagos = rows.filter(function(r){return r.status==='pago';});
-  var jurPago = sum(pagos, function(r){return juros(r);});
-  var semJuros = pg - jurPago;
   var cards = [
     {lbl:'Despesas', v:brl(total), sub:rows.length+' títulos', icon:'$', cls:''},
-    {lbl:'A Vencer', v:brl(aVencerSum), sub:aVencer.length+' títulos', icon:'$', cls:''},
-    {lbl:'Pago', v:brl(pg), sub:pagos.length+' títulos', icon:'$', cls:'k-positive', extra:[
-      {lbl:'Juros', v:brl(jurPago)},
-      {lbl:'Sem juros', v:brl(semJuros)}
-    ]},
+    {lbl:'A Vencer', v:brl(aVencerSum), sub:aVencer.length+' títulos', icon:'$', cls:'k-warning'},
+    {lbl:'Pago', v:brl(pg), sub:pagos.length+' títulos', icon:'$', cls:'k-positive'},
     {lbl:'Vencido', v:brl(vencSum), sub:venc.length+' títulos', icon:'$', cls:'k-critical'}
   ];
   var root = document.getElementById('kpis');
