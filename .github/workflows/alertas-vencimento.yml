@@ -1,0 +1,26 @@
+name: Alertas de Vencimento CAP
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 08:00 no horário de Brasília (UTC-3, sem horário de verão)
+  workflow_dispatch: {}     # permite rodar manualmente pela aba Actions do GitHub
+
+jobs:
+  enviar-alertas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install msal requests
+
+      - name: Rodar alerta de vencimento
+        env:
+          CAP_CLIENT_SECRET: ${{ secrets.CAP_CLIENT_SECRET }}
+        run: python scripts/enviar_alertas_vencimento.py
