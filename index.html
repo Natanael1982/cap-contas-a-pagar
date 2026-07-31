@@ -874,6 +874,7 @@ var EMPRESAS_CONHECIDAS = [
 ];
 
 /* ---- login Microsoft + Graph API (SharePoint ao vivo) ---- */
+var TENANT_ID = '0ea62e2f-152a-4380-bf4b-497083aa0326';
 var MSAL_CONFIG = {
   auth: {
     clientId: '9291254e-8c79-4641-8d7d-c5771d82ccde',
@@ -1162,11 +1163,15 @@ async function processarLogin(){
 
 async function getToken(){
   if (!currentAccount) throw new Error('Entre com sua conta Microsoft primeiro.');
+  // Força o token a ser emitido no contexto do tenant da Sinerggia (não em
+  // "common"), essencial pra contas convidadas/pessoais conseguirem acessar
+  // os arquivos do SharePoint desse tenant via API do Graph.
+  var authority = 'https://login.microsoftonline.com/' + TENANT_ID;
   try {
-    var result = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: currentAccount });
+    var result = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: currentAccount, authority: authority });
     return result.accessToken;
   } catch (e) {
-    var result2 = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES, account: currentAccount });
+    var result2 = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES, account: currentAccount, authority: authority });
     return result2.accessToken;
   }
 }
