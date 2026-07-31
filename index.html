@@ -89,7 +89,7 @@
   .filter-field{flex:0 0 auto;width:160px;}
 
   /* ---- ícones fixos no topo (Filtros + Ações), abrem modal central ---- */
-  .head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
   .quick-icons{display:flex;gap:10px;flex:none;}
   .icon-btn{
     width:38px;height:38px;border-radius:9px;background:var(--surface);border:1px solid var(--border);
@@ -367,7 +367,7 @@
   .attach.off{color:var(--ink-muted);opacity:.3;pointer-events:none;}
 
   /* ---- bottom: chart + ranking ---- */
-  .bottom{display:grid;grid-template-columns:1fr 1.3fr;gap:14px;flex:0 0 auto;align-items:start;}
+  .bottom{display:grid;grid-template-columns:320px 1fr;gap:14px;flex:0 0 auto;align-items:start;}
   .bottom .panel{display:flex;flex-direction:column;height:260px;}
   .bottom .panel-head{flex:none;}
   @media (max-width:760px){ .bottom{grid-template-columns:1fr;} }
