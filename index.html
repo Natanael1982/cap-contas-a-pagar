@@ -246,7 +246,7 @@
 
   /* ---- kpi cards ---- */
   .kpis{
-    display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;
     flex:none;
   }
   @media (max-width:900px){ .kpis{grid-template-columns:repeat(2,1fr);} }
@@ -1703,19 +1703,24 @@ function renderKpis(rows){
   var aVencerSum = sum(aVencer, function(r){return r.valor;});
 
   var pagos = rows.filter(function(r){return r.status==='pago';});
+  var jurPago = sum(pagos, function(r){return juros(r);});
+  var semJuros = pg - jurPago;
   var cards = [
     {lbl:'Despesas', v:brl(total), sub:rows.length+' títulos', icon:'$', cls:''},
-    {lbl:'Pago', v:brl(pg), sub:pagos.length+' títulos', icon:'$', cls:'k-positive'},
-    {lbl:'Vencido', v:brl(vencSum), sub:venc.length+' títulos', icon:'$', cls:'k-critical'},
     {lbl:'A Vencer', v:brl(aVencerSum), sub:aVencer.length+' títulos', icon:'$', cls:''},
-    {lbl:'Títulos', v:String(rows.length), sub:'lançamentos', icon:'#', cls:''}
+    {lbl:'Pago', v:brl(pg), sub:pagos.length+' títulos', icon:'$', cls:'k-positive', extra:[
+      {lbl:'Juros', v:brl(jurPago)},
+      {lbl:'Sem juros', v:brl(semJuros)}
+    ]},
+    {lbl:'Vencido', v:brl(vencSum), sub:venc.length+' títulos', icon:'$', cls:'k-critical'}
   ];
   var root = document.getElementById('kpis');
   root.innerHTML = '';
   cards.forEach(function(c){
     var d = document.createElement('div');
     d.className = 'kpi ' + c.cls;
-    d.innerHTML = '<div class="v">'+c.v+'</div><div class="l">'+c.lbl+' · <b>'+c.sub+'</b></div>'+
+    var extraHtml = (c.extra||[]).map(function(e){ return '<div class="l kpi-extra">'+e.lbl+': <b>'+e.v+'</b></div>'; }).join('');
+    d.innerHTML = '<div class="v">'+c.v+'</div><div class="l">'+c.lbl+' · <b>'+c.sub+'</b></div>'+extraHtml+
       '<div class="icon">'+c.icon+'</div>';
     root.appendChild(d);
   });
