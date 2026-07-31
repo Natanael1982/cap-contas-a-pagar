@@ -1056,10 +1056,21 @@ function linhasDaAba(workbook, nomeAba){
   return arr.slice(1);
 }
 
-async function buscarUsuarios(token){
-  // Arquivo separado (USERS_DRIVE_ID/USERS_ITEM_ID), com link de leitura pública —
-  // não usa criarSessaoWorkbook/baixarEParsearWorkbook porque essas duas funções
-  // são fixas no arquivo financeiro (DRIVE_ID/ITEM_ID).
+// Lista pública (mesma origem do GitHub Pages, sincronizada da planilha a cada
+// 15min) — usada só para checar aprovação no login, já que link "anônimo" do
+// SharePoint não funciona via API do Graph pra contas sem nenhum acesso prévio
+// (é um mecanismo de cookie de navegador, não de token), e nem tem CORS liberado.
+async function buscarUsuariosPublico(){
+  var resp = await fetch('usuarios.json', { cache: 'no-store' });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status + ' ao buscar usuarios.json');
+  return await resp.json();
+}
+
+async function buscarUsuariosGraph(token){
+  // Arquivo separado (USERS_DRIVE_ID/USERS_ITEM_ID) — usado pelo painel de
+  // Administração (o dono sempre tem acesso real e direto a esse arquivo).
+  // Não usa criarSessaoWorkbook/baixarEParsearWorkbook porque essas duas
+  // funções são fixas no arquivo financeiro (DRIVE_ID/ITEM_ID).
   try {
     var url = GRAPH_BASE + '/drives/' + USERS_DRIVE_ID + '/items/' + USERS_ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
     var resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
@@ -1107,7 +1118,7 @@ async function verificarAcesso(token){
   if (ehDono()) return 'Editor';
   var email = (currentAccount.username || '').toLowerCase();
   try {
-    var usuarios = await buscarUsuarios(token);
+    var usuarios = await buscarUsuariosPublico();
     var match = usuarios.find(function(u){ return u.email.toLowerCase() === email; });
     if (match && match.status === 'Aprovado'){
       var lista = filtroDespesaDeParaArray(match.filtroDespesaDe);
@@ -2639,7 +2650,7 @@ async function carregarAdminPanel(){
   renderFiltroChecklist();
   try {
     var token = await getToken();
-    var usuarios = await buscarUsuarios(token);
+    var usuarios = await buscarUsuariosGraph(token);
     usuarios = usuarios.filter(function(u){ return u.email.toLowerCase() !== DONO_EMAIL.toLowerCase(); });
     renderAdminLista(usuarios);
   } catch (e) {
@@ -2662,7 +2673,7 @@ async function concederAcessoGraph(token, email, papel, filtroLista){
   });
   if (!resp.ok) { var t = await resp.text(); throw new Error('Falha ao compartilhar no SharePoint (' + resp.status + '): ' + t); }
 
-  var usuarios = await buscarUsuarios(token);
+  var usuarios = await buscarUsuariosGraph(token);
   var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
   var hoje = new Date();
   var dataStr = String(hoje.getDate()).padStart(2,'0')+'/'+String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
@@ -2700,7 +2711,7 @@ async function revogarAcesso(email){
         await fetch(permUrl + '/' + alvo.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
       }
     }
-    var usuarios = await buscarUsuarios(token);
+    var usuarios = await buscarUsuariosGraph(token);
     var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
     if (existente){
       var usersUrl = GRAPH_BASE + '/drives/' + USERS_DRIVE_ID + '/items/' + USERS_ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
