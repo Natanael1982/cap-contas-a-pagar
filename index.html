@@ -1207,33 +1207,64 @@ async function getToken(){
   }
 }
 
+// Contas Microsoft PESSOAIS (Gmail/Hotmail) convidadas como "guest" têm
+// suporte limitado da própria Microsoft pra acessar SharePoint via API do
+// Graph com o próprio login (é uma limitação de plataforma, não deste
+// código). Quando isso acontece, cai para uma cópia estática sincronizada
+// (lancamentos.json) — modo só leitura, já que escrita continua exigindo
+// permissão real da Microsoft.
+async function carregarDadosAoVivo(){
+  var token = await getToken();
+  var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+  try {
+    var sessionId = await criarSessaoWorkbook(token, alvo.driveId, alvo.itemId);
+    var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows";
+    var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
+    if (!resp.ok) {
+      var corpoErro = '';
+      try { corpoErro = await resp.text(); } catch(e2){}
+      throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
+    }
+    var json = await resp.json();
+    return json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
+  } catch (eSessao) {
+    var wb = await baixarEParsearWorkbook(token, alvo.driveId, alvo.itemId);
+    var linhas = linhasDaAba(wb, 'Base de Dados');
+    return linhas.map(function(v, idx){ return graphRowToRow(v, idx); });
+  }
+}
+
+async function carregarDadosEstatico(){
+  var resp = await fetch('lancamentos.json', { cache: 'no-store' });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status + ' ao buscar lancamentos.json');
+  var json = await resp.json();
+  return json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
+}
+
+function forcarSomenteLeitura(){
+  if (currentUserRole !== 'Editor') return;
+  currentUserRole = 'Visualizador';
+  document.getElementById('addToggleBtn').style.display = 'none';
+}
+
 async function carregarDados(){
   try {
-    var token = await getToken();
-    var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+    DATA = await carregarDadosAoVivo();
+  } catch (eAoVivo) {
     try {
-      var sessionId = await criarSessaoWorkbook(token, alvo.driveId, alvo.itemId);
-      var url = GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + "/workbook/tables('" + TABLE_NAME + "')/rows";
-      var resp = await fetch(url, { headers: headersComSessao(token, sessionId) });
-      if (!resp.ok) {
-        var corpoErro = '';
-        try { corpoErro = await resp.text(); } catch(e2){}
-        throw new Error('HTTP ' + resp.status + (corpoErro ? ' — ' + corpoErro.slice(0, 300) : ''));
-      }
-      var json = await resp.json();
-      DATA = json.value.map(function(row){ return graphRowToRow(row.values[0], row.index); });
-    } catch (eSessao) {
-      var wb = await baixarEParsearWorkbook(token, alvo.driveId, alvo.itemId);
-      var linhas = linhasDaAba(wb, 'Base de Dados');
-      DATA = linhas.map(function(v, idx){ return graphRowToRow(v, idx); });
+      DATA = await carregarDadosEstatico();
+      forcarSomenteLeitura();
+      showToast('Exibindo uma cópia sincronizada (modo somente leitura) — sua conta não consegue carregar os dados ao vivo.');
+    } catch (eEstatico) {
+      showToast('Erro ao carregar dados: ' + (eAoVivo && eAoVivo.message ? eAoVivo.message : eAoVivo));
+      DATA = [];
+      buildFilters(); updateClearButton(); render();
+      return;
     }
-    DATA.forEach(normalizeRow);
-    if (currentUserFiltroNome){
-      DATA = DATA.filter(function(r){ return currentUserFiltroNome.indexOf(r.nome) !== -1; });
-    }
-  } catch (e) {
-    showToast('Erro ao carregar dados: ' + (e && e.message ? e.message : e));
-    DATA = [];
+  }
+  DATA.forEach(normalizeRow);
+  if (currentUserFiltroNome){
+    DATA = DATA.filter(function(r){ return currentUserFiltroNome.indexOf(r.nome) !== -1; });
   }
   buildFilters(); updateClearButton(); render();
 }
