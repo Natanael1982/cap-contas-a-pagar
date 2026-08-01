@@ -891,6 +891,7 @@ var DONO_EMAIL = 'natanael.silva@sinerggia.com.br';
 var USERS_TABLE_NAME = 'TabelaUsuarios';
 var currentUserRole = null;
 var currentUserFiltroNome = null;
+var currentUserNome = null;
 var ITEM_ID = '01ZF6ARXTIQSWRHIKDQVHIHZRFMV5YVCAD';
 var TABLE_NAME = 'TabelaLancamentos';
 // Arquivo separado (sem dados financeiros) com link de leitura pública, usado
@@ -997,6 +998,7 @@ function sair(){
   currentAccount = null;
   currentUserRole = null;
   currentUserFiltroNome = null;
+  currentUserNome = null;
   msalInstance.setActiveAccount(null);
   salvarContaAtiva('');
   DATA = [];
@@ -1005,6 +1007,10 @@ function sair(){
   buildFilters(); updateClearButton(); render();
 }
 function primeiroNome(account){
+  // Prioriza o Nome cadastrado pelo administrador (TabelaUsuarios) sobre o
+  // nome da própria conta Microsoft — importante pra contas pessoais, cujo
+  // nome de perfil pode não ser o que a família reconhece.
+  if (currentUserNome) return currentUserNome.split(' ')[0];
   var nome = (account && account.name) ? String(account.name).trim() : '';
   if (nome) return nome.split(' ')[0];
   var user = (account && account.username) || '';
@@ -1146,6 +1152,7 @@ var ultimoErroAcesso = null;
 
 async function verificarAcesso(token){
   currentUserFiltroNome = null;
+  currentUserNome = null;
   ultimoErroAcesso = null;
   if (ehDono()) return 'Editor';
   var email = (currentAccount.username || '').toLowerCase();
@@ -1155,6 +1162,7 @@ async function verificarAcesso(token){
     if (match && match.status === 'Aprovado'){
       var lista = filtroDespesaDeParaArray(match.filtroDespesaDe);
       currentUserFiltroNome = lista.length ? lista : null;
+      currentUserNome = match.nome || null;
       return match.papel === 'Editor' ? 'Editor' : 'Visualizador';
     }
     if (match) { ultimoErroAcesso = 'E-mail encontrado, mas status é "' + match.status + '" (precisa ser "Aprovado").'; }
@@ -1188,6 +1196,7 @@ async function processarLogin(){
     return;
   }
   document.getElementById('semAcessoOverlay').classList.remove('open');
+  atualizarEstadoLogin();
   aplicarRestricoesPapel();
   await carregarDados();
 }
