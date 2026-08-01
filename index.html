@@ -633,6 +633,10 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0-4-4m4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         Exportar Excel
       </button>
+      <button class="clear-btn" id="atualizarBtn" type="button" title="Abre o GitHub Actions pra forçar a sincronização agora">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Atualização
+      </button>
       <button class="clear-btn" id="adminBtn" type="button" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.13.31.4.55.72.68.32.13.68.13 1 0H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.7"/></svg>
         Administração
@@ -1788,6 +1792,11 @@ document.getElementById('exportExcelBtn').addEventListener('click', function(){
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Contas a Pagar');
   XLSX.writeFile(wb, 'Contas a Pagar - ' + fmtDate(new Date()).replace(/\//g,'-') + '.xlsx');
+});
+
+document.getElementById('atualizarBtn').addEventListener('click', function(){
+  fecharGavetaAcoes();
+  window.open('https://github.com/sinerggia-dev/cap-contas-a-pagar/actions/workflows/sincronizar-dados.yml', '_blank', 'noopener');
 });
 
 function rowMatchesFilterValue(r, f, v){
