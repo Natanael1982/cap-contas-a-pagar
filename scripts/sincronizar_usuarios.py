@@ -69,6 +69,7 @@ def main():
             "status": v[2] or "",
             "data": v[3] or "",
             "filtroDespesaDe": str(v[4] or "").strip() if len(v) > 4 else "",
+            "nome": str(v[5] or "").strip() if len(v) > 5 else "",
         })
 
     with open(SAIDA, "w", encoding="utf-8") as f:
