@@ -4,13 +4,15 @@
     "papel": "Editor",
     "status": "Aprovado",
     "data": "",
-    "filtroDespesaDe": ""
+    "filtroDespesaDe": "",
+    "nome": ""
   },
   {
     "email": "natanaelvieiradasilva@gmail.com",
-    "papel": "Visualizador",
+    "papel": "Editor",
     "status": "Aprovado",
-    "data": "23/07/2026",
-    "filtroDespesaDe": "Natanael Silva"
+    "data": "31/07/2026",
+    "filtroDespesaDe": "Natanael Silva",
+    "nome": ""
   }
 ]
