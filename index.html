@@ -1733,6 +1733,7 @@ var EXPORT_VALUE = {
   obs:     function(r){ return r.obs || ''; }
 };
 document.getElementById('exportExcelBtn').addEventListener('click', function(){
+  fecharGavetaAcoes();
   var rows = filtered();
   var accessor = SORT_ACCESSORS[sortState.key] || SORT_ACCESSORS.venc;
   var sorted = rows.slice().sort(function(a,b){ return compareValues(accessor(a), accessor(b)) * sortState.dir; });
@@ -2836,6 +2837,7 @@ document.getElementById('adm_conceder').addEventListener('click', function(){
 });
 
 document.getElementById('adminBtn').addEventListener('click', function(){
+  fecharGavetaAcoes();
   var opening = !document.getElementById('adminPanel').classList.contains('open');
   document.getElementById('entryPanel').classList.remove('open');
   document.getElementById('adminPanel').classList.toggle('open', opening);
