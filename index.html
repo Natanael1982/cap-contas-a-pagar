@@ -2700,7 +2700,8 @@ function renderAdminLista(usuarios){
     return;
   }
   el.innerHTML = usuarios.map(function(u){
-    var statusCls = u.status === 'Aprovado' ? 'pago' : ((u.status === 'Bloqueado' || u.status === 'Desabilitado') ? 'vencido' : 'avencer');
+    var ativo = u.status === 'Aprovado';
+    var statusCls = ativo ? 'pago' : ((u.status === 'Bloqueado' || u.status === 'Desabilitado' || u.status === 'Inativo') ? 'vencido' : 'avencer');
     var restricao = filtroDespesaDeParaArray(u.filtroDespesaDe);
     var restricaoTxt = restricao.length ? ('Restrito a: ' + restricao.join(', ')) : 'Vê tudo';
     var nomeExibido = u.nome || u.email;
@@ -2713,17 +2714,34 @@ function renderAdminLista(usuarios){
       '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
         '<button type="button" class="ebtn" data-editar="'+u.email.replace(/"/g,'&quot;')+'" data-nome="'+(u.nome||'').replace(/"/g,'&quot;')+'" data-papel="'+u.papel+'" data-restricao="'+restricao.join(',').replace(/"/g,'&quot;')+'" style="padding:5px 10px;font-size:11px;flex:none;">Editar</button>'+
         '<button type="button" class="ebtn" data-toggle-papel="'+u.email.replace(/"/g,'&quot;')+'" data-papel-atual="'+u.papel+'" data-restricao="'+restricao.join(',').replace(/"/g,'&quot;')+'" style="padding:5px 10px;font-size:11px;flex:none;width:110px;" title="Trocar para '+(u.papel==='Editor'?'Visualizador':'Editor')+'">'+u.papel+' ⇄</button>'+
-        '<button type="button" class="ebtn" data-revoke="'+u.email.replace(/"/g,'&quot;')+'" title="Bloqueia o acesso, mas mantém o cadastro pra reativar depois" style="padding:5px 10px;font-size:11px;flex:none;">Desabilitar</button>'+
+        '<button type="button" class="ebtn" data-toggle-status="'+u.email.replace(/"/g,'&quot;')+'" data-status-atual="'+u.status+'" data-nome="'+(u.nome||'').replace(/"/g,'&quot;')+'" data-papel="'+u.papel+'" data-restricao="'+restricao.join(',').replace(/"/g,'&quot;')+'" title="'+(ativo ? 'Bloqueia o acesso, mas mantém o cadastro pra ativar depois' : 'Restaura o acesso real de verdade')+'" style="padding:5px 10px;font-size:11px;flex:none;">'+(ativo ? 'Desabilitar' : 'Ativar')+'</button>'+
         '<button type="button" class="ebtn" data-excluir="'+u.email.replace(/"/g,'&quot;')+'" title="Remove o cadastro por completo" style="padding:5px 10px;font-size:11px;flex:none;color:var(--critical);">Excluir</button>'+
       '</div>'+
     '</div>';
   }).join('');
-  el.querySelectorAll('[data-revoke]').forEach(function(btn){
+  el.querySelectorAll('[data-toggle-status]').forEach(function(btn){
     btn.addEventListener('click', function(){
-      var email = btn.getAttribute('data-revoke');
-      pedirSenha('Digite a senha para desabilitar o acesso de ' + email + ':', function(ok){
+      var email = btn.getAttribute('data-toggle-status');
+      var statusAtual = btn.getAttribute('data-status-atual');
+      var vaiAtivar = statusAtual !== 'Aprovado';
+      var nome = btn.getAttribute('data-nome') || '';
+      var papel = btn.getAttribute('data-papel');
+      var restricaoStr = btn.getAttribute('data-restricao') || '';
+      var restricaoLista = restricaoStr ? restricaoStr.split(',').filter(Boolean) : [];
+      var acaoTxt = vaiAtivar ? 'ativar' : 'desabilitar';
+      pedirSenha('Digite a senha para ' + acaoTxt + ' o acesso de ' + email + ':', function(ok){
         if (!ok) return;
-        revogarAcesso(email);
+        if (!vaiAtivar) { revogarAcesso(email); return; }
+        (async function(){
+          try {
+            var token = await getToken();
+            await concederAcessoGraph(token, email, papel, restricaoLista, nome);
+            showToast('Acesso de ' + email + ' reativado.');
+            await carregarAdminPanel();
+          } catch (err) {
+            showToast('Erro ao ativar: ' + (err && err.message ? err.message : err));
+          }
+        })();
       });
     });
   });
@@ -2863,7 +2881,7 @@ async function revogarAcesso(email){
       var respPatch = await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
         method: 'PATCH',
         headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ values: [[existente.email, existente.papel, 'Desabilitado', existente.data, existente.filtroDespesaDe, existente.nome]] })
+        body: JSON.stringify({ values: [[existente.email, existente.papel, 'Inativo', existente.data, existente.filtroDespesaDe, existente.nome]] })
       });
       if (!respPatch.ok) { var tErro = await respPatch.text(); throw new Error('Falha ao atualizar status (' + respPatch.status + '): ' + tErro); }
     }
