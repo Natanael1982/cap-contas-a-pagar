@@ -2700,7 +2700,7 @@ function renderAdminLista(usuarios){
     return;
   }
   el.innerHTML = usuarios.map(function(u){
-    var statusCls = u.status === 'Aprovado' ? 'pago' : (u.status === 'Bloqueado' ? 'vencido' : 'avencer');
+    var statusCls = u.status === 'Aprovado' ? 'pago' : ((u.status === 'Bloqueado' || u.status === 'Desabilitado') ? 'vencido' : 'avencer');
     var restricao = filtroDespesaDeParaArray(u.filtroDespesaDe);
     var restricaoTxt = restricao.length ? ('Restrito a: ' + restricao.join(', ')) : 'Vê tudo';
     var nomeExibido = u.nome || u.email;
@@ -2860,11 +2860,12 @@ async function revogarAcesso(email){
     var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
     if (existente){
       var usersUrl = GRAPH_BASE + '/drives/' + USERS_DRIVE_ID + '/items/' + USERS_ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
-      await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
+      var respPatch = await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
         method: 'PATCH',
         headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ values: [[existente.email, existente.papel, 'Bloqueado', existente.data]] })
+        body: JSON.stringify({ values: [[existente.email, existente.papel, 'Desabilitado', existente.data, existente.filtroDespesaDe, existente.nome]] })
       });
+      if (!respPatch.ok) { var tErro = await respPatch.text(); throw new Error('Falha ao atualizar status (' + respPatch.status + '): ' + tErro); }
     }
     showToast('Acesso de ' + email + ' desabilitado.');
     await carregarAdminPanel();
@@ -2894,10 +2895,11 @@ async function excluirUsuario(email){
     var existente = usuarios.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
     if (existente){
       var usersUrl = GRAPH_BASE + '/drives/' + USERS_DRIVE_ID + '/items/' + USERS_ITEM_ID + "/workbook/tables('" + USERS_TABLE_NAME + "')/rows";
-      await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')/delete', {
-        method: 'POST',
+      var respDelete = await fetch(usersUrl + '/itemAt(index=' + existente._rowIndex + ')', {
+        method: 'DELETE',
         headers: { Authorization: 'Bearer ' + token }
       });
+      if (!respDelete.ok) { var tErro2 = await respDelete.text(); throw new Error('Falha ao excluir linha (' + respDelete.status + '): ' + tErro2); }
     }
     showToast('Cadastro de ' + email + ' excluído.');
     await carregarAdminPanel();
