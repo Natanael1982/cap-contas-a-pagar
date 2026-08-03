@@ -629,17 +629,17 @@
 "values": [
 [
 27,
-46059.4472222222,
-46059.4479166667,
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
-46301,
-46301,
+46244,
+"",
 "Condomínio Apto 102",
 "Condomínio",
-"Pago",
+"A Vencer",
 "07790.00116 10075.848639 00788.830172 1 14730000103882",
-"1.038,82",
+1038.82,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/Condominio%20-%20boleto_Junho_de_2026_TIPO_1_LB_1_Natanael%20Silva.pdf",
 "",
@@ -3108,7 +3108,7 @@
 46233,
 46233,
 "Outras",
-"Outras",
+"Bebida",
 "Pago",
 "",
 121.22,
@@ -3116,7 +3116,7 @@
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-135-1785489591665.jpg",
 "",
-"Bebidas"
+""
 ]
 ]
 },
@@ -3132,8 +3132,8 @@
 46234,
 46234,
 "Padaria",
-"Despesas Diárias",
-"A Vencer",
+"Alimentação",
+"Pago",
 "",
 26.98,
 "",
@@ -3156,8 +3156,8 @@
 46236,
 46236,
 "Igreja Emanuel doação",
-"Outras",
-"A Vencer",
+"Oferta",
+"Pago",
 "",
 50,
 "",
@@ -3228,13 +3228,301 @@
 46236,
 46236,
 "Ze Delivey",
-"Despesas Diárias",
-"A Vencer",
+"Bebida",
+"Pago",
 "",
 89.88,
 "",
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-140-1785693589303.jpg",
+"",
+""
+]
+]
+},
+{
+"index": 135,
+"values": [
+[
+141,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46127,
+46127,
+"Seguro S10 - Parcela 1/10",
+"Seguro Veícular",
+"Pago",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 136,
+"values": [
+[
+142,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46157,
+46157,
+"Seguro S10 - Parcela 2/10",
+"Outras",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 137,
+"values": [
+[
+143,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46157,
+46157,
+"Seguro S10 - Parcela 2/10",
+"Seguro Veícular",
+"Pago",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 138,
+"values": [
+[
+144,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46218,
+46218,
+"Seguro S10 - Parcela 4/10",
+"Seguro Veícular",
+"Pago",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 139,
+"values": [
+[
+145,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46251,
+"",
+"Seguro S10 - Parcela 5/10",
+"Seguro Veícular",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 140,
+"values": [
+[
+146,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46127,
+46127,
+"Seguro S10 - Parcela 1/10",
+"",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 141,
+"values": [
+[
+147,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46188,
+46188,
+"Seguro S10 - Parcela 3/10",
+"Seguro Veícular",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 142,
+"values": [
+[
+148,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46280,
+"",
+"Seguro S10 - Parcela 6/10",
+"Seguro Veícular",
+"Pago",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 143,
+"values": [
+[
+149,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46310,
+"",
+"Seguro S10 - Parcela 7/10",
+"Seguro Veícular",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 144,
+"values": [
+[
+150,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46342,
+"",
+"Seguro S10 - Parcela 8/10",
+"Seguro Veícular",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 145,
+"values": [
+[
+151,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46371,
+"",
+"Seguro S10 - Parcela 9/10",
+"Seguro Veícular",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 146,
+"values": [
+[
+152,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46402,
+"",
+"Seguro S10 - Parcela 10/10",
+"Seguro Veícular",
+"A Vencer",
+"",
+589.47,
+"",
+"",
+"",
 "",
 ""
 ]
