@@ -1885,7 +1885,7 @@ var COLUMNS = {
   dcto:    {label:'Dcto', cellCls:'muted', titleAttr:function(r){ return String(r.barra||r.id).replace(/"/g,'&quot;'); }, render:function(r){ return String(r.barra||r.id); }},
   empresa: {label:'Despesa de:', cellCls:'', titleAttr:function(r){ return (r.nome + (r.doc ? ' · '+r.doc : '')).replace(/"/g,'&quot;'); }, render:function(r){ return r.nome + (r.doc ? '<span class="muted"> · '+r.doc+'</span>' : ''); }},
   desc:    {label:'Descrição', cellCls:'desc-cell', titleAttr:function(r){ return (r.desc||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.desc; }},
-  tipo:    {label:'Tipo', cellCls:'muted', titleAttr:function(r){ return (r.tipo||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.tipo||'—'; }},
+  tipo:    {label:'Tipo', cellCls:'', titleAttr:function(r){ return (r.tipo||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.tipo||'—'; }},
   parcela: {label:'Parcela', cellCls:'muted', render:function(r){ return r.parcela||'—'; }},
   venc:    {label:'Vencimento', cellCls:'', render:function(r){ return fmtDate(r.vencDate); }},
   status:  {label:'Status', cellCls:'', render:function(r){
