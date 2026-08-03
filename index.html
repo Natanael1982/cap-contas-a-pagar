@@ -688,11 +688,18 @@
         <div class="efield">
           <label>Tipo de Despesa</label>
           <select id="nf_tipo">
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Financiamento">Financiamento</option>
+            <option value="Aluguel">Aluguel</option>
+            <option value="Energia">Energia</option>
+            <option value="Telefone/Internet">Telefone/Internet</option>
+            <option value="IPTU">IPTU</option>
+            <option value="IPVA">IPVA</option>
+            <option value="Condomínio">Condomínio</option>
+            <option value="Empréstimo">Empréstimo</option>
+            <option value="Serviços Domésticos">Serviços Domésticos</option>
+            <option value="Despesas Diárias">Despesas Diárias</option>
             <option value="Outras">Outras</option>
-            <option value="Mensal">Mensal</option>
-            <option value="Decimestral">Decimestral</option>
-            <option value="Anual">Anual</option>
-            <option value="Remover">Remover</option>
           </select>
         </div>
         <div class="efield">
@@ -950,7 +957,7 @@ function graphRowToRow(v, rowIndex){
   return {
     id: v[0], _rowIndex: rowIndex,
     nome: nome, doc: doc, desc: desc, parcela: parcela,
-    tipo: v[8] || 'Mensal',
+    tipo: v[8] || 'Outras',
     venc: ddmmyyToISO(v[5]),
     pag: ddmmyyToISO(v[6]),
     barra: v[10] || '',
@@ -2528,7 +2535,7 @@ function abrirParaEdicao(rawId){
   editingId = rawId;
   document.getElementById('nf_nome').value = entry.nome || '';
   document.getElementById('nf_desc').value = entry.desc || '';
-  document.getElementById('nf_tipo').value = entry.tipo || 'Mensal';
+  document.getElementById('nf_tipo').value = entry.tipo || 'Outras';
   document.getElementById('nf_status').value = entry.pag ? 'Pago' : 'A Vencer';
   document.getElementById('nf_venc').value = entry.venc ? isoToDDMMYYYY(entry.venc) : '';
   document.getElementById('nf_valor').value = (entry.valor != null ? digitsToBRL(String(Math.round(entry.valor*100))) : '');
@@ -2670,7 +2677,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       document.getElementById('entryForm').reset();
       if (!wasEditing) {
         document.getElementById('nf_nome').value = keepNome;
-        document.getElementById('nf_tipo').value = 'Mensal';
+        document.getElementById('nf_tipo').value = 'Outras';
         document.getElementById('nf_status').value = 'A Vencer';
         document.getElementById('nf_pag').value = fmtDataBR(new Date());
         document.getElementById('nf_desc').focus();
