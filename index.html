@@ -290,6 +290,12 @@
   }
   .panel-head h2{font-size:13px;margin:0;font-weight:600;}
   .panel-head .count{font-size:11.5px;color:var(--ink-muted);font-family:var(--mono);}
+  .panel-head-title{display:flex;align-items:center;gap:6px;}
+  .rank-group-sel{
+    background:var(--surface-2);color:var(--ink);border:1px solid var(--border);
+    border-radius:6px;font-size:12px;font-weight:600;padding:3px 6px;font-family:inherit;cursor:pointer;
+  }
+  .rank-group-sel:focus{outline:2px solid var(--chart);outline-offset:1px;}
 
   .table-scroll{flex:1;min-height:0;overflow:auto;}
   table.cap{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
@@ -809,7 +815,13 @@
   <div class="bottom">
     <div class="panel">
       <div class="panel-head">
-        <h2>Total por Descrição</h2>
+        <div class="panel-head-title">
+          <h2>Total por</h2>
+          <select id="descRankGroupSel" class="rank-group-sel">
+            <option value="desc">Descrição</option>
+            <option value="tipo">Tipo de Despesa</option>
+          </select>
+        </div>
         <span class="count" id="descRankCount"></span>
       </div>
       <div class="rank-body" id="descRankBody"></div>
@@ -1379,6 +1391,7 @@ function parseBRL(str){
 var FIELDS = [
   {key:'status', label:'Status', opts:[['vencido','Vencido'],['hoje','Vence Hoje'],['avencer','A Vencer'],['pago','Pago']]},
   {key:'desc', label:'Descrição'},
+  {key:'tipo', label:'Tipo de Despesa'},
   {key:'nome', label:'Despesa de:'},
   {key:'id', label:'Documento'},
   {key:'pag', label:'Dt Pgto'},
@@ -2189,22 +2202,39 @@ function renderTable(rows){
   renderTableFoot(rows);
 }
 
+var DESC_RANK_GROUP_LABELS = {
+  desc: {singular: 'descrição', plural: 'descrições', vazio: '(sem descrição)'},
+  tipo: {singular: 'tipo', plural: 'tipos', vazio: '(sem tipo)'}
+};
+function loadDescRankGroupBy(){
+  try {
+    var saved = localStorage.getItem('cap_desc_rank_groupby_v1');
+    if (saved === 'desc' || saved === 'tipo') return saved;
+  } catch(e){}
+  return 'desc';
+}
+function saveDescRankGroupBy(v){ try{ localStorage.setItem('cap_desc_rank_groupby_v1', v); }catch(e){} }
+var descRankGroupBy = loadDescRankGroupBy();
+document.getElementById('descRankGroupSel').value = descRankGroupBy;
+
 function renderDescRanking(rows){
-  var byDesc = {};
+  var chaveCampo = descRankGroupBy;
+  var lbl = DESC_RANK_GROUP_LABELS[chaveCampo];
+  var byChave = {};
   rows.forEach(function(r){
-    var chave = r.desc || '(sem descrição)';
-    byDesc[chave] = (byDesc[chave]||0) + r.valor;
+    var chave = r[chaveCampo] || lbl.vazio;
+    byChave[chave] = (byChave[chave]||0) + r.valor;
   });
-  var entries = Object.keys(byDesc).map(function(k){return {desc:k, total:byDesc[k]};}).sort(function(a,b){return b.total-a.total;});
-  document.getElementById('descRankCount').textContent = entries.length + (entries.length===1 ? ' descrição' : ' descrições');
+  var entries = Object.keys(byChave).map(function(k){return {chave:k, total:byChave[k]};}).sort(function(a,b){return b.total-a.total;});
+  document.getElementById('descRankCount').textContent = entries.length + ' ' + (entries.length===1 ? lbl.singular : lbl.plural);
   var top = entries;
   var max = top.length ? top[0].total : 1;
-  var descAtivo = Array.isArray(state.desc) ? state.desc : null;
+  var ativoAtual = Array.isArray(state[chaveCampo]) ? state[chaveCampo] : null;
   document.getElementById('descRankBody').innerHTML = top.length ? top.map(function(e){
     var pct = (e.total/max*100).toFixed(1);
-    var descAttr = e.desc.replace(/"/g,'&quot;');
-    var ativo = !!(descAtivo && descAtivo.indexOf(e.desc) !== -1);
-    return '<div class="rank-row'+(ativo?' active':'')+'" data-desc="'+descAttr+'" title="Clique para filtrar por '+descAttr+'"><span class="name" title="'+e.desc+'">'+e.desc+'</span>'+
+    var chaveAttr = e.chave.replace(/"/g,'&quot;');
+    var ativo = !!(ativoAtual && ativoAtual.indexOf(e.chave) !== -1);
+    return '<div class="rank-row'+(ativo?' active':'')+'" data-groupval="'+chaveAttr+'" title="Clique para filtrar por '+chaveAttr+'"><span class="name" title="'+e.chave+'">'+e.chave+'</span>'+
       '<span class="track"><span class="fill" style="width:'+pct+'%"></span></span>'+
       '<span class="amt">'+brl(e.total)+'</span></div>';
   }).join('') : '<div class="empty-note">Sem dados para os filtros selecionados.</div>';
@@ -2280,13 +2310,20 @@ document.getElementById('rankBody').addEventListener('click', function(ev){
 });
 
 document.getElementById('descRankBody').addEventListener('click', function(ev){
-  var descEl = ev.target.closest('.rank-row[data-desc]');
-  if (!descEl) return;
-  var desc = descEl.getAttribute('data-desc');
-  var jaSelecionado = Array.isArray(state.desc) && state.desc.length===1 && state.desc[0]===desc;
-  state.desc = jaSelecionado ? 'todos' : [desc];
+  var rowEl = ev.target.closest('.rank-row[data-groupval]');
+  if (!rowEl) return;
+  var chaveCampo = descRankGroupBy;
+  var valor = rowEl.getAttribute('data-groupval');
+  var jaSelecionado = Array.isArray(state[chaveCampo]) && state[chaveCampo].length===1 && state[chaveCampo][0]===valor;
+  state[chaveCampo] = jaSelecionado ? 'todos' : [valor];
   buildFilters();
   updateClearButton();
+  render();
+});
+
+document.getElementById('descRankGroupSel').addEventListener('change', function(ev){
+  descRankGroupBy = ev.target.value;
+  saveDescRankGroupBy(descRankGroupBy);
   render();
 });
 
