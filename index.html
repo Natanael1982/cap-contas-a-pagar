@@ -2478,9 +2478,6 @@ addToggleBtn.addEventListener('click', function(){
     document.getElementById('entryForm').reset();
     setFormMode(false);
   }
-  if (opening && editingId === null){
-    document.getElementById('nf_pag').value = fmtDataBR(new Date());
-  }
   togglePanel(opening);
 });
 document.getElementById('cancelEntryBtn').addEventListener('click', function(){
@@ -2679,7 +2676,6 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
         document.getElementById('nf_nome').value = keepNome;
         document.getElementById('nf_tipo').value = 'Outras';
         document.getElementById('nf_status').value = 'A Vencer';
-        document.getElementById('nf_pag').value = fmtDataBR(new Date());
         document.getElementById('nf_desc').focus();
       } else {
         togglePanel(false);
