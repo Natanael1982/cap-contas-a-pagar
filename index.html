@@ -1777,11 +1777,12 @@ document.getElementById('mesAtualBtn').addEventListener('click', function(){
   render();
 });
 
-var EXPORT_LABEL = {dcto:'Dcto', empresa:'Despesa de', desc:'Descrição', parcela:'Parcela', venc:'Vencimento', status:'Status', valor:'Valor Original', juros:'Juros', pago:'Valor Pago', obs:'Observação'};
+var EXPORT_LABEL = {dcto:'Dcto', empresa:'Despesa de', desc:'Descrição', tipo:'Tipo de Despesa', parcela:'Parcela', venc:'Vencimento', status:'Status', valor:'Valor Original', juros:'Juros', pago:'Valor Pago', obs:'Observação'};
 var EXPORT_VALUE = {
   dcto:    function(r){ return r.barra || r.id; },
   empresa: function(r){ return r.nome || ''; },
   desc:    function(r){ return r.desc || ''; },
+  tipo:    function(r){ return r.tipo || ''; },
   parcela: function(r){ return r.parcela || ''; },
   venc:    function(r){ return fmtDate(r.vencDate); },
   status:  function(r){ return (STATUS_ICON[r.status]||{}).label || r.status; },
@@ -1884,6 +1885,7 @@ var COLUMNS = {
   dcto:    {label:'Dcto', cellCls:'muted', titleAttr:function(r){ return String(r.barra||r.id).replace(/"/g,'&quot;'); }, render:function(r){ return String(r.barra||r.id); }},
   empresa: {label:'Despesa de:', cellCls:'', titleAttr:function(r){ return (r.nome + (r.doc ? ' · '+r.doc : '')).replace(/"/g,'&quot;'); }, render:function(r){ return r.nome + (r.doc ? '<span class="muted"> · '+r.doc+'</span>' : ''); }},
   desc:    {label:'Descrição', cellCls:'desc-cell', titleAttr:function(r){ return (r.desc||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.desc; }},
+  tipo:    {label:'Tipo', cellCls:'muted', titleAttr:function(r){ return (r.tipo||'').replace(/"/g,'&quot;'); }, render:function(r){ return r.tipo||'—'; }},
   parcela: {label:'Parcela', cellCls:'muted', render:function(r){ return r.parcela||'—'; }},
   venc:    {label:'Vencimento', cellCls:'', render:function(r){ return fmtDate(r.vencDate); }},
   status:  {label:'Status', cellCls:'', render:function(r){
@@ -1914,13 +1916,14 @@ var COLUMNS = {
     return editBtn+delBtn;
   }}
 };
-var DEFAULT_COL_ORDER = ['dcto','doc','empresa','desc','parcela','venc','status','valor','juros','pago','obs','comp','acao'];
-var DEFAULT_COL_WIDTHS = {dcto:90,doc:56,empresa:150,desc:230,parcela:70,venc:100,status:130,valor:110,juros:90,pago:110,obs:220,comp:56,acao:64};
+var DEFAULT_COL_ORDER = ['dcto','doc','empresa','desc','tipo','parcela','venc','status','valor','juros','pago','obs','comp','acao'];
+var DEFAULT_COL_WIDTHS = {dcto:90,doc:56,empresa:150,desc:230,tipo:130,parcela:70,venc:100,status:130,valor:110,juros:90,pago:110,obs:220,comp:56,acao:64};
 
 var SORT_ACCESSORS = {
   dcto:    function(r){ return String(r.barra||r.id); },
   empresa: function(r){ return r.nome||''; },
   desc:    function(r){ return r.desc||''; },
+  tipo:    function(r){ return r.tipo||''; },
   parcela: function(r){ return r.parcela||''; },
   venc:    function(r){ return r.vencDate; },
   status:  function(r){ return r.status==='vencido' ? r.dias : r.status==='hoje' ? 0 : r.status==='avencer' ? -r.dias : -999999; },
