@@ -687,20 +687,8 @@
         </div>
         <div class="efield">
           <label>Tipo de Despesa</label>
-          <select id="nf_tipo">
-            <option value="Cartão de Crédito">Cartão de Crédito</option>
-            <option value="Financiamento">Financiamento</option>
-            <option value="Aluguel">Aluguel</option>
-            <option value="Energia">Energia</option>
-            <option value="Telefone/Internet">Telefone/Internet</option>
-            <option value="IPTU">IPTU</option>
-            <option value="IPVA">IPVA</option>
-            <option value="Condomínio">Condomínio</option>
-            <option value="Empréstimo">Empréstimo</option>
-            <option value="Serviços Domésticos">Serviços Domésticos</option>
-            <option value="Despesas Diárias">Despesas Diárias</option>
-            <option value="Outras">Outras</option>
-          </select>
+          <input type="text" id="nf_tipo" list="tipoList" placeholder="Ex.: Cartão de Crédito" autocomplete="off">
+          <datalist id="tipoList"></datalist>
         </div>
         <div class="efield">
           <label>Status</label>
@@ -883,6 +871,11 @@ var HOJE = new Date();
 HOJE.setHours(0,0,0,0);
 var EMPRESAS_CONHECIDAS = [
   ['Ivanilda Hozana','213.110.484-72'],['Natanael Silva','045.993.784-70']
+];
+
+var TIPOS_DESPESA_CONHECIDOS = [
+  'Cartão de Crédito','Financiamento','Aluguel','Energia','Telefone/Internet',
+  'IPTU','IPVA','Condomínio','Empréstimo','Serviços Domésticos','Despesas Diárias','Outras'
 ];
 
 /* ---- login Microsoft + Graph API (SharePoint ao vivo) ---- */
@@ -1286,6 +1279,7 @@ async function carregarDados(){
   if (currentUserFiltroNome){
     DATA = DATA.filter(function(r){ return currentUserFiltroNome.indexOf(r.nome) !== -1; });
   }
+  atualizarTipoList();
   buildFilters(); updateClearButton(); render();
 }
 
@@ -2318,6 +2312,20 @@ EMPRESAS_CONHECIDAS.forEach(function(e){
   opt.value = e[0];
   dlist.appendChild(opt);
 });
+
+function atualizarTipoList(){
+  var tlist = document.getElementById('tipoList');
+  var tipos = TIPOS_DESPESA_CONHECIDOS.slice();
+  DATA.forEach(function(r){
+    if (r.tipo && tipos.indexOf(r.tipo) === -1) tipos.push(r.tipo);
+  });
+  tlist.innerHTML = '';
+  tipos.forEach(function(t){
+    var opt = document.createElement('option');
+    opt.value = t;
+    tlist.appendChild(opt);
+  });
+}
 var MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 var DIAS_PT = ['D','S','T','Q','Q','S','S'];
 
