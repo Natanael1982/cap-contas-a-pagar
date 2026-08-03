@@ -4,19 +4,21 @@ Alerta diário de vencimento do dashboard CAP - Contas a Pagar.
 Lê a TabelaLancamentos direto da planilha "Gestão Financeira Pessoal.xlsx"
 (SharePoint, via Microsoft Graph) e manda UM aviso consolidado (por WhatsApp
 via CallMeBot e por e-mail via Graph/Outlook) só para o dono (ver DONO_NOME),
-listando — agrupado por pessoa — todo lançamento NÃO PAGO vencendo HOJE ou
-AMANHÃ. Só o número/e-mail do dono precisa estar cadastrado em TabelaContatos
+listando — agrupado por pessoa — todo lançamento NÃO PAGO vencendo HOJE,
+AMANHÃ ou em 5 DIAS. Só o número/e-mail do dono precisa estar cadastrado em TabelaContatos
 (evita ter que pedir confirmação de WhatsApp de cada pessoa da planilha).
 
-O e-mail também vem com o boleto anexado (arquivo real) do primeiro
-lançamento pendente que tiver um "Anexo - Boleto" cadastrado. O WhatsApp
-(CallMeBot, plano gratuito) não suporta anexo, só texto.
-
-Roda 1x por dia via GitHub Actions (.github/workflows/alertas-vencimento.yml).
+Pensado para rodar 1x por dia via GitHub Actions (.github/workflows/
+alertas-vencimento.yml), mas também roda manualmente:
+    python "Enviar Alertas Vencimento.py"
 
 Este arquivo é publicado no repositório PÚBLICO do CAP no GitHub (roda via
 GitHub Actions) — por isso o Client Secret NUNCA fica escrito aqui, só vem
-da variável de ambiente CAP_CLIENT_SECRET (Secret do repositório no GitHub).
+da variável de ambiente CAP_CLIENT_SECRET (no Actions, de um Secret do repo;
+localmente, defina antes de rodar: $env:CAP_CLIENT_SECRET = "...").
+
+Variável de ambiente obrigatória:
+    CAP_CLIENT_SECRET  -> Client Secret do App Registration "Gestão Financeira Claude"
 """
 
 import base64
@@ -129,17 +131,20 @@ def carregar_contatos(headers):
 
 
 def montar_mensagens(itens):
-    """Agrupa por nome -> {'hoje': [...], 'amanha': [...]}."""
+    """Agrupa por nome -> {'hoje': [...], 'amanha': [...], 'em_5_dias': [...]}."""
     amanha = HOJE_BR + timedelta(days=1)
+    em_5_dias = HOJE_BR + timedelta(days=5)
     agrupado = {}
     for item in itens:
         if item["venc"] == HOJE_BR:
             chave = "hoje"
         elif item["venc"] == amanha:
             chave = "amanha"
+        elif item["venc"] == em_5_dias:
+            chave = "em_5_dias"
         else:
             continue
-        agrupado.setdefault(item["nome"], {"hoje": [], "amanha": []})[chave].append(item)
+        agrupado.setdefault(item["nome"], {"hoje": [], "amanha": [], "em_5_dias": []})[chave].append(item)
     return agrupado
 
 
@@ -159,13 +164,14 @@ def texto_alerta_consolidado(agrupado):
 
     bloco("hoje", "VENCE HOJE", HOJE_BR)
     bloco("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
+    bloco("em_5_dias", "VENCE EM 5 DIAS", HOJE_BR + timedelta(days=5))
     linhas.append(f"\nAcesse: {LINK_DASHBOARD}")
     return "\n".join(linhas)
 
 
 def primeiro_anexo(agrupado):
-    """Primeiro lançamento (hoje antes de amanhã, ordem alfabética por pessoa) com boleto anexado."""
-    for chave in ("hoje", "amanha"):
+    """Primeiro lançamento (hoje antes de amanhã antes de 5 dias, ordem alfabética por pessoa) com boleto anexado."""
+    for chave in ("hoje", "amanha", "em_5_dias"):
         for nome in sorted(agrupado):
             for it in agrupado[nome][chave]:
                 if it.get("anexo"):
@@ -219,10 +225,10 @@ def main():
     itens = carregar_lancamentos(headers)
     contatos = carregar_contatos(headers)
     agrupado = montar_mensagens(itens)
-    agrupado = {n: g for n, g in agrupado.items() if g["hoje"] or g["amanha"]}
+    agrupado = {n: g for n, g in agrupado.items() if g["hoje"] or g["amanha"] or g["em_5_dias"]}
 
     if not agrupado:
-        print("Nenhum lançamento vencendo hoje ou amanhã. Nada a avisar.")
+        print("Nenhum lançamento vencendo hoje, amanhã ou em 5 dias. Nada a avisar.")
         return
 
     contato = contatos.get(DONO_NOME)
