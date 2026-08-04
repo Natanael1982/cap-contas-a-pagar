@@ -3268,30 +3268,6 @@
 "index": 136,
 "values": [
 [
-142,
-"",
-"",
-"Ivanilda Hozana",
-"Envio de Boleto",
-46157,
-46157,
-"Seguro S10 - Parcela 2/10",
-"Outras",
-"A Vencer",
-"",
-589.47,
-"",
-"",
-"",
-"",
-""
-]
-]
-},
-{
-"index": 137,
-"values": [
-[
 143,
 "",
 "",
@@ -3313,7 +3289,7 @@
 ]
 },
 {
-"index": 138,
+"index": 137,
 "values": [
 [
 144,
@@ -3337,7 +3313,7 @@
 ]
 },
 {
-"index": 139,
+"index": 138,
 "values": [
 [
 145,
@@ -3361,31 +3337,7 @@
 ]
 },
 {
-"index": 140,
-"values": [
-[
-146,
-"",
-"",
-"Ivanilda Hozana",
-"Envio de Boleto",
-46127,
-46127,
-"Seguro S10 - Parcela 1/10",
-"",
-"A Vencer",
-"",
-589.47,
-"",
-"",
-"",
-"",
-""
-]
-]
-},
-{
-"index": 141,
+"index": 139,
 "values": [
 [
 147,
@@ -3409,7 +3361,7 @@
 ]
 },
 {
-"index": 142,
+"index": 140,
 "values": [
 [
 148,
@@ -3433,7 +3385,7 @@
 ]
 },
 {
-"index": 143,
+"index": 141,
 "values": [
 [
 149,
@@ -3457,7 +3409,7 @@
 ]
 },
 {
-"index": 144,
+"index": 142,
 "values": [
 [
 150,
@@ -3481,7 +3433,7 @@
 ]
 },
 {
-"index": 145,
+"index": 143,
 "values": [
 [
 151,
@@ -3505,7 +3457,7 @@
 ]
 },
 {
-"index": 146,
+"index": 144,
 "values": [
 [
 152,
@@ -3529,7 +3481,7 @@
 ]
 },
 {
-"index": 147,
+"index": 145,
 "values": [
 [
 153,
@@ -3547,6 +3499,78 @@
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-153-1785843913540.jpg",
 "",
+"",
+""
+]
+]
+},
+{
+"index": 146,
+"values": [
+[
+154,
+"",
+"",
+"Alteração de Titularidade",
+"Envio de Boleto",
+46246,
+"",
+"Neoenergia Apto 301",
+"",
+"A Vencer",
+"",
+0,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-154-1785851044135.jpg",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 147,
+"values": [
+[
+155,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46238,
+46238,
+"X - Alteração de titularidade",
+"X - Alteração Neoenergia",
+"Pago",
+"",
+0,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-155-1785851234609.jpg",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-155-1785852817242.jpg",
+"",
+"Alteração realizada vencimento 16"
+]
+]
+},
+{
+"index": 148,
+"values": [
+[
+156,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46238,
+46238,
+"Ifood",
+"Debito",
+"A Vencer",
+"",
+76.8,
+"",
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-156-1785858100995.jpg",
 "",
 ""
 ]
