@@ -519,6 +519,22 @@
   .efield textarea{resize:vertical;min-height:48px;font-family:var(--sans);}
   .efield input[type="file"]{padding:7px 8px;font-size:12px;color:var(--ink-soft);}
   .efield .hint{font-size:10.5px;color:var(--ink-muted);}
+  .filedrop{
+    position:relative;border:1.5px dashed var(--border-strong);border-radius:8px;
+    background:var(--surface-2);padding:10px 12px;transition:border-color .15s ease,background .15s ease;
+  }
+  .filedrop.dragover{border-color:var(--chart);background:var(--surface-3);}
+  .filedrop.has-file{border-style:solid;border-color:var(--positive);}
+  .filedrop input[type="file"]{
+    position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;padding:0;margin:0;
+  }
+  .filedrop-inner{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);pointer-events:none;}
+  .filedrop-icon{width:15px;height:15px;flex:none;color:var(--ink-muted);}
+  .filedrop-text b{color:var(--chart-soft);font-weight:600;}
+  .filedrop-filename{
+    margin-left:auto;font-size:11.5px;color:var(--positive);font-weight:600;
+    max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
   .efield.invalid input, .efield.invalid select{border-color:var(--critical);}
   .date-field{position:relative;display:flex;}
   .date-field input{flex:1;padding-right:32px;}
@@ -741,13 +757,27 @@
         <div class="edivider">Anexos &amp; Observação</div>
         <div class="efield span2">
           <label>Anexo - Boleto (arquivo)</label>
-          <input type="file" id="nf_anexoBoleto" accept=".pdf,.jpg,.jpeg,.png" capture="environment">
-          <span class="hint">PDF ou imagem, até 2MB — tire uma foto ou escolha um arquivo</span>
+          <div class="filedrop" id="nf_anexoBoletoDrop">
+            <input type="file" id="nf_anexoBoleto" accept=".pdf,.jpg,.jpeg,.png" capture="environment">
+            <div class="filedrop-inner">
+              <svg viewBox="0 0 24 24" fill="none" class="filedrop-icon"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="filedrop-text">Arraste o arquivo aqui ou <b>clique para escolher</b></span>
+              <span class="filedrop-filename" id="nf_anexoBoletoNome"></span>
+            </div>
+          </div>
+          <span class="hint">PDF ou imagem, até 2MB — tire uma foto, arraste ou escolha um arquivo</span>
         </div>
         <div class="efield span2">
           <label>Anexo - Comprovante (arquivo)</label>
-          <input type="file" id="nf_anexoComprovante" accept=".pdf,.jpg,.jpeg,.png" capture="environment">
-          <span class="hint">PDF ou imagem, até 2MB — tire uma foto ou escolha um arquivo</span>
+          <div class="filedrop" id="nf_anexoComprovanteDrop">
+            <input type="file" id="nf_anexoComprovante" accept=".pdf,.jpg,.jpeg,.png" capture="environment">
+            <div class="filedrop-inner">
+              <svg viewBox="0 0 24 24" fill="none" class="filedrop-icon"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="filedrop-text">Arraste o arquivo aqui ou <b>clique para escolher</b></span>
+              <span class="filedrop-filename" id="nf_anexoComprovanteNome"></span>
+            </div>
+          </div>
+          <span class="hint">PDF ou imagem, até 2MB — tire uma foto, arraste ou escolha um arquivo</span>
         </div>
         <div class="efield span2">
           <label>Código de Barra</label>
@@ -2519,11 +2549,49 @@ function togglePanel(open){
   entryPanel.classList.toggle('open', open);
   if (open) document.getElementById('nf_nome').focus();
 }
+
+function limparNomesAnexo(){
+  ['nf_anexoBoleto', 'nf_anexoComprovante'].forEach(function(prefixo){
+    var nomeEl = document.getElementById(prefixo + 'Nome');
+    var dropEl = document.getElementById(prefixo + 'Drop');
+    if (nomeEl) nomeEl.textContent = '';
+    if (dropEl) dropEl.classList.remove('has-file');
+  });
+}
+
+function setupFileDrop(dropId, inputId, nomeId){
+  var drop = document.getElementById(dropId);
+  var input = document.getElementById(inputId);
+  var nome = document.getElementById(nomeId);
+  if (!drop || !input || !nome) return;
+  function atualizarNome(){
+    var f = input.files && input.files[0];
+    nome.textContent = f ? f.name : '';
+    drop.classList.toggle('has-file', !!f);
+  }
+  input.addEventListener('change', atualizarNome);
+  ['dragenter', 'dragover'].forEach(function(evt){
+    drop.addEventListener(evt, function(e){ e.preventDefault(); e.stopPropagation(); drop.classList.add('dragover'); });
+  });
+  ['dragleave', 'drop'].forEach(function(evt){
+    drop.addEventListener(evt, function(e){ e.preventDefault(); e.stopPropagation(); drop.classList.remove('dragover'); });
+  });
+  drop.addEventListener('drop', function(e){
+    var arquivos = e.dataTransfer && e.dataTransfer.files;
+    if (arquivos && arquivos.length){
+      input.files = arquivos;
+      atualizarNome();
+    }
+  });
+}
+setupFileDrop('nf_anexoBoletoDrop', 'nf_anexoBoleto', 'nf_anexoBoletoNome');
+setupFileDrop('nf_anexoComprovanteDrop', 'nf_anexoComprovante', 'nf_anexoComprovanteNome');
 addToggleBtn.addEventListener('click', function(){
   var opening = !entryPanel.classList.contains('open');
   if (opening && editingId !== null){
     editingId = null;
     document.getElementById('entryForm').reset();
+    limparNomesAnexo();
     setFormMode(false);
   }
   togglePanel(opening);
@@ -2533,6 +2601,7 @@ document.getElementById('cancelEntryBtn').addEventListener('click', function(){
   setFormMode(false);
   togglePanel(false);
   document.getElementById('entryForm').reset();
+  limparNomesAnexo();
 });
 
 var SENHA_ACAO = '727349';
@@ -2591,6 +2660,7 @@ function abrirParaEdicao(rawId){
   document.getElementById('nf_obs').value = entry.obs || '';
   document.getElementById('nf_anexoBoleto').value = '';
   document.getElementById('nf_anexoComprovante').value = '';
+  limparNomesAnexo();
   setFormMode(true);
   togglePanel(true);
 }
@@ -2720,6 +2790,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       editingId = null;
       setFormMode(false);
       document.getElementById('entryForm').reset();
+      limparNomesAnexo();
       if (!wasEditing) {
         document.getElementById('nf_nome').value = keepNome;
         document.getElementById('nf_tipo').value = 'Outras';
