@@ -1733,17 +1733,17 @@
 "values": [
 [
 80,
-46302.5229166667,
-46302.5243055556,
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
 46213,
-"",
+46213,
 "Neoenergia Apto 102",
 "Energia",
 "A Vencer",
 "4191.75066 53044.062932 85829.430009 1 15030000040660",
-"406,60",
+406.6,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/ENERGIA%20APTO%20102%20JUL%20331030353932_Natanael%20Silva.pdf",
 "",
@@ -2818,7 +2818,7 @@
 "Soluções",
 "Envio de Boleto",
 46215,
-"",
+46239,
 "Cartão Parcelado Bradesco - Parcela 12",
 "Cartão de Crédito",
 "A Vencer",
@@ -2826,7 +2826,7 @@
 587.08,
 "",
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-123-1785980210112.pdf",
 "",
 ""
 ]
@@ -3508,30 +3508,6 @@
 "index": 146,
 "values": [
 [
-154,
-"",
-"",
-"Alteração de Titularidade",
-"Envio de Boleto",
-46246,
-"",
-"Neoenergia Apto 301",
-"Energia",
-"A Vencer",
-"",
-0,
-"",
-"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-154-1785851044135.jpg",
-"",
-"",
-""
-]
-]
-},
-{
-"index": 147,
-"values": [
-[
 155,
 "",
 "",
@@ -3553,7 +3529,7 @@
 ]
 },
 {
-"index": 148,
+"index": 147,
 "values": [
 [
 156,
@@ -3577,7 +3553,7 @@
 ]
 },
 {
-"index": 149,
+"index": 148,
 "values": [
 [
 157,
@@ -3594,6 +3570,54 @@
 95.8,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-157-1785962398559.jpeg",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 149,
+"values": [
+[
+158,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46245,
+"",
+"Neoenergia Apto 102",
+"Energia",
+"A Vencer",
+"34191.75090 37817.402938 85829.430009 9 15350000041731",
+417.31,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-158-1785983194366.pdf",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 150,
+"values": [
+[
+160,
+"",
+"",
+"Felipe Hozana",
+"Envio de Boleto",
+46245,
+"",
+"Neoenergia Apto 201",
+"Energia",
+"A Vencer",
+"",
+315.46,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-160-1785983910041.pdf",
 "",
 "",
 ""
