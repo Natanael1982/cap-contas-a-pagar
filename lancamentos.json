@@ -1690,7 +1690,7 @@
 "Ivanilda Hozana",
 "Envio de Boleto",
 46239,
-"",
+46239,
 "Faxineira Cláudia Gravata - Parcela 3",
 "Serviços Domésticos",
 "A Vencer",
@@ -1698,7 +1698,7 @@
 480,
 "",
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-78-1786010414222.jpg",
 "",
 "Dias trabalhados em julho - 13, 20 e 27"
 ]
@@ -2049,7 +2049,7 @@
 "",
 "Natanael Silva",
 "Envio de Boleto",
-46243,
+46357,
 "",
 "Cartão Itaú 3428",
 "Cartão de Crédito",
@@ -3618,6 +3618,30 @@
 315.46,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-160-1785983910041.pdf",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 151,
+"values": [
+[
+161,
+"",
+"",
+"Ivanilda Hozana",
+"Envio de Boleto",
+46239,
+"",
+"Condomínio Prive Serra Florada",
+"Condomínio",
+"A Vencer",
+"",
+1600,
+"",
+"",
 "",
 "",
 ""
