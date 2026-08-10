@@ -269,27 +269,33 @@ def enviar_email(headers, destino, assunto, corpo, anexo=None):
 
 
 def enviar_whatsapp(numero, apikey, texto):
+    """Retorna o texto da resposta do CallMeBot pra quem chamou poder logar/checar —
+    a API responde HTTP 200 mesmo em vários cenários de falha de entrega real
+    (rate limit, sessão expirada etc.), então HTTP 200 sozinho não garante nada."""
     url = "https://api.callmebot.com/whatsapp.php"
     params = {"phone": numero, "text": texto, "apikey": apikey}
     resp = requests.get(url, params=params, timeout=30)
     resp.raise_for_status()
+    return resp.text.strip()
 
 
 def enviar_whatsapp_blocos(numero, apikey, blocos):
-    """Manda cada bloco como uma mensagem separada (uma pausa curta entre elas
-    pra não esbarrar no limite anti-spam do CallMeBot). Uma mensagem única
+    """Manda cada bloco como uma mensagem separada (pausa entre elas pra não
+    esbarrar no limite anti-spam do CallMeBot — rajadas rápidas demais fazem
+    ele aceitar a requisição mas não entregar de verdade). Uma mensagem única
     grande demais (~1.300+ caracteres) estava sendo cortada no meio pelo
-    CallMeBot — mensagens menores e separadas resolvem isso de vez, e cada
-    bloco já fica visualmente separado por ser uma mensagem própria."""
+    CallMeBot — mensagens menores e separadas resolvem isso, e cada bloco já
+    fica visualmente separado por ser uma mensagem própria."""
     falhas = 0
     for i, bloco in enumerate(blocos):
         try:
-            enviar_whatsapp(numero, apikey, bloco)
+            corpo = enviar_whatsapp(numero, apikey, bloco)
+            print(f"WhatsApp bloco {i + 1}/{len(blocos)} — resposta CallMeBot: {corpo[:120]}")
         except Exception as exc:
             falhas += 1
             print(f"ERRO ao enviar bloco {i + 1}/{len(blocos)} do WhatsApp: {exc}")
         if i < len(blocos) - 1:
-            time.sleep(3)
+            time.sleep(8)
     return falhas
 
 
