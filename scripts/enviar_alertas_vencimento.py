@@ -5,7 +5,10 @@ Lê a TabelaLancamentos direto da planilha "Gestão Financeira Pessoal.xlsx"
 (SharePoint, via Microsoft Graph) e manda UM aviso consolidado (por WhatsApp
 via CallMeBot e por e-mail via Graph/Outlook) só para o dono (ver DONO_NOME),
 listando — agrupado por pessoa — todo lançamento NÃO PAGO vencendo HOJE,
-AMANHÃ ou em 5 DIAS. Só o número/e-mail do dono precisa estar cadastrado em TabelaContatos
+AMANHÃ ou em 2 DIAS. Um lançamento é considerado pago (e fica fora do alerta)
+se a Data do Pagamento estiver preenchida OU se o campo Status estiver como
+"Pago" (mesmo sem data de pagamento preenchida). Só o número/e-mail do dono
+precisa estar cadastrado em TabelaContatos
 (evita ter que pedir confirmação de WhatsApp de cada pessoa da planilha).
 
 Pensado para rodar 1x por dia via GitHub Actions (.github/workflows/
@@ -106,8 +109,9 @@ def carregar_lancamentos(headers):
         nome = empresa.split(" - ")[0] if " - " in empresa else empresa
         venc = parse_data_planilha(v[5])
         pag = parse_data_planilha(v[6]) if len(v) > 6 else None
-        if not venc or pag:
-            continue  # sem data de vencimento ou já pago -> não entra no alerta
+        status = str(v[9] or "").strip().lower() if len(v) > 9 else ""
+        if not venc or pag or status == "pago":
+            continue  # sem data de vencimento ou já pago (data ou status) -> não entra no alerta
         desc = str(v[7] or "")
         valor = v[11] if len(v) > 11 else 0
         anexo = str(v[13] or "") if len(v) > 13 else ""
@@ -131,20 +135,20 @@ def carregar_contatos(headers):
 
 
 def montar_mensagens(itens):
-    """Agrupa por nome -> {'hoje': [...], 'amanha': [...], 'em_5_dias': [...]}."""
+    """Agrupa por nome -> {'hoje': [...], 'amanha': [...], 'em_2_dias': [...]}."""
     amanha = HOJE_BR + timedelta(days=1)
-    em_5_dias = HOJE_BR + timedelta(days=5)
+    em_2_dias = HOJE_BR + timedelta(days=2)
     agrupado = {}
     for item in itens:
         if item["venc"] == HOJE_BR:
             chave = "hoje"
         elif item["venc"] == amanha:
             chave = "amanha"
-        elif item["venc"] == em_5_dias:
-            chave = "em_5_dias"
+        elif item["venc"] == em_2_dias:
+            chave = "em_2_dias"
         else:
             continue
-        agrupado.setdefault(item["nome"], {"hoje": [], "amanha": [], "em_5_dias": []})[chave].append(item)
+        agrupado.setdefault(item["nome"], {"hoje": [], "amanha": [], "em_2_dias": []})[chave].append(item)
     return agrupado
 
 
@@ -164,14 +168,14 @@ def texto_alerta_consolidado(agrupado):
 
     bloco("hoje", "VENCE HOJE", HOJE_BR)
     bloco("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
-    bloco("em_5_dias", "VENCE EM 5 DIAS", HOJE_BR + timedelta(days=5))
+    bloco("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2))
     linhas.append(f"\nAcesse: {LINK_DASHBOARD}")
     return "\n".join(linhas)
 
 
 def primeiro_anexo(agrupado):
-    """Primeiro lançamento (hoje antes de amanhã antes de 5 dias, ordem alfabética por pessoa) com boleto anexado."""
-    for chave in ("hoje", "amanha", "em_5_dias"):
+    """Primeiro lançamento (hoje antes de amanhã antes de 2 dias, ordem alfabética por pessoa) com boleto anexado."""
+    for chave in ("hoje", "amanha", "em_2_dias"):
         for nome in sorted(agrupado):
             for it in agrupado[nome][chave]:
                 if it.get("anexo"):
@@ -225,10 +229,10 @@ def main():
     itens = carregar_lancamentos(headers)
     contatos = carregar_contatos(headers)
     agrupado = montar_mensagens(itens)
-    agrupado = {n: g for n, g in agrupado.items() if g["hoje"] or g["amanha"] or g["em_5_dias"]}
+    agrupado = {n: g for n, g in agrupado.items() if g["hoje"] or g["amanha"] or g["em_2_dias"]}
 
     if not agrupado:
-        print("Nenhum lançamento vencendo hoje, amanhã ou em 5 dias. Nada a avisar.")
+        print("Nenhum lançamento vencendo hoje, amanhã ou em 2 dias. Nada a avisar.")
         return
 
     contato = contatos.get(DONO_NOME)
