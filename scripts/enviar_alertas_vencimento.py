@@ -164,43 +164,49 @@ def montar_mensagens(itens):
     return agrupado
 
 
-SECAO_EMOJI = {"hoje": "🔴", "amanha": "🟠", "em_2_dias": "🟡"}
-SEPARADOR = "▬▬▬▬▬▬▬▬▬▬▬▬"
+SECAO_EMOJI = {"hoje": "🔴 ", "amanha": "🟠 ", "em_2_dias": "🟡 "}
+DIAS_SEMANA = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira",
+               "Sexta-Feira", "Sábado", "Domingo"]
+SEPARADOR = "- " * 26
 
 
 def texto_alerta_consolidado(agrupado):
-    """Uma mensagem só, com os vencimentos de todo mundo agrupados por pessoa.
-
-    Usa formatação do WhatsApp (*negrito*, _itálico_) + emoji por urgência e
-    subtotal por seção/total geral, pra dar pra ler rápido sem misturar tudo
-    numa lista só — o texto plano (e-mail) fica com os asteriscos literais,
-    o que não atrapalha a leitura.
+    """Uma mensagem só, com UM BLOCO POR PESSOA (repetindo o cabeçalho
+    VENCE HOJE/AMANHÃ/EM 2 DIAS + data + dia da semana a cada bloco), nome em
+    *negrito* (não itálico), "Total:" por bloco e separador tracejado entre
+    os blocos — sem "Subtotal" por seção nem "Total geral" (formato pedido
+    pelo usuário por ser mais fácil de ler rápido no WhatsApp que agrupar
+    várias pessoas dentro da mesma seção).
     """
     linhas = ["📋 *CAP - Contas a Vencer*", SEPARADOR]
-    total_geral = 0.0
+    primeiro_bloco_geral = [True]
 
     def bloco(chave, titulo, data_ref):
-        nonlocal total_geral
         pessoas_com_itens = {n: g[chave] for n, g in agrupado.items() if g[chave]}
         if not pessoas_com_itens:
             return
-        linhas.append(f"\n{SECAO_EMOJI[chave]} *{titulo}* ({data_ref.strftime('%d/%m')})")
-        subtotal = 0.0
+        cabecalho = f"{titulo} ({data_ref.strftime('%d/%m')}) - {DIAS_SEMANA[data_ref.weekday()]}"
+        primeiro_da_secao = True
         for nome in sorted(pessoas_com_itens):
-            linhas.append(f"👤 _{nome}_")
+            if not primeiro_bloco_geral[0]:
+                linhas.append(SEPARADOR)
+            primeiro_bloco_geral[0] = False
+            prefixo = SECAO_EMOJI[chave] if primeiro_da_secao else ""
+            primeiro_da_secao = False
+            linhas.append(f"{prefixo}{cabecalho}")
+            linhas.append(f"👤 *{nome}*")
+            total_pessoa = 0.0
             for it in pessoas_com_itens[nome]:
-                subtotal += parse_valor(it["valor"])
+                total_pessoa += parse_valor(it["valor"])
                 linhas.append(f"   • {it['desc']}: {brl(it['valor'])}")
-        total_geral += subtotal
-        linhas.append(f"Subtotal: {brl(subtotal)}")
+            linhas.append(f"Total: {brl(total_pessoa)}")
 
     bloco("hoje", "VENCE HOJE", HOJE_BR)
     bloco("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
     bloco("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2))
 
-    linhas.append(f"\n{SEPARADOR}")
-    linhas.append(f"💰 *Total geral: {brl(total_geral)}*")
-    linhas.append(f"\n🔗 Acesse: {LINK_DASHBOARD}")
+    linhas.append(SEPARADOR)
+    linhas.append(f"🔗 Acesse: {LINK_DASHBOARD}")
     return "\n".join(linhas)
 
 
