@@ -174,37 +174,48 @@ SEPARADOR = "- " * 26
 
 
 def montar_blocos_alerta(agrupado):
-    """Monta a lista de blocos do alerta: [título, um bloco por pessoa (repetindo
-    o cabeçalho VENCE HOJE/AMANHÃ/EM 2 DIAS + data + dia da semana), link].
+    """Monta a lista de blocos do alerta: [título, um bloco por PESSOA (reunindo
+    TODOS os vencimentos dela — hoje/amanhã/em 2 dias — numa mensagem só, com
+    uma seção interna por dia), link].
 
-    Cada bloco de pessoa tem nome em *negrito* (não itálico), itens com bullet
-    e "Total:" — sem "Subtotal" por seção nem "Total geral". Vira lista de
-    blocos (não uma string só) porque o WhatsApp/CallMeBot manda cada bloco
-    como mensagem separada (ver enviar_whatsapp_blocos) — mensagem única
-    grande demais estava sendo cortada no meio pelo CallMeBot.
+    Nome em *negrito* (não itálico) aparece uma vez só no topo do bloco da
+    pessoa; cada seção de dia dentro do bloco tem seu cabeçalho (emoji + data
+    + dia da semana), itens com bullet e "Total:" da seção — sem "Total
+    geral". Vira lista de blocos (não uma string só) porque o WhatsApp/
+    CallMeBot manda cada bloco como mensagem separada (ver
+    enviar_whatsapp_blocos) — assim a mensagem de cada pessoa fica inteira
+    numa mensagem só, encaminhável sozinha, em vez de espalhada em mensagens
+    diferentes por dia.
     """
+    SECOES = [
+        ("hoje", "VENCE HOJE", HOJE_BR),
+        ("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1)),
+        ("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2)),
+    ]
+
     blocos = ["📋 *CAP - Contas a Vencer*"]
 
-    def bloco_dia(chave, titulo, data_ref):
-        pessoas_com_itens = {n: g[chave] for n, g in agrupado.items() if g[chave]}
-        if not pessoas_com_itens:
-            return
-        cabecalho = f"{titulo} ({data_ref.strftime('%d/%m')}) - {DIAS_SEMANA[data_ref.weekday()]}"
-        primeiro_da_secao = True
-        for nome in sorted(pessoas_com_itens):
-            prefixo = SECAO_EMOJI[chave] if primeiro_da_secao else ""
-            primeiro_da_secao = False
-            linhas = [f"{prefixo}{cabecalho}", f"👤 *{nome}*"]
-            total_pessoa = 0.0
-            for it in pessoas_com_itens[nome]:
-                total_pessoa += parse_valor(it["valor"])
+    for nome in sorted(agrupado):
+        grupos_pessoa = agrupado[nome]
+        if not any(grupos_pessoa[chave] for chave, _, _ in SECOES):
+            continue
+        linhas = [f"👤 *{nome}*"]
+        primeira_secao = True
+        for chave, titulo, data_ref in SECOES:
+            itens = grupos_pessoa[chave]
+            if not itens:
+                continue
+            if not primeira_secao:
+                linhas.append("")
+            primeira_secao = False
+            cabecalho = f"{titulo} ({data_ref.strftime('%d/%m')}) - {DIAS_SEMANA[data_ref.weekday()]}"
+            linhas.append(f"{SECAO_EMOJI[chave]}{cabecalho}")
+            total_secao = 0.0
+            for it in itens:
+                total_secao += parse_valor(it["valor"])
                 linhas.append(f"   • {it['desc']}: {brl(it['valor'])}")
-            linhas.append(f"Total: {brl(total_pessoa)}")
-            blocos.append("\n".join(linhas))
-
-    bloco_dia("hoje", "VENCE HOJE", HOJE_BR)
-    bloco_dia("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
-    bloco_dia("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2))
+            linhas.append(f"Total: {brl(total_secao)}")
+        blocos.append("\n".join(linhas))
 
     blocos.append(f"🔗 Acesse: {LINK_DASHBOARD}")
     return blocos
