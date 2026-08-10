@@ -2,8 +2,10 @@
 Alerta diário de vencimento do dashboard CAP - Contas a Pagar.
 
 Lê a TabelaLancamentos direto da planilha "Gestão Financeira Pessoal.xlsx"
-(SharePoint, via Microsoft Graph) e manda UM aviso consolidado (por WhatsApp
-via CallMeBot e por e-mail via Graph/Outlook) só para o dono (ver DONO_NOME),
+(SharePoint, via Microsoft Graph) e manda um aviso só para o dono (ver
+DONO_NOME): por e-mail (Graph/Outlook) é UMA mensagem consolidada; por
+WhatsApp (CallMeBot) é uma mensagem separada por bloco de pessoa (mensagem
+única grande demais estava sendo cortada no meio pelo CallMeBot), sempre
 listando — agrupado por pessoa — todo lançamento NÃO PAGO vencendo HOJE,
 AMANHÃ ou em 2 DIAS. Um lançamento é considerado pago (e fica fora do alerta)
 se a Data do Pagamento estiver preenchida OU se o campo Status estiver como
@@ -27,6 +29,7 @@ Variável de ambiente obrigatória:
 import base64
 import os
 import sys
+import time
 from datetime import date, datetime, timedelta
 
 import msal
@@ -170,44 +173,46 @@ DIAS_SEMANA = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira",
 SEPARADOR = "- " * 26
 
 
-def texto_alerta_consolidado(agrupado):
-    """Uma mensagem só, com UM BLOCO POR PESSOA (repetindo o cabeçalho
-    VENCE HOJE/AMANHÃ/EM 2 DIAS + data + dia da semana a cada bloco), nome em
-    *negrito* (não itálico), "Total:" por bloco e separador tracejado entre
-    os blocos — sem "Subtotal" por seção nem "Total geral" (formato pedido
-    pelo usuário por ser mais fácil de ler rápido no WhatsApp que agrupar
-    várias pessoas dentro da mesma seção).
-    """
-    linhas = ["📋 *CAP - Contas a Vencer*", SEPARADOR]
-    primeiro_bloco_geral = [True]
+def montar_blocos_alerta(agrupado):
+    """Monta a lista de blocos do alerta: [título, um bloco por pessoa (repetindo
+    o cabeçalho VENCE HOJE/AMANHÃ/EM 2 DIAS + data + dia da semana), link].
 
-    def bloco(chave, titulo, data_ref):
+    Cada bloco de pessoa tem nome em *negrito* (não itálico), itens com bullet
+    e "Total:" — sem "Subtotal" por seção nem "Total geral". Vira lista de
+    blocos (não uma string só) porque o WhatsApp/CallMeBot manda cada bloco
+    como mensagem separada (ver enviar_whatsapp_blocos) — mensagem única
+    grande demais estava sendo cortada no meio pelo CallMeBot.
+    """
+    blocos = ["📋 *CAP - Contas a Vencer*"]
+
+    def bloco_dia(chave, titulo, data_ref):
         pessoas_com_itens = {n: g[chave] for n, g in agrupado.items() if g[chave]}
         if not pessoas_com_itens:
             return
         cabecalho = f"{titulo} ({data_ref.strftime('%d/%m')}) - {DIAS_SEMANA[data_ref.weekday()]}"
         primeiro_da_secao = True
         for nome in sorted(pessoas_com_itens):
-            if not primeiro_bloco_geral[0]:
-                linhas.append(SEPARADOR)
-            primeiro_bloco_geral[0] = False
             prefixo = SECAO_EMOJI[chave] if primeiro_da_secao else ""
             primeiro_da_secao = False
-            linhas.append(f"{prefixo}{cabecalho}")
-            linhas.append(f"👤 *{nome}*")
+            linhas = [f"{prefixo}{cabecalho}", f"👤 *{nome}*"]
             total_pessoa = 0.0
             for it in pessoas_com_itens[nome]:
                 total_pessoa += parse_valor(it["valor"])
                 linhas.append(f"   • {it['desc']}: {brl(it['valor'])}")
             linhas.append(f"Total: {brl(total_pessoa)}")
+            blocos.append("\n".join(linhas))
 
-    bloco("hoje", "VENCE HOJE", HOJE_BR)
-    bloco("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
-    bloco("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2))
+    bloco_dia("hoje", "VENCE HOJE", HOJE_BR)
+    bloco_dia("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
+    bloco_dia("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2))
 
-    linhas.append(SEPARADOR)
-    linhas.append(f"🔗 Acesse: {LINK_DASHBOARD}")
-    return "\n".join(linhas)
+    blocos.append(f"🔗 Acesse: {LINK_DASHBOARD}")
+    return blocos
+
+
+def texto_alerta_consolidado(agrupado):
+    """Texto único pro e-mail: os mesmos blocos, concatenados com separador tracejado."""
+    return f"\n{SEPARADOR}\n".join(montar_blocos_alerta(agrupado))
 
 
 def primeiro_anexo(agrupado):
@@ -259,6 +264,24 @@ def enviar_whatsapp(numero, apikey, texto):
     resp.raise_for_status()
 
 
+def enviar_whatsapp_blocos(numero, apikey, blocos):
+    """Manda cada bloco como uma mensagem separada (uma pausa curta entre elas
+    pra não esbarrar no limite anti-spam do CallMeBot). Uma mensagem única
+    grande demais (~1.300+ caracteres) estava sendo cortada no meio pelo
+    CallMeBot — mensagens menores e separadas resolvem isso de vez, e cada
+    bloco já fica visualmente separado por ser uma mensagem própria."""
+    falhas = 0
+    for i, bloco in enumerate(blocos):
+        try:
+            enviar_whatsapp(numero, apikey, bloco)
+        except Exception as exc:
+            falhas += 1
+            print(f"ERRO ao enviar bloco {i + 1}/{len(blocos)} do WhatsApp: {exc}")
+        if i < len(blocos) - 1:
+            time.sleep(3)
+    return falhas
+
+
 def main():
     token = get_token()
     headers = {"Authorization": f"Bearer {token}"}
@@ -298,11 +321,12 @@ def main():
         print("Dono sem e-mail cadastrado — pulando e-mail.")
 
     if contato["whatsapp_numero"] and contato["whatsapp_apikey"]:
-        try:
-            enviar_whatsapp(contato["whatsapp_numero"], contato["whatsapp_apikey"], texto)
-            print(f"WhatsApp enviado para {contato['whatsapp_numero']}.")
-        except Exception as exc:
-            print(f"ERRO ao enviar WhatsApp: {exc}")
+        blocos = montar_blocos_alerta(agrupado)
+        falhas = enviar_whatsapp_blocos(contato["whatsapp_numero"], contato["whatsapp_apikey"], blocos)
+        if falhas:
+            print(f"WhatsApp: {len(blocos) - falhas}/{len(blocos)} mensagens enviadas para {contato['whatsapp_numero']} ({falhas} falharam).")
+        else:
+            print(f"WhatsApp: {len(blocos)} mensagens enviadas para {contato['whatsapp_numero']}.")
     else:
         print("Dono sem WhatsApp/apikey cadastrado — pulando WhatsApp.")
 
