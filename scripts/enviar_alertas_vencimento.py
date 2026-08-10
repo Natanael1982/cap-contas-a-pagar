@@ -164,24 +164,43 @@ def montar_mensagens(itens):
     return agrupado
 
 
+SECAO_EMOJI = {"hoje": "🔴", "amanha": "🟠", "em_2_dias": "🟡"}
+SEPARADOR = "▬▬▬▬▬▬▬▬▬▬▬▬"
+
+
 def texto_alerta_consolidado(agrupado):
-    """Uma mensagem só, com os vencimentos de todo mundo agrupados por pessoa."""
-    linhas = ["CAP - Contas a vencer"]
+    """Uma mensagem só, com os vencimentos de todo mundo agrupados por pessoa.
+
+    Usa formatação do WhatsApp (*negrito*, _itálico_) + emoji por urgência e
+    subtotal por seção/total geral, pra dar pra ler rápido sem misturar tudo
+    numa lista só — o texto plano (e-mail) fica com os asteriscos literais,
+    o que não atrapalha a leitura.
+    """
+    linhas = ["📋 *CAP - Contas a Vencer*", SEPARADOR]
+    total_geral = 0.0
 
     def bloco(chave, titulo, data_ref):
+        nonlocal total_geral
         pessoas_com_itens = {n: g[chave] for n, g in agrupado.items() if g[chave]}
         if not pessoas_com_itens:
             return
-        linhas.append(f"\n{titulo} ({data_ref.strftime('%d/%m/%Y')}):")
+        linhas.append(f"\n{SECAO_EMOJI[chave]} *{titulo}* ({data_ref.strftime('%d/%m')})")
+        subtotal = 0.0
         for nome in sorted(pessoas_com_itens):
-            linhas.append(f"\n{nome}:")
+            linhas.append(f"👤 _{nome}_")
             for it in pessoas_com_itens[nome]:
-                linhas.append(f"- {it['desc']}: {brl(it['valor'])}")
+                subtotal += parse_valor(it["valor"])
+                linhas.append(f"   • {it['desc']}: {brl(it['valor'])}")
+        total_geral += subtotal
+        linhas.append(f"Subtotal: {brl(subtotal)}")
 
     bloco("hoje", "VENCE HOJE", HOJE_BR)
     bloco("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1))
     bloco("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2))
-    linhas.append(f"\nAcesse: {LINK_DASHBOARD}")
+
+    linhas.append(f"\n{SEPARADOR}")
+    linhas.append(f"💰 *Total geral: {brl(total_geral)}*")
+    linhas.append(f"\n🔗 Acesse: {LINK_DASHBOARD}")
     return "\n".join(linhas)
 
 
