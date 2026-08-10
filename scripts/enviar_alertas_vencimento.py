@@ -94,11 +94,23 @@ def parse_data_planilha(v):
         return None
 
 
-def brl(v):
+def parse_valor(v):
+    """Valor pode vir como número puro ou como texto em formato BR ('1.038,82'), conforme
+    a célula da planilha estiver formatada — mesmo tratamento que o dashboard faz em parseBRL()."""
+    if isinstance(v, (int, float)):
+        return float(v)
+    if v is None or v == "":
+        return 0.0
+    txt = str(v).strip().replace("R$", "").strip()
+    txt = txt.replace(".", "").replace(",", ".")
     try:
-        return "R$ " + f"{float(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-    except (TypeError, ValueError):
-        return "R$ 0,00"
+        return float(txt)
+    except ValueError:
+        return 0.0
+
+
+def brl(v):
+    return "R$ " + f"{parse_valor(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 def carregar_lancamentos(headers):
