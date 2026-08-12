@@ -1318,6 +1318,14 @@ async function carregarDados(){
     }
   }
   DATA.forEach(normalizeRow);
+  var idsVistos = {}, idsDuplicados = [];
+  DATA.forEach(function(r){
+    if (idsVistos[r.id]) { if (idsDuplicados.indexOf(r.id) === -1) idsDuplicados.push(r.id); }
+    idsVistos[r.id] = true;
+  });
+  if (idsDuplicados.length && currentUserRole === 'Editor') {
+    showToast('Aviso: Id(s) duplicado(s) na planilha (' + idsDuplicados.join(', ') + ') — corrija diretamente na planilha antes de editar/excluir esses lançamentos.');
+  }
   if (currentUserFiltroNome){
     DATA = DATA.filter(function(r){ return currentUserFiltroNome.indexOf(r.nome) !== -1; });
   }
@@ -1374,11 +1382,18 @@ async function removerLinhaGraph(token, rowIndex){
   var resp = await fetch(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
   if (!resp.ok && resp.status !== 204) { var t = await resp.text(); throw new Error('Falha ao remover da planilha (' + resp.status + '): ' + t); }
 }
-async function resolverRowIndexAtual(token, id){
+async function resolverRowIndexAtual(token, id, rowIndexEsperado){
   var linhas = await buscarLinhasAtuaisGraph(token);
-  var match = linhas.find(function(row){ return row.values[0][0] === id; });
-  if (!match) throw new Error('Lançamento não encontrado na planilha (pode ter sido removido em outra sessão).');
-  return match.index;
+  var candidatos = linhas.filter(function(row){ return row.values[0][0] === id; });
+  if (candidatos.length === 0) throw new Error('Lançamento não encontrado na planilha (pode ter sido removido em outra sessão).');
+  if (candidatos.length === 1) return candidatos[0].index;
+  // Id duplicado ao vivo: se a linha que abrimos pra editar ainda estiver
+  // na mesma posição, usa ela direto (evita adivinhar). Senão, não dá pra
+  // saber com segurança qual das linhas duplicadas é a certa — melhor
+  // parar e avisar do que gravar/excluir a linha errada.
+  var porPosicao = candidatos.find(function(row){ return row.index === rowIndexEsperado; });
+  if (porPosicao) return porPosicao.index;
+  throw new Error('Id ' + id + ' está duplicado na planilha (' + candidatos.length + ' linhas) e a linha original mudou de posição — corrija os Ids duplicados diretamente na planilha antes de editar/excluir este lançamento.');
 }
 
 function brl(v){
@@ -1941,8 +1956,8 @@ var COLUMNS = {
   }},
   acao:    {label:'', cellCls:'', render:function(r){
     if (currentUserRole !== 'Editor') return '';
-    var editBtn = '<button class="row-edit" data-rawid="'+r.id+'" title="Editar lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
-    var delBtn = '<button class="row-del" data-rawid="'+r.id+'" title="Remover lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>';
+    var editBtn = '<button class="row-edit" data-rawid="'+r.id+'" data-rowidx="'+r._rowIndex+'" title="Editar lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    var delBtn = '<button class="row-del" data-rawid="'+r.id+'" data-rowidx="'+r._rowIndex+'" title="Remover lançamento"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>';
     return editBtn+delBtn;
   }}
 };
@@ -2180,7 +2195,7 @@ function renderTable(rows){
       btn.addEventListener('click', function(){
         pedirSenha('Digite a senha para editar este lançamento:', function(ok){
           if (!ok) return;
-          abrirParaEdicao(Number(btn.getAttribute('data-rawid')));
+          abrirParaEdicao(Number(btn.getAttribute('data-rawid')), Number(btn.getAttribute('data-rowidx')));
         });
       });
     });
@@ -2189,14 +2204,15 @@ function renderTable(rows){
         pedirSenha('Digite a senha para remover este lançamento:', function(ok){
           if (!ok) return;
           var rawId = Number(btn.getAttribute('data-rawid'));
-          var row = DATA.find(function(r){ return r.id === rawId; });
-          if (!row) { showToast('Lançamento não encontrado.'); return; }
+          var rowIdx = Number(btn.getAttribute('data-rowidx'));
+          var row = encontrarLancamento(rawId, rowIdx);
+          if (!row) { showToast('Lançamento não encontrado (Id ' + rawId + ' duplicado na planilha — corrija manualmente antes de remover).'); return; }
           (async function(){
             try {
               var token = await getToken();
-              var rowIndexAtual = await resolverRowIndexAtual(token, row.id);
+              var rowIndexAtual = await resolverRowIndexAtual(token, row.id, row._rowIndex);
               await removerLinhaGraph(token, rowIndexAtual);
-              if (editingId === rawId) { editingId = null; setFormMode(false); togglePanel(false); }
+              if (editingId === rawId) { editingId = null; editingRowIndex = null; setFormMode(false); togglePanel(false); }
               showToast('Lançamento removido.');
               await carregarDados();
             } catch (err) {
@@ -2537,6 +2553,7 @@ function showToast(msg){
 var entryPanel = document.getElementById('entryPanel');
 var addToggleBtn = document.getElementById('addToggleBtn');
 var editingId = null;
+var editingRowIndex = null;
 
 function setFormMode(editing){
   var panelTitle = document.querySelector('#entryPanel .panel-head h2');
@@ -2590,6 +2607,7 @@ addToggleBtn.addEventListener('click', function(){
   var opening = !entryPanel.classList.contains('open');
   if (opening && editingId !== null){
     editingId = null;
+    editingRowIndex = null;
     document.getElementById('entryForm').reset();
     limparNomesAnexo();
     setFormMode(false);
@@ -2598,6 +2616,7 @@ addToggleBtn.addEventListener('click', function(){
 });
 document.getElementById('cancelEntryBtn').addEventListener('click', function(){
   editingId = null;
+  editingRowIndex = null;
   setFormMode(false);
   togglePanel(false);
   document.getElementById('entryForm').reset();
@@ -2643,10 +2662,24 @@ document.getElementById('senhaInput').addEventListener('keydown', function(ev){
   if (ev.key === 'Escape'){ ev.preventDefault(); cancelarSenha(); }
 });
 
-function abrirParaEdicao(rawId){
-  var entry = DATA.find(function(e){ return e.id === rawId; });
-  if (!entry) { showToast('Lançamento não encontrado.'); return; }
+function encontrarLancamento(rawId, rowIndex){
+  // Id deveria ser único, mas já apareceu duplicado na planilha (colisão na
+  // hora de gerar o próximo Id). Se houver mais de um lançamento com o
+  // mesmo Id, usa a posição da linha (capturada no momento em que o botão
+  // foi renderizado) para achar exatamente o que foi clicado, em vez de
+  // sempre cair no primeiro — que já causou abrir/editar/excluir o
+  // lançamento errado.
+  var candidatos = DATA.filter(function(e){ return e.id === rawId; });
+  if (candidatos.length <= 1) return candidatos[0] || null;
+  var porLinha = candidatos.find(function(e){ return e._rowIndex === rowIndex; });
+  return porLinha || null;
+}
+
+function abrirParaEdicao(rawId, rowIndex){
+  var entry = encontrarLancamento(rawId, rowIndex);
+  if (!entry) { showToast('Lançamento não encontrado (Id ' + rawId + ' duplicado na planilha — corrija manualmente antes de editar).'); return; }
   editingId = rawId;
+  editingRowIndex = entry._rowIndex;
   document.getElementById('nf_nome').value = entry.nome || '';
   document.getElementById('nf_desc').value = entry.desc || '';
   document.getElementById('nf_tipo').value = entry.tipo || 'Outras';
@@ -2733,8 +2766,8 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       if (!currentAccount) { showToast('Entre com sua conta Microsoft primeiro.'); return; }
       if (currentUserRole !== 'Editor') { showToast('Seu acesso é somente leitura (Visualizador).'); return; }
       var isEditing = editingId !== null;
-      var existing = isEditing ? DATA.find(function(e){ return e.id === editingId; }) : null;
-      if (isEditing && !existing) { showToast('Lançamento não encontrado (pode já ter sido removido).'); editingId = null; setFormMode(false); return; }
+      var existing = isEditing ? encontrarLancamento(editingId, editingRowIndex) : null;
+      if (isEditing && !existing) { showToast('Lançamento não encontrado (pode já ter sido removido, ou o Id ' + editingId + ' está duplicado na planilha — corrija manualmente antes de salvar).'); editingId = null; editingRowIndex = null; setFormMode(false); return; }
 
       var token = await getToken();
       var linhasAtuaisGraph = isEditing ? null : await buscarLinhasAtuaisGraph(token);
@@ -2768,7 +2801,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       ];
 
       if (isEditing) {
-        var rowIndexAtual = await resolverRowIndexAtual(token, existing.id);
+        var rowIndexAtual = await resolverRowIndexAtual(token, existing.id, existing._rowIndex);
         await atualizarLinhaGraph(token, rowIndexAtual, linha);
       } else {
         var linhaCriada = await adicionarLinhaGraph(token, linha);
@@ -2788,6 +2821,7 @@ document.getElementById('entryForm').addEventListener('submit', function(ev){
       var keepNome = nome;
       var wasEditing = isEditing;
       editingId = null;
+      editingRowIndex = null;
       setFormMode(false);
       document.getElementById('entryForm').reset();
       limparNomesAnexo();
