@@ -1517,20 +1517,20 @@
 "values": [
 [
 68,
-"30/06/2026 19:16",
-"30/06/2026 19:17",
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
-"14/08/2026",
-"",
+46248,
+46246,
 "Aluguel Apto 301",
 "Aluguel",
 "A Vencer",
 2,
-"4.000,00",
+4000,
 "",
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-68-1786570448882.jpg",
 "",
 "Lançamento Projetado - Agosto"
 ]
@@ -3586,7 +3586,7 @@
 "Ivanilda Hozana",
 "Envio de Boleto",
 46245,
-"",
+46246,
 "Neoenergia Apto 102",
 "Energia",
 "A Vencer",
@@ -3594,7 +3594,7 @@
 417.31,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-158-1785983194366.pdf",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-158-1786570796243.jpg",
 "",
 ""
 ]
@@ -3730,15 +3730,15 @@
 "Ivanilda Hozana",
 "Envio de Boleto",
 46245,
-"",
+46246,
 "Neoenergia Gravtá 21",
-"",
+"Outras",
 "A Vencer",
 "",
 430.76,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-166-1786060754069.PDF",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-166-1786570910038.jpg",
 "",
 ""
 ]
@@ -3799,13 +3799,13 @@
 169,
 "",
 "",
-"Result Vision",
+"Result Vision - 56.282.210/0001-74",
 "Envio de Boleto",
 46240,
 46240,
 "Parcelamento Result - Ivanilda - Parcela 2/3",
-"",
-"A Vencer",
+"Outras",
+"Pago",
 "",
 2088.62,
 "",
@@ -3859,6 +3859,30 @@
 "",
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-171-1786396123164.jpg",
+"",
+""
+]
+]
+},
+{
+"index": 161,
+"values": [
+[
+174,
+"",
+"",
+"Result Vision - 56.282.210/0001-74",
+"Envio de Boleto",
+46244,
+"",
+"SIM",
+"Prefeitura ",
+"A Vencer",
+"",
+535.54,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-174-1786571489446.jpg",
+"",
 "",
 ""
 ]
