@@ -1828,7 +1828,7 @@
 "index": 76,
 "values": [
 [
-83,
+172,
 "",
 "",
 "Ivanilda Hozana",
@@ -1909,7 +1909,7 @@
 46233,
 "Cartão Nubank",
 "Cartão de Crédito",
-"A Vencer",
+"Pago",
 "",
 2071.22,
 "",
@@ -1924,7 +1924,7 @@
 "index": 80,
 "values": [
 [
-86,
+173,
 "",
 "",
 "Natanael Silva",
@@ -1936,7 +1936,7 @@
 "A Vencer",
 "",
 1108.67,
-"",
+1329.93,
 "",
 "",
 "",
@@ -2458,7 +2458,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46246,
-"",
+46246,
 "Cartão Bradesco 2049",
 "Cartão de Crédito",
 "A Vencer",
@@ -2466,7 +2466,7 @@
 135.06,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-107-1785709863506.jpg",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-107-1786546490382.jpeg",
 "",
 ""
 ]
@@ -3490,7 +3490,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46248,
-"",
+46246,
 "Cartão Carrefour",
 "Cartão de Crédito",
 "A Vencer",
@@ -3498,7 +3498,7 @@
 113.94,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-153-1785843913540.jpg",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-153-1786546606565.jpeg",
 "",
 ""
 ]
