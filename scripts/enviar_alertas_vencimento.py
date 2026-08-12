@@ -6,8 +6,8 @@ Lê a TabelaLancamentos direto da planilha "Gestão Financeira Pessoal.xlsx"
 DONO_NOME): por e-mail (Graph/Outlook) é UMA mensagem consolidada; por
 WhatsApp (CallMeBot) é uma mensagem separada por bloco de pessoa (mensagem
 única grande demais estava sendo cortada no meio pelo CallMeBot), sempre
-listando — agrupado por pessoa — todo lançamento NÃO PAGO vencendo HOJE,
-AMANHÃ ou em 2 DIAS. Um lançamento é considerado pago (e fica fora do alerta)
+listando — agrupado por pessoa — todo lançamento NÃO PAGO já VENCIDO ou
+vencendo HOJE, AMANHÃ ou em 2 DIAS. Um lançamento é considerado pago (e fica fora do alerta)
 se a Data do Pagamento estiver preenchida OU se o campo Status estiver como
 "Pago" (mesmo sem data de pagamento preenchida). Só o número/e-mail do dono
 precisa estar cadastrado em TabelaContatos
@@ -150,12 +150,17 @@ def carregar_contatos(headers):
 
 
 def montar_mensagens(itens):
-    """Agrupa por nome -> {'hoje': [...], 'amanha': [...], 'em_2_dias': [...]}."""
+    """Agrupa por nome -> {'vencido': [...], 'hoje': [...], 'amanha': [...], 'em_2_dias': [...]}.
+    'vencido' junta TODO lançamento com vencimento anterior a hoje, independente de há
+    quantos dias — cada item guarda sua própria data (venc), já que dentro desse balde
+    as datas não são todas iguais como nos outros baldes."""
     amanha = HOJE_BR + timedelta(days=1)
     em_2_dias = HOJE_BR + timedelta(days=2)
     agrupado = {}
     for item in itens:
-        if item["venc"] == HOJE_BR:
+        if item["venc"] < HOJE_BR:
+            chave = "vencido"
+        elif item["venc"] == HOJE_BR:
             chave = "hoje"
         elif item["venc"] == amanha:
             chave = "amanha"
@@ -163,11 +168,13 @@ def montar_mensagens(itens):
             chave = "em_2_dias"
         else:
             continue
-        agrupado.setdefault(item["nome"], {"hoje": [], "amanha": [], "em_2_dias": []})[chave].append(item)
+        agrupado.setdefault(
+            item["nome"], {"vencido": [], "hoje": [], "amanha": [], "em_2_dias": []}
+        )[chave].append(item)
     return agrupado
 
 
-SECAO_EMOJI = {"hoje": "🔴 ", "amanha": "🟠 ", "em_2_dias": "🟡 "}
+SECAO_EMOJI = {"vencido": "⛔ ", "hoje": "🔴 ", "amanha": "🟠 ", "em_2_dias": "🟡 "}
 DIAS_SEMANA = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira",
                "Sexta-Feira", "Sábado", "Domingo"]
 SEPARADOR = "- " * 26
@@ -181,13 +188,17 @@ def montar_blocos_alerta(agrupado):
     Nome em *negrito* (não itálico) aparece uma vez só no topo do bloco da
     pessoa; cada seção de dia dentro do bloco tem seu cabeçalho (emoji + data
     + dia da semana), itens com bullet e "Total:" da seção — sem "Total
-    geral". Vira lista de blocos (não uma string só) porque o WhatsApp/
-    CallMeBot manda cada bloco como mensagem separada (ver
-    enviar_whatsapp_blocos) — assim a mensagem de cada pessoa fica inteira
-    numa mensagem só, encaminhável sozinha, em vez de espalhada em mensagens
-    diferentes por dia.
+    geral". A seção "VENCIDO" vem primeiro (mais urgente) e não tem uma data
+    única no cabeçalho — cada item dela mostra sua própria data de
+    vencimento, já que junta lançamentos atrasados de dias diferentes;
+    aparece ordenada da mais antiga pra mais recente. Vira lista de blocos
+    (não uma string só) porque o WhatsApp/CallMeBot manda cada bloco como
+    mensagem separada (ver enviar_whatsapp_blocos) — assim a mensagem de
+    cada pessoa fica inteira numa mensagem só, encaminhável sozinha, em vez
+    de espalhada em mensagens diferentes por dia.
     """
     SECOES = [
+        ("vencido", "VENCIDO", None),
         ("hoje", "VENCE HOJE", HOJE_BR),
         ("amanha", "VENCE AMANHÃ", HOJE_BR + timedelta(days=1)),
         ("em_2_dias", "VENCE EM 2 DIAS", HOJE_BR + timedelta(days=2)),
@@ -208,12 +219,19 @@ def montar_blocos_alerta(agrupado):
             if not primeira_secao:
                 linhas.append("")
             primeira_secao = False
-            cabecalho = f"{titulo} ({data_ref.strftime('%d/%m')}) - {DIAS_SEMANA[data_ref.weekday()]}"
+            if chave == "vencido":
+                cabecalho = titulo
+                itens = sorted(itens, key=lambda it: it["venc"])
+            else:
+                cabecalho = f"{titulo} ({data_ref.strftime('%d/%m')}) - {DIAS_SEMANA[data_ref.weekday()]}"
             linhas.append(f"{SECAO_EMOJI[chave]}{cabecalho}")
             total_secao = 0.0
             for it in itens:
                 total_secao += parse_valor(it["valor"])
-                linhas.append(f"   • {it['desc']}: {brl(it['valor'])}")
+                if chave == "vencido":
+                    linhas.append(f"   • {it['desc']} (venceu {it['venc'].strftime('%d/%m')}): {brl(it['valor'])}")
+                else:
+                    linhas.append(f"   • {it['desc']}: {brl(it['valor'])}")
             linhas.append(f"Total: {brl(total_secao)}")
         blocos.append("\n".join(linhas))
 
@@ -227,8 +245,9 @@ def texto_alerta_consolidado(agrupado):
 
 
 def primeiro_anexo(agrupado):
-    """Primeiro lançamento (hoje antes de amanhã antes de 2 dias, ordem alfabética por pessoa) com boleto anexado."""
-    for chave in ("hoje", "amanha", "em_2_dias"):
+    """Primeiro lançamento (vencido antes de hoje antes de amanhã antes de 2 dias,
+    ordem alfabética por pessoa) com boleto anexado."""
+    for chave in ("vencido", "hoje", "amanha", "em_2_dias"):
         for nome in sorted(agrupado):
             for it in agrupado[nome][chave]:
                 if it.get("anexo"):
@@ -306,10 +325,13 @@ def main():
     itens = carregar_lancamentos(headers)
     contatos = carregar_contatos(headers)
     agrupado = montar_mensagens(itens)
-    agrupado = {n: g for n, g in agrupado.items() if g["hoje"] or g["amanha"] or g["em_2_dias"]}
+    agrupado = {
+        n: g for n, g in agrupado.items()
+        if g["vencido"] or g["hoje"] or g["amanha"] or g["em_2_dias"]
+    }
 
     if not agrupado:
-        print("Nenhum lançamento vencendo hoje, amanhã ou em 2 dias. Nada a avisar.")
+        print("Nenhum lançamento vencido ou vencendo hoje, amanhã ou em 2 dias. Nada a avisar.")
         return
 
     contato = contatos.get(DONO_NOME)
