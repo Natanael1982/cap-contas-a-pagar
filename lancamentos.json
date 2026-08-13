@@ -509,17 +509,17 @@
 "values": [
 [
 22,
-"13/05/2026 21:25",
-"13/05/2026 21:26",
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
 46213,
 46213,
-"IPTU Apto 102 - Parcela 6",
+"IPTU Apto 102 - Parcela 6/10",
 "IPTU",
 "Pago",
 "818800000017 663835692023 607100101424 506722260602",
-"166,38",
+166.38,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/P%C3%A1ginas%20De%20x%20-%207512058_IPTU_ANO_2026%20apto%20102_Natanael%20Silva%204.pdf",
 "",
@@ -532,20 +532,20 @@
 "index": 22,
 "values": [
 [
-23,
-"13/05/2026 21:26",
-"13/05/2026 21:27",
+24,
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
-46244,
+46275,
 "",
-"IPTU Apto 102 - Parcela 7",
+"IPTU Apto 102 - Parcela 8/10",
 "IPTU",
 "A Vencer",
-"818400000010 663835692023 608100101422 506722260793",
-"166,38",
 "",
-"https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/P%C3%A1ginas%20De%20x%20-%207512082_IPTU_ANO_2026%20-%20201_OC_Natanael%20Silva%201.pdf",
+166.38,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-24-1786650661407.png",
 "",
 "",
 ""
@@ -556,20 +556,20 @@
 "index": 23,
 "values": [
 [
-24,
-"13/05/2026 21:27",
-"13/05/2026 21:28",
+25,
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
-46275,
+46305,
 "",
-"IPTU Apto 102 - Parcela 8",
+"IPTU Apto 102 - Parcela 9/10",
 "IPTU",
 "A Vencer",
-"818000000012 663835692023 609100101420 506722260874",
-"166,38",
 "",
-"https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/P%C3%A1ginas%20De%20x%20-%207512082_IPTU_ANO_2026%20-%20201_OC_Natanael%20Silva%202.pdf",
+166.38,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-25-1786650765269.png",
 "",
 "",
 ""
@@ -580,20 +580,20 @@
 "index": 24,
 "values": [
 [
-25,
-"13/05/2026 21:28",
-"13/05/2026 21:29",
+26,
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
-46305,
+46336,
 "",
-"IPTU Apto 102 - Parcela 9",
+"IPTU Apto 102 - Parcela 10/10",
 "IPTU",
 "A Vencer",
-"818700000015 663835692023 610100101424 506722260955",
-"166,38",
 "",
-"https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/P%C3%A1ginas%20De%20x%20-%207512082_IPTU_ANO_2026%20-%20201_OC_Natanael%20Silva%203.pdf",
+166.38,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-26-1786650829509.png",
 "",
 "",
 ""
@@ -602,30 +602,6 @@
 },
 {
 "index": 25,
-"values": [
-[
-26,
-"13/05/2026 21:29",
-"13/05/2026 21:31",
-"Ivanilda Hozana",
-"Envio de Boleto",
-46336,
-"",
-"IPTU Apto 102 - Parcela 10",
-"IPTU",
-"A Vencer",
-"818600000013 663835692023 611100101422 506722261099",
-"166,38",
-"",
-"https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/P%C3%A1ginas%20De%20x%20-%207512058_IPTU_ANO_2026%20apto%20102_Natanael%20Silva%205.pdf",
-"",
-"",
-""
-]
-]
-},
-{
-"index": 26,
 "values": [
 [
 27,
@@ -649,7 +625,7 @@
 ]
 },
 {
-"index": 27,
+"index": 26,
 "values": [
 [
 28,
@@ -673,7 +649,7 @@
 ]
 },
 {
-"index": 28,
+"index": 27,
 "values": [
 [
 29,
@@ -697,7 +673,7 @@
 ]
 },
 {
-"index": 29,
+"index": 28,
 "values": [
 [
 30,
@@ -721,7 +697,7 @@
 ]
 },
 {
-"index": 30,
+"index": 29,
 "values": [
 [
 31,
@@ -745,7 +721,7 @@
 ]
 },
 {
-"index": 31,
+"index": 30,
 "values": [
 [
 32,
@@ -769,7 +745,7 @@
 ]
 },
 {
-"index": 32,
+"index": 31,
 "values": [
 [
 33,
@@ -793,7 +769,7 @@
 ]
 },
 {
-"index": 33,
+"index": 32,
 "values": [
 [
 34,
@@ -817,7 +793,7 @@
 ]
 },
 {
-"index": 34,
+"index": 33,
 "values": [
 [
 35,
@@ -841,7 +817,7 @@
 ]
 },
 {
-"index": 35,
+"index": 34,
 "values": [
 [
 36,
@@ -865,7 +841,7 @@
 ]
 },
 {
-"index": 36,
+"index": 35,
 "values": [
 [
 37,
@@ -889,7 +865,7 @@
 ]
 },
 {
-"index": 37,
+"index": 36,
 "values": [
 [
 38,
@@ -913,7 +889,7 @@
 ]
 },
 {
-"index": 38,
+"index": 37,
 "values": [
 [
 39,
@@ -937,7 +913,7 @@
 ]
 },
 {
-"index": 39,
+"index": 38,
 "values": [
 [
 40,
@@ -961,7 +937,7 @@
 ]
 },
 {
-"index": 40,
+"index": 39,
 "values": [
 [
 41,
@@ -985,7 +961,7 @@
 ]
 },
 {
-"index": 41,
+"index": 40,
 "values": [
 [
 43,
@@ -1009,7 +985,7 @@
 ]
 },
 {
-"index": 42,
+"index": 41,
 "values": [
 [
 44,
@@ -1033,7 +1009,7 @@
 ]
 },
 {
-"index": 43,
+"index": 42,
 "values": [
 [
 45,
@@ -1057,7 +1033,7 @@
 ]
 },
 {
-"index": 44,
+"index": 43,
 "values": [
 [
 46,
@@ -1081,7 +1057,7 @@
 ]
 },
 {
-"index": 45,
+"index": 44,
 "values": [
 [
 47,
@@ -1105,7 +1081,7 @@
 ]
 },
 {
-"index": 46,
+"index": 45,
 "values": [
 [
 48,
@@ -1129,7 +1105,7 @@
 ]
 },
 {
-"index": 47,
+"index": 46,
 "values": [
 [
 49,
@@ -1153,7 +1129,7 @@
 ]
 },
 {
-"index": 48,
+"index": 47,
 "values": [
 [
 50,
@@ -1177,7 +1153,7 @@
 ]
 },
 {
-"index": 49,
+"index": 48,
 "values": [
 [
 51,
@@ -1201,7 +1177,7 @@
 ]
 },
 {
-"index": 50,
+"index": 49,
 "values": [
 [
 52,
@@ -1225,7 +1201,7 @@
 ]
 },
 {
-"index": 51,
+"index": 50,
 "values": [
 [
 53,
@@ -1249,7 +1225,7 @@
 ]
 },
 {
-"index": 52,
+"index": 51,
 "values": [
 [
 54,
@@ -1273,7 +1249,7 @@
 ]
 },
 {
-"index": 53,
+"index": 52,
 "values": [
 [
 55,
@@ -1297,7 +1273,7 @@
 ]
 },
 {
-"index": 54,
+"index": 53,
 "values": [
 [
 56,
@@ -1321,7 +1297,7 @@
 ]
 },
 {
-"index": 55,
+"index": 54,
 "values": [
 [
 57,
@@ -1345,7 +1321,7 @@
 ]
 },
 {
-"index": 56,
+"index": 55,
 "values": [
 [
 58,
@@ -1369,7 +1345,7 @@
 ]
 },
 {
-"index": 57,
+"index": 56,
 "values": [
 [
 59,
@@ -1393,7 +1369,7 @@
 ]
 },
 {
-"index": 58,
+"index": 57,
 "values": [
 [
 60,
@@ -1417,7 +1393,7 @@
 ]
 },
 {
-"index": 59,
+"index": 58,
 "values": [
 [
 62,
@@ -1441,7 +1417,7 @@
 ]
 },
 {
-"index": 60,
+"index": 59,
 "values": [
 [
 63,
@@ -1465,7 +1441,7 @@
 ]
 },
 {
-"index": 61,
+"index": 60,
 "values": [
 [
 65,
@@ -1489,7 +1465,7 @@
 ]
 },
 {
-"index": 62,
+"index": 61,
 "values": [
 [
 67,
@@ -1513,7 +1489,7 @@
 ]
 },
 {
-"index": 63,
+"index": 62,
 "values": [
 [
 68,
@@ -1537,7 +1513,7 @@
 ]
 },
 {
-"index": 64,
+"index": 63,
 "values": [
 [
 69,
@@ -1561,7 +1537,7 @@
 ]
 },
 {
-"index": 65,
+"index": 64,
 "values": [
 [
 70,
@@ -1585,7 +1561,7 @@
 ]
 },
 {
-"index": 66,
+"index": 65,
 "values": [
 [
 71,
@@ -1609,7 +1585,7 @@
 ]
 },
 {
-"index": 67,
+"index": 66,
 "values": [
 [
 72,
@@ -1633,7 +1609,7 @@
 ]
 },
 {
-"index": 68,
+"index": 67,
 "values": [
 [
 75,
@@ -1657,7 +1633,7 @@
 ]
 },
 {
-"index": 69,
+"index": 68,
 "values": [
 [
 76,
@@ -1681,7 +1657,7 @@
 ]
 },
 {
-"index": 70,
+"index": 69,
 "values": [
 [
 78,
@@ -1705,7 +1681,7 @@
 ]
 },
 {
-"index": 71,
+"index": 70,
 "values": [
 [
 79,
@@ -1729,7 +1705,7 @@
 ]
 },
 {
-"index": 72,
+"index": 71,
 "values": [
 [
 80,
@@ -1753,7 +1729,7 @@
 ]
 },
 {
-"index": 73,
+"index": 72,
 "values": [
 [
 81,
@@ -1777,7 +1753,7 @@
 ]
 },
 {
-"index": 74,
+"index": 73,
 "values": [
 [
 82,
@@ -1801,7 +1777,7 @@
 ]
 },
 {
-"index": 75,
+"index": 74,
 "values": [
 [
 83,
@@ -1825,7 +1801,7 @@
 ]
 },
 {
-"index": 76,
+"index": 75,
 "values": [
 [
 172,
@@ -1849,7 +1825,7 @@
 ]
 },
 {
-"index": 77,
+"index": 76,
 "values": [
 [
 84,
@@ -1873,7 +1849,7 @@
 ]
 },
 {
-"index": 78,
+"index": 77,
 "values": [
 [
 85,
@@ -1897,7 +1873,7 @@
 ]
 },
 {
-"index": 79,
+"index": 78,
 "values": [
 [
 86,
@@ -1921,7 +1897,7 @@
 ]
 },
 {
-"index": 80,
+"index": 79,
 "values": [
 [
 173,
@@ -1945,7 +1921,7 @@
 ]
 },
 {
-"index": 81,
+"index": 80,
 "values": [
 [
 87,
@@ -1969,7 +1945,7 @@
 ]
 },
 {
-"index": 82,
+"index": 81,
 "values": [
 [
 88,
@@ -1993,7 +1969,7 @@
 ]
 },
 {
-"index": 83,
+"index": 82,
 "values": [
 [
 89,
@@ -2017,7 +1993,7 @@
 ]
 },
 {
-"index": 84,
+"index": 83,
 "values": [
 [
 90,
@@ -2041,7 +2017,7 @@
 ]
 },
 {
-"index": 85,
+"index": 84,
 "values": [
 [
 91,
@@ -2065,7 +2041,7 @@
 ]
 },
 {
-"index": 86,
+"index": 85,
 "values": [
 [
 92,
@@ -2089,7 +2065,7 @@
 ]
 },
 {
-"index": 87,
+"index": 86,
 "values": [
 [
 93,
@@ -2113,7 +2089,7 @@
 ]
 },
 {
-"index": 88,
+"index": 87,
 "values": [
 [
 100,
@@ -2137,7 +2113,7 @@
 ]
 },
 {
-"index": 89,
+"index": 88,
 "values": [
 [
 94,
@@ -2161,7 +2137,7 @@
 ]
 },
 {
-"index": 90,
+"index": 89,
 "values": [
 [
 95,
@@ -2185,7 +2161,7 @@
 ]
 },
 {
-"index": 91,
+"index": 90,
 "values": [
 [
 96,
@@ -2209,7 +2185,7 @@
 ]
 },
 {
-"index": 92,
+"index": 91,
 "values": [
 [
 97,
@@ -2233,7 +2209,7 @@
 ]
 },
 {
-"index": 93,
+"index": 92,
 "values": [
 [
 98,
@@ -2257,7 +2233,7 @@
 ]
 },
 {
-"index": 94,
+"index": 93,
 "values": [
 [
 99,
@@ -2281,7 +2257,7 @@
 ]
 },
 {
-"index": 95,
+"index": 94,
 "values": [
 [
 101,
@@ -2305,7 +2281,7 @@
 ]
 },
 {
-"index": 96,
+"index": 95,
 "values": [
 [
 102,
@@ -2329,7 +2305,7 @@
 ]
 },
 {
-"index": 97,
+"index": 96,
 "values": [
 [
 103,
@@ -2353,7 +2329,7 @@
 ]
 },
 {
-"index": 98,
+"index": 97,
 "values": [
 [
 104,
@@ -2377,7 +2353,7 @@
 ]
 },
 {
-"index": 99,
+"index": 98,
 "values": [
 [
 105,
@@ -2401,7 +2377,7 @@
 ]
 },
 {
-"index": 100,
+"index": 99,
 "values": [
 [
 108,
@@ -2425,7 +2401,7 @@
 ]
 },
 {
-"index": 101,
+"index": 100,
 "values": [
 [
 106,
@@ -2449,7 +2425,7 @@
 ]
 },
 {
-"index": 102,
+"index": 101,
 "values": [
 [
 107,
@@ -2473,7 +2449,7 @@
 ]
 },
 {
-"index": 103,
+"index": 102,
 "values": [
 [
 109,
@@ -2497,7 +2473,7 @@
 ]
 },
 {
-"index": 104,
+"index": 103,
 "values": [
 [
 110,
@@ -2521,7 +2497,7 @@
 ]
 },
 {
-"index": 105,
+"index": 104,
 "values": [
 [
 111,
@@ -2545,7 +2521,7 @@
 ]
 },
 {
-"index": 106,
+"index": 105,
 "values": [
 [
 112,
@@ -2555,7 +2531,7 @@
 "Envio de Boleto",
 46152,
 46231,
-"IPTU Apto 102 - Parcela 5",
+"IPTU Apto 102 - Parcela 5/10",
 "IPTU",
 "Pago",
 "81820000000110961435692029 6081000001428 506722261331",
@@ -2569,7 +2545,7 @@
 ]
 },
 {
-"index": 107,
+"index": 106,
 "values": [
 [
 113,
@@ -2577,15 +2553,15 @@
 "",
 "Ivanilda Hozana",
 "Envio de Boleto",
-46183,
-46183,
-"IPTU Apto 102 - Parcela 6",
+46275,
+"",
+"IPTU Apto 102 - Parcela 7/10",
 "IPTU",
-"Pago",
+"A Vencer",
 "",
-166.3,
+185.63,
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-113-1786650539948.png",
 "",
 "",
 ""
@@ -2593,7 +2569,7 @@
 ]
 },
 {
-"index": 108,
+"index": 107,
 "values": [
 [
 114,
@@ -2617,7 +2593,7 @@
 ]
 },
 {
-"index": 109,
+"index": 108,
 "values": [
 [
 115,
@@ -2641,7 +2617,7 @@
 ]
 },
 {
-"index": 110,
+"index": 109,
 "values": [
 [
 116,
@@ -2665,7 +2641,7 @@
 ]
 },
 {
-"index": 111,
+"index": 110,
 "values": [
 [
 117,
@@ -2689,7 +2665,7 @@
 ]
 },
 {
-"index": 112,
+"index": 111,
 "values": [
 [
 118,
@@ -2713,7 +2689,7 @@
 ]
 },
 {
-"index": 113,
+"index": 112,
 "values": [
 [
 119,
@@ -2737,7 +2713,7 @@
 ]
 },
 {
-"index": 114,
+"index": 113,
 "values": [
 [
 120,
@@ -2761,7 +2737,7 @@
 ]
 },
 {
-"index": 115,
+"index": 114,
 "values": [
 [
 121,
@@ -2785,7 +2761,7 @@
 ]
 },
 {
-"index": 116,
+"index": 115,
 "values": [
 [
 122,
@@ -2809,7 +2785,7 @@
 ]
 },
 {
-"index": 117,
+"index": 116,
 "values": [
 [
 123,
@@ -2833,7 +2809,7 @@
 ]
 },
 {
-"index": 118,
+"index": 117,
 "values": [
 [
 124,
@@ -2857,7 +2833,7 @@
 ]
 },
 {
-"index": 119,
+"index": 118,
 "values": [
 [
 125,
@@ -2881,7 +2857,7 @@
 ]
 },
 {
-"index": 120,
+"index": 119,
 "values": [
 [
 126,
@@ -2905,7 +2881,7 @@
 ]
 },
 {
-"index": 121,
+"index": 120,
 "values": [
 [
 127,
@@ -2929,7 +2905,7 @@
 ]
 },
 {
-"index": 122,
+"index": 121,
 "values": [
 [
 128,
@@ -2953,7 +2929,7 @@
 ]
 },
 {
-"index": 123,
+"index": 122,
 "values": [
 [
 129,
@@ -2977,7 +2953,7 @@
 ]
 },
 {
-"index": 124,
+"index": 123,
 "values": [
 [
 130,
@@ -3001,7 +2977,7 @@
 ]
 },
 {
-"index": 125,
+"index": 124,
 "values": [
 [
 131,
@@ -3025,7 +3001,7 @@
 ]
 },
 {
-"index": 126,
+"index": 125,
 "values": [
 [
 132,
@@ -3049,7 +3025,7 @@
 ]
 },
 {
-"index": 127,
+"index": 126,
 "values": [
 [
 133,
@@ -3073,7 +3049,7 @@
 ]
 },
 {
-"index": 128,
+"index": 127,
 "values": [
 [
 134,
@@ -3097,7 +3073,7 @@
 ]
 },
 {
-"index": 129,
+"index": 128,
 "values": [
 [
 135,
@@ -3121,7 +3097,7 @@
 ]
 },
 {
-"index": 130,
+"index": 129,
 "values": [
 [
 136,
@@ -3145,7 +3121,7 @@
 ]
 },
 {
-"index": 131,
+"index": 130,
 "values": [
 [
 137,
@@ -3169,7 +3145,7 @@
 ]
 },
 {
-"index": 132,
+"index": 131,
 "values": [
 [
 138,
@@ -3193,7 +3169,7 @@
 ]
 },
 {
-"index": 133,
+"index": 132,
 "values": [
 [
 139,
@@ -3217,7 +3193,7 @@
 ]
 },
 {
-"index": 134,
+"index": 133,
 "values": [
 [
 140,
@@ -3241,7 +3217,7 @@
 ]
 },
 {
-"index": 135,
+"index": 134,
 "values": [
 [
 141,
@@ -3265,7 +3241,7 @@
 ]
 },
 {
-"index": 136,
+"index": 135,
 "values": [
 [
 143,
@@ -3289,7 +3265,7 @@
 ]
 },
 {
-"index": 137,
+"index": 136,
 "values": [
 [
 144,
@@ -3313,7 +3289,7 @@
 ]
 },
 {
-"index": 138,
+"index": 137,
 "values": [
 [
 145,
@@ -3337,7 +3313,7 @@
 ]
 },
 {
-"index": 139,
+"index": 138,
 "values": [
 [
 147,
@@ -3361,7 +3337,7 @@
 ]
 },
 {
-"index": 140,
+"index": 139,
 "values": [
 [
 148,
@@ -3385,7 +3361,7 @@
 ]
 },
 {
-"index": 141,
+"index": 140,
 "values": [
 [
 149,
@@ -3409,7 +3385,7 @@
 ]
 },
 {
-"index": 142,
+"index": 141,
 "values": [
 [
 150,
@@ -3433,7 +3409,7 @@
 ]
 },
 {
-"index": 143,
+"index": 142,
 "values": [
 [
 151,
@@ -3457,7 +3433,7 @@
 ]
 },
 {
-"index": 144,
+"index": 143,
 "values": [
 [
 152,
@@ -3481,7 +3457,7 @@
 ]
 },
 {
-"index": 145,
+"index": 144,
 "values": [
 [
 153,
@@ -3505,7 +3481,7 @@
 ]
 },
 {
-"index": 146,
+"index": 145,
 "values": [
 [
 155,
@@ -3529,7 +3505,7 @@
 ]
 },
 {
-"index": 147,
+"index": 146,
 "values": [
 [
 156,
@@ -3553,7 +3529,7 @@
 ]
 },
 {
-"index": 148,
+"index": 147,
 "values": [
 [
 157,
@@ -3577,7 +3553,7 @@
 ]
 },
 {
-"index": 149,
+"index": 148,
 "values": [
 [
 158,
@@ -3601,7 +3577,7 @@
 ]
 },
 {
-"index": 150,
+"index": 149,
 "values": [
 [
 161,
@@ -3625,7 +3601,7 @@
 ]
 },
 {
-"index": 151,
+"index": 150,
 "values": [
 [
 162,
@@ -3649,7 +3625,7 @@
 ]
 },
 {
-"index": 152,
+"index": 151,
 "values": [
 [
 163,
@@ -3673,7 +3649,7 @@
 ]
 },
 {
-"index": 153,
+"index": 152,
 "values": [
 [
 164,
@@ -3697,7 +3673,7 @@
 ]
 },
 {
-"index": 154,
+"index": 153,
 "values": [
 [
 165,
@@ -3721,7 +3697,7 @@
 ]
 },
 {
-"index": 155,
+"index": 154,
 "values": [
 [
 166,
@@ -3732,8 +3708,8 @@
 46245,
 46246,
 "Neoenergia Gravtá 21",
-"Outras",
-"A Vencer",
+"Energia",
+"Pago",
 "",
 430.76,
 "",
@@ -3745,7 +3721,7 @@
 ]
 },
 {
-"index": 156,
+"index": 155,
 "values": [
 [
 167,
@@ -3769,7 +3745,7 @@
 ]
 },
 {
-"index": 157,
+"index": 156,
 "values": [
 [
 168,
@@ -3793,18 +3769,18 @@
 ]
 },
 {
-"index": 158,
+"index": 157,
 "values": [
 [
 169,
 "",
 "",
-"Result Vision - 56.282.210/0001-74",
+"Result Vision",
 "Envio de Boleto",
 46240,
 46240,
 "Parcelamento Result - Ivanilda - Parcela 2/3",
-"Outras",
+"Parcelamento ",
 "Pago",
 "",
 2088.62,
@@ -3817,7 +3793,7 @@
 ]
 },
 {
-"index": 159,
+"index": 158,
 "values": [
 [
 170,
@@ -3828,7 +3804,7 @@
 46269,
 "",
 "Parcelamento Result - Ivanilda - Parcela 3/3",
-"Outras",
+"Parcelamento ",
 "A Vencer",
 "",
 2088.62,
@@ -3841,7 +3817,7 @@
 ]
 },
 {
-"index": 160,
+"index": 159,
 "values": [
 [
 171,
@@ -3865,7 +3841,7 @@
 ]
 },
 {
-"index": 161,
+"index": 160,
 "values": [
 [
 174,
@@ -3875,9 +3851,9 @@
 "Envio de Boleto",
 46275,
 46246,
-"CIM",
+"CIM - Result Vision",
 "Prefeitura ",
-"A Vencer",
+"Pago",
 "",
 535.54,
 554.81,
@@ -3889,7 +3865,7 @@
 ]
 },
 {
-"index": 162,
+"index": 161,
 "values": [
 [
 175,
@@ -3913,7 +3889,7 @@
 ]
 },
 {
-"index": 163,
+"index": 162,
 "values": [
 [
 176,
@@ -3937,7 +3913,7 @@
 ]
 },
 {
-"index": 164,
+"index": 163,
 "values": [
 [
 177,
