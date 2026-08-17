@@ -2319,9 +2319,9 @@
 "Cartão de Crédito",
 "A Vencer",
 "",
-292.43,
+366.42,
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-103-1787008994246.jpg",
 "",
 "",
 ""
@@ -2482,7 +2482,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46249,
-"",
+46252,
 "Cartão Novo Atacarejo",
 "Cartão de Crédito",
 "A Vencer",
@@ -2490,7 +2490,7 @@
 368.41,
 "",
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-110-1787008458465.jpg",
 "",
 ""
 ]
@@ -3298,7 +3298,7 @@
 "Ivanilda Hozana",
 "Envio de Boleto",
 46251,
-"",
+46251,
 "Cartão Melius - Seguro S10 - Parcela 5/10",
 "Cartão de Crédito",
 "A Vencer",
@@ -3306,7 +3306,7 @@
 589.47,
 "",
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-145-1787008187368.jpg",
 "",
 ""
 ]
@@ -3538,7 +3538,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46251,
-"",
+46252,
 "Cartão de Crédito Mélus",
 "Cartão de Crédito",
 "A Vencer",
@@ -4050,6 +4050,30 @@
 308.18,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-182-1786982788763.PDF",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 169,
+"values": [
+[
+183,
+"",
+"",
+"Natanael Silva",
+"Envio de Boleto",
+46257,
+"",
+"Cartão Riachuelo",
+"Cartão de Crédito",
+"A Vencer",
+"",
+115.61,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-183-1787008796773.jpg",
 "",
 "",
 ""
