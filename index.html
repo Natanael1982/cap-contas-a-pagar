@@ -275,7 +275,7 @@
   .kpi.k-positive .v{color:var(--positive);}
 
   /* ---- middle: table + status ---- */
-  .middle{margin-bottom:14px;flex:1 1 auto;min-height:230px;max-height:330px;display:flex;flex-direction:row;}
+  .middle{flex:1 1 auto;min-height:230px;max-height:330px;display:flex;flex-direction:row;}
   .middle .panel{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0;}
   @media (max-width:760px){ .middle{flex-direction:column;} .table-scroll{max-height:195px;} }
 
@@ -373,7 +373,7 @@
   .attach.off{color:var(--ink-muted);opacity:.3;pointer-events:none;}
 
   /* ---- bottom: chart + ranking ---- */
-  .bottom{display:grid;grid-template-columns:320px 1fr;gap:14px;flex:0 0 auto;align-items:start;}
+  .bottom{display:grid;grid-template-columns:320px 1fr;gap:14px;margin-bottom:14px;flex:0 0 auto;align-items:start;}
   .bottom .panel{display:flex;flex-direction:column;height:300px;}
   /* Ocupa a linha inteira: com as duas colunas o "Despesa de:" ficava estreito
      e escondia pessoas atrás da rolagem horizontal. */
@@ -955,6 +955,44 @@
 
   <div class="kpis" id="kpis"></div>
 
+  <div class="bottom">
+    <div class="panel full">
+      <div class="panel-head">
+        <h2>Total por Despesa de:</h2>
+        <span class="count" id="rankCount"></span>
+      </div>
+      <div class="rank-body" id="rankBody"></div>
+      <div class="rank-legend">
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-pago"></span>Pago</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Em atraso</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-hoje"></span>Vence hoje</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-title">
+          <h2>Total por</h2>
+          <select id="descRankGroupSel" class="rank-group-sel">
+            <option value="desc">Descrição</option>
+            <option value="tipo">Tipo de Despesa</option>
+          </select>
+        </div>
+        <span class="count" id="descRankCount"></span>
+      </div>
+      <div class="rank-body" id="descRankBody"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Desempenho</h2>
+        <span class="count" id="perfCount"></span>
+      </div>
+      <div class="perf-body" id="perfBody"></div>
+    </div>
+  </div>
+
   <div class="middle">
     <div class="filters-drawer" id="filtersDrawer">
       <div class="filters-drawer-head">
@@ -997,44 +1035,6 @@
           </tfoot>
         </table>
       </div>
-    </div>
-  </div>
-
-  <div class="bottom">
-    <div class="panel full">
-      <div class="panel-head">
-        <h2>Total por Despesa de:</h2>
-        <span class="count" id="rankCount"></span>
-      </div>
-      <div class="rank-body" id="rankBody"></div>
-      <div class="rank-legend">
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-pago"></span>Pago</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Em atraso</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-hoje"></span>Vence hoje</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-title">
-          <h2>Total por</h2>
-          <select id="descRankGroupSel" class="rank-group-sel">
-            <option value="desc">Descrição</option>
-            <option value="tipo">Tipo de Despesa</option>
-          </select>
-        </div>
-        <span class="count" id="descRankCount"></span>
-      </div>
-      <div class="rank-body" id="descRankBody"></div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <h2>Desempenho</h2>
-        <span class="count" id="perfCount"></span>
-      </div>
-      <div class="perf-body" id="perfBody"></div>
     </div>
   </div>
 </div>
