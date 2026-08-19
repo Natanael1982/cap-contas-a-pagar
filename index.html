@@ -378,7 +378,7 @@
 
   /* ---- bottom: chart + ranking ---- */
   .bottom{display:grid;grid-template-columns:320px 1fr;gap:14px;margin-bottom:14px;flex:0 0 auto;align-items:start;}
-  .bottom .panel{display:flex;flex-direction:column;height:300px;}
+  .bottom .panel{display:flex;flex-direction:column;height:auto;min-height:260px;max-height:540px;}
   /* Ocupa a linha inteira: com as duas colunas o "Despesa de:" ficava estreito
      e escondia pessoas atrás da rolagem horizontal. */
   .bottom .panel.full{grid-column:1/-1;}
@@ -420,7 +420,7 @@
 
   .rank-body{padding:12px 16px 14px;flex:1;min-height:0;overflow:auto;}
   .rank-row{
-    display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;
+    display:flex;align-items:center;gap:9px;padding:4px 8px;margin:0 -8px;
     cursor:pointer;border-radius:6px;
   }
   .rank-row:hover{background:var(--surface-3);}
@@ -428,37 +428,37 @@
   .rank-row.active .name, .rank-row.active .amt{color:var(--select-ink);}
   #descRankBody:has(.rank-row.active) .rank-row:not(.active){opacity:.45;}
   .rank-row .name{
-    flex:0 0 150px;font-size:11.5px;color:var(--ink-soft);
+    flex:0 0 138px;font-size:11.5px;color:var(--ink-soft);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .rank-row .track{flex:1;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;display:flex;}
   .rank-row .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#2a5fae,var(--chart));}
   .rank-row .amt{flex:0 0 84px;text-align:right;font:600 11.5px var(--mono);font-variant-numeric:tabular-nums;}
 
-  .rank-cols{display:flex;align-items:stretch;justify-content:space-evenly;height:100%;padding:14px 10px;overflow-x:auto;gap:10px;}
-  .rank-col{display:flex;flex-direction:column;flex:0 1 220px;padding:0 24px;}
+  .rank-cols{display:flex;align-items:stretch;padding:12px 8px;overflow-x:auto;gap:6px;}
+  .rank-col{display:flex;flex-direction:column;flex:1 1 0;min-width:150px;padding:0 13px;}
   .rank-col:first-child{padding-left:6px;}
   .rank-col:not(:first-child){border-left:1px solid var(--border);}
   .rank-col-name{
-    font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:4px;
-    max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     cursor:pointer;border-radius:5px;margin:-3px -6px 4px;padding:3px 6px;
   }
   .rank-col-name:hover{background:var(--surface-3);color:var(--chart-soft);}
   .rank-col-name.active{background:var(--select);color:var(--select-ink);}
   .rank-col.active{opacity:1;}
   .rank-cols:has(.rank-col.active) .rank-col:not(.active){opacity:.45;}
-  .rank-col-total{font:600 12.5px var(--sans);color:var(--ink-soft);margin-bottom:14px;}
-  .rank-col-list{display:flex;flex-direction:column;gap:10px;}
+  .rank-col-total{font:600 11.5px var(--sans);color:var(--ink-soft);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rank-col-list{display:flex;flex-direction:column;gap:7px;}
   .rank-col-item{
-    display:flex;align-items:center;gap:8px;font-size:12.5px;white-space:nowrap;
-    cursor:pointer;border-radius:5px;margin:0 -6px;padding:3px 6px;
+    display:flex;align-items:center;gap:6px;font-size:11.5px;white-space:nowrap;
+    cursor:pointer;border-radius:5px;margin:0 -6px;padding:2px 6px;min-width:0;
   }
   .rank-col-item:hover{background:var(--surface-3);}
   .rank-col-item.active{background:var(--select);}
   .rank-col-item.active .rank-col-item-lbl, .rank-col-item.active .rank-col-item-val{color:var(--select-ink);}
-  .rank-col-item .rank-col-item-lbl{color:var(--ink-muted);flex:1;}
-  .rank-col-item .rank-col-item-val{font:600 12.5px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
+  .rank-col-item .rank-col-item-lbl{color:var(--ink-muted);flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .rank-col-item .rank-col-item-val{flex:none;font:600 11px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
 
   .rank-legend{display:flex;flex-wrap:wrap;gap:12px;padding:0 16px 12px;flex:none;}
   .rank-legend-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-muted);}
@@ -973,7 +973,21 @@
   <div class="kpis" id="kpis"></div>
 
   <div class="bottom">
-    <div class="panel full">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-title">
+          <h2>Total por</h2>
+          <select id="descRankGroupSel" class="rank-group-sel">
+            <option value="desc">Descrição</option>
+            <option value="tipo">Tipo de Despesa</option>
+          </select>
+        </div>
+        <span class="count" id="descRankCount"></span>
+      </div>
+      <div class="rank-body" id="descRankBody"></div>
+    </div>
+
+    <div class="panel">
       <div class="panel-head">
         <h2>Total por Despesa de:</h2>
         <span class="count" id="rankCount"></span>
@@ -987,6 +1001,7 @@
       </div>
     </div>
   </div>
+
 
   <div class="middle">
     <div class="filters-drawer" id="filtersDrawer">
@@ -1034,21 +1049,7 @@
   </div>
 
   <div class="bottom">
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-title">
-          <h2>Total por</h2>
-          <select id="descRankGroupSel" class="rank-group-sel">
-            <option value="desc">Descrição</option>
-            <option value="tipo">Tipo de Despesa</option>
-          </select>
-        </div>
-        <span class="count" id="descRankCount"></span>
-      </div>
-      <div class="rank-body" id="descRankBody"></div>
-    </div>
-
-    <div class="panel">
+    <div class="panel full">
       <div class="panel-head">
         <h2>Desempenho</h2>
         <span class="count" id="perfCount"></span>
