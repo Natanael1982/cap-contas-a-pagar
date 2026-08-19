@@ -378,10 +378,13 @@
 
   /* ---- bottom: chart + ranking ---- */
   .bottom{display:grid;grid-template-columns:320px 1fr;gap:14px;margin-bottom:14px;flex:0 0 auto;align-items:start;}
-  .bottom .panel{display:flex;flex-direction:column;height:auto;min-height:260px;max-height:540px;}
-  /* Ocupa a linha inteira: com as duas colunas o "Despesa de:" ficava estreito
-     e escondia pessoas atrás da rolagem horizontal. */
-  .bottom .panel.full{grid-column:1/-1;}
+  /* Altura fixa nos dois quadros da faixa de cima pra eles ficarem do mesmo
+     tamanho: deixar o "Total por" crescer até os 19 tipos esticava a faixa e
+     abria um vazio grande ao lado. Quem passa da altura rola dentro do painel. */
+  .bottom .panel{display:flex;flex-direction:column;height:300px;}
+  /* Ocupa a faixa inteira (hoje é o Desempenho). Cabe sem rolar, então a altura
+     acompanha o conteúdo em vez de sobrar espaço morto embaixo. */
+  .bottom .panel.full{grid-column:1/-1;height:auto;}
   .bottom .panel-head{flex:none;}
   @media (max-width:760px){ .bottom{grid-template-columns:1fr;} }
 
