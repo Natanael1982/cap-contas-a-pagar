@@ -587,6 +587,58 @@
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+  /* ---- emissão de documentos ---- */
+  .emi-pass{position:relative;display:flex;}
+  .emi-pass input{flex:1;padding-right:32px;}
+  .emi-pass-toggle{
+    position:absolute;right:5px;top:50%;transform:translateY(-50%);
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+    background:transparent;border:none;color:var(--ink-soft);cursor:pointer;border-radius:5px;padding:0;
+  }
+  .emi-pass-toggle:hover{background:var(--surface-3);color:var(--ink);}
+  .emi-pass-toggle svg{width:15px;height:15px;}
+  .emi-card{
+    border:1px solid var(--border);border-radius:9px;background:var(--surface-2);
+    padding:11px 12px;margin-bottom:8px;
+  }
+  .emi-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
+  .emi-card-head .emi-desc{
+    font:600 13px var(--sans);color:var(--ink);flex:1 1 180px;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .emi-card-head .emi-sub{
+    display:block;font:400 10.5px var(--sans);color:var(--ink-muted);
+    text-transform:none;letter-spacing:0;margin-top:2px;
+  }
+  .emi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px 14px;}
+  .emi-item{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .emi-item .k{font-size:9.5px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;}
+  .emi-item .v{font:12.5px var(--mono);color:var(--ink-soft);display:flex;align-items:center;gap:5px;min-width:0;}
+  .emi-item .v .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .emi-item .v a{color:var(--chart-soft);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .emi-item .v a:hover{text-decoration:underline;}
+  .emi-item .v .vazio{color:var(--ink-muted);}
+  .emi-mini{
+    background:transparent;border:none;color:var(--ink-muted);cursor:pointer;padding:2px;
+    border-radius:5px;flex:none;display:inline-flex;align-items:center;
+  }
+  .emi-mini:hover{background:var(--surface-3);color:var(--ink);}
+  .emi-mini svg{width:14px;height:14px;}
+  .emi-nota{
+    margin-top:10px;padding-top:9px;border-top:1px solid var(--border);
+    font-size:12px;color:var(--ink-soft);white-space:pre-wrap;line-height:1.55;
+  }
+  .emi-nota .k{
+    display:block;font:400 9.5px var(--sans);color:var(--ink-muted);
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;
+  }
+  .emi-empty{color:var(--ink-muted);font-size:12px;}
+  .emi-aviso{
+    font-size:11px;color:var(--ink-muted);line-height:1.5;
+    margin:0 0 14px;padding:9px 11px;border-radius:7px;
+    background:var(--warning-dim);border:1px solid var(--warning);color:var(--warning);
+  }
+
   /* ---- ajustes para celular ---- */
   @media (max-width:640px){
     body{padding:8px;}
@@ -663,6 +715,10 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.7"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.13.31.4.55.72.68.32.13.68.13 1 0H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.7"/></svg>
         Administração
       </button>
+      <button class="clear-btn" id="emissaoBtn" type="button" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        Emissão de Documentos
+      </button>
     </div>
   </div>
   </div>
@@ -688,6 +744,72 @@
       </div>
       <div id="adm_lista"></div>
       <p style="font-size:11px;color:var(--ink-muted);margin-top:14px;">Conceder acesso compartilha o arquivo de verdade no SharePoint para esse e-mail (Editor = leitura e escrita, Visualizador = somente leitura). Revogar remove esse compartilhamento.</p>
+    </div>
+  </div>
+
+  <div class="panel entry-panel" id="emissaoPanel">
+    <div class="panel-head">
+      <h2 id="emissaoTitulo">Emissão de Documentos</h2>
+      <button type="button" class="ebtn ghost" id="emissaoCloseBtn">Fechar</button>
+    </div>
+    <form id="emissaoForm" autocomplete="off">
+      <div class="entry-grid">
+        <div class="edivider">Identificação</div>
+        <div class="efield span2">
+          <label>Descrição da Despesa <span class="req">*</span></label>
+          <input type="text" id="emi_desc" placeholder="Ex.: Neoenergia Apto 301" required>
+        </div>
+        <div class="efield">
+          <label>Despesa de:</label>
+          <input type="text" id="emi_nome" list="empresaList" placeholder="Ex.: Ivanilda Hozana" autocomplete="off">
+        </div>
+        <div class="efield">
+          <label>Tipo de Despesa</label>
+          <input type="text" id="emi_tipo" list="tipoList" placeholder="Ex.: Energia" autocomplete="off">
+        </div>
+
+        <div class="edivider">Acesso ao portal</div>
+        <div class="efield span2">
+          <label>Link</label>
+          <input type="text" id="emi_link" placeholder="Ex.: agenciavirtual.neoenergia.com" autocomplete="off">
+        </div>
+        <div class="efield">
+          <label>Usuário</label>
+          <input type="text" id="emi_usuario" placeholder="Login, CPF ou e-mail" autocomplete="off">
+        </div>
+        <div class="efield">
+          <label>Senha</label>
+          <div class="emi-pass">
+            <input type="password" id="emi_senha" placeholder="Senha do portal" autocomplete="new-password">
+            <button type="button" class="emi-pass-toggle" id="emi_senhaOlho" title="Mostrar senha" aria-label="Mostrar senha">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="efield span2">
+          <label>Código / Identificador</label>
+          <input type="text" id="emi_codigo" placeholder="Ex.: nº do cliente, instalação, matrícula" autocomplete="off">
+          <span class="hint">O número que o portal pede pra localizar a conta.</span>
+        </div>
+        <div class="efield">
+          <label>Dia do Vencimento</label>
+          <input type="text" inputmode="numeric" id="emi_dia" placeholder="Ex.: 11" maxlength="2" autocomplete="off">
+        </div>
+
+        <div class="edivider">Passo a passo</div>
+        <div class="efield span4">
+          <label>Nota</label>
+          <textarea id="emi_nota" rows="6" placeholder="O que fazer pra emitir este documento. Ex.:&#10;1. Entrar no portal com o usuário e senha acima&#10;2. Menu Faturas &gt; Segunda via&#10;3. Selecionar a instalação e baixar o PDF do mês"></textarea>
+        </div>
+      </div>
+      <div class="entry-actions-bottom" style="display:flex;justify-content:flex-end;gap:10px;padding:16px;border-top:1px solid var(--border);">
+        <button type="button" class="ebtn ghost" id="emi_cancelar">Cancelar</button>
+        <button type="submit" class="ebtn primary" id="emi_salvar">Adicionar documento</button>
+      </div>
+    </form>
+    <div style="padding:0 16px 16px;">
+      <p class="emi-aviso">Estes dados ficam na aba <b>Emissao</b> da planilha financeira no SharePoint — nunca são copiados para o site público. Mas quem tem acesso ao arquivo no SharePoint consegue abrir essa aba e ler as senhas.</p>
+      <div id="emi_lista"></div>
     </div>
   </div>
 
@@ -940,6 +1062,16 @@ var currentUserFiltroNome = null;
 var currentUserNome = null;
 var ITEM_ID = '01ZF6ARXTIQSWRHIKDQVHIHZRFMV5YVCAD';
 var TABLE_NAME = 'TabelaLancamentos';
+// Emissão de Documentos: aba própria dentro da MESMA planilha financeira.
+// Criada sozinha na primeira vez que a tela é aberta (garantirTabelaEmissao).
+// De propósito NÃO entra em scripts/sincronizar_*.py — esses só copiam
+// TabelaLancamentos e TabelaUsuarios, e senha em repositório público seria
+// vazamento. O botão é só do dono (ver aplicarRestricoesPapel), mas isso
+// protege a tela, não o arquivo: quem tem acesso à planilha no SharePoint
+// consegue abrir a aba e ler as senhas.
+var EMISSAO_SHEET_NAME = 'Emissao';
+var EMISSAO_TABLE_NAME = 'TabelaEmissao';
+var EMISSAO_COLS = ['Id','Descrição','Despesa de','Tipo','Link','Usuário','Senha','Código','Dia Vencimento','Nota','Atualizado em'];
 // Arquivo separado (sem dados financeiros) com link de leitura pública, usado
 // só pra checar aprovação de acesso — assim contas sem nenhum acesso prévio
 // à planilha financeira (ex.: contas Microsoft pessoais) conseguem ler a
@@ -1048,6 +1180,9 @@ function sair(){
   msalInstance.setActiveAccount(null);
   salvarContaAtiva('');
   DATA = [];
+  EMISSAO_DADOS = [];
+  emissaoEditandoId = null;
+  document.getElementById('emissaoPanel').classList.remove('open');
   atualizarEstadoLogin();
   document.getElementById('semAcessoOverlay').classList.remove('open');
   buildFilters(); updateClearButton(); render();
@@ -1227,6 +1362,7 @@ function mostrarSemAcesso(){
 function aplicarRestricoesPapel(){
   document.getElementById('addToggleBtn').style.display = currentUserRole === 'Editor' ? '' : 'none';
   document.getElementById('adminBtn').style.display = ehDono() ? '' : 'none';
+  document.getElementById('emissaoBtn').style.display = ehDono() ? '' : 'none';
 }
 
 async function processarLogin(){
@@ -3106,10 +3242,466 @@ document.getElementById('adm_conceder').addEventListener('click', function(){
   });
 });
 
+/* ---- Emissão de Documentos ---- */
+// Guarda o "como emitir" de cada despesa: portal, login, senha, código do
+// cliente e o passo a passo. Grava na aba EMISSAO_SHEET_NAME da própria
+// planilha financeira, criada sozinha na primeira abertura da tela.
+var EMISSAO_DADOS = [];
+var emissaoEditandoId = null;
+var EMISSAO_MASCARA = '••••••••';
+var EMISSAO_CAMPOS_FORM = ['emi_desc','emi_nome','emi_tipo','emi_link','emi_usuario','emi_senha','emi_codigo','emi_dia','emi_nota'];
+var SVG_OLHO = '<svg viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/></svg>';
+var SVG_COPIAR = '<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M5 15V5a2 2 0 0 1 2-2h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+
+function escHtml(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+function colLetraEmissao(n){
+  var s = '';
+  while (n > 0){ var r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); }
+  return s;
+}
+function emissaoWorkbookUrl(alvo, sufixo){
+  return GRAPH_BASE + '/drives/' + alvo.driveId + '/items/' + alvo.itemId + '/workbook' + sufixo;
+}
+function agoraBR(){
+  var d = new Date();
+  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear() +
+    ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function normalizarLink(v){
+  var t = String(v||'').trim();
+  if (!t) return '';
+  return /^https?:\/\//i.test(t) ? t : ('https://' + t);
+}
+function emissaoPorId(id){
+  return EMISSAO_DADOS.find(function(o){ return String(o.id) === String(id); }) || null;
+}
+function proximoIdEmissao(){
+  var max = 0;
+  EMISSAO_DADOS.forEach(function(o){
+    var n = Number(o.id);
+    if (!isNaN(n) && n > max) max = n;
+  });
+  return String(max + 1);
+}
+async function copiarTexto(txt, rotulo){
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(txt);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    showToast(rotulo + ' copiado.');
+  } catch (e) {
+    showToast('Não foi possível copiar ' + rotulo.toLowerCase() + '.');
+  }
+}
+
+// Cria a aba e a tabela na primeira vez. Se já existirem, não faz nada.
+async function garantirTabelaEmissao(token, alvo){
+  var hJson = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
+  var hGet = { Authorization: 'Bearer ' + token };
+  var respTabela = await fetch(emissaoWorkbookUrl(alvo, "/tables('" + EMISSAO_TABLE_NAME + "')"), { headers: hGet });
+  if (respTabela.ok) return;
+  if (respTabela.status !== 404){
+    var tErro = await respTabela.text();
+    throw new Error('Não foi possível checar a aba de emissão (' + respTabela.status + '): ' + tErro.slice(0, 300));
+  }
+  var respAba = await fetch(emissaoWorkbookUrl(alvo, "/worksheets('" + EMISSAO_SHEET_NAME + "')"), { headers: hGet });
+  if (!respAba.ok){
+    var respCriaAba = await fetch(emissaoWorkbookUrl(alvo, '/worksheets'), {
+      method: 'POST', headers: hJson, body: JSON.stringify({ name: EMISSAO_SHEET_NAME })
+    });
+    if (!respCriaAba.ok){
+      var t1 = await respCriaAba.text();
+      throw new Error('Falha ao criar a aba "' + EMISSAO_SHEET_NAME + '" (' + respCriaAba.status + '): ' + t1.slice(0, 300));
+    }
+  }
+  var endereco = 'A1:' + colLetraEmissao(EMISSAO_COLS.length) + '1';
+  var respCabecalho = await fetch(emissaoWorkbookUrl(alvo, "/worksheets('" + EMISSAO_SHEET_NAME + "')/range(address='" + endereco + "')"), {
+    method: 'PATCH', headers: hJson, body: JSON.stringify({ values: [EMISSAO_COLS] })
+  });
+  if (!respCabecalho.ok){
+    var t2 = await respCabecalho.text();
+    throw new Error('Falha ao escrever o cabeçalho da aba (' + respCabecalho.status + '): ' + t2.slice(0, 300));
+  }
+  var respAdd = await fetch(emissaoWorkbookUrl(alvo, "/worksheets('" + EMISSAO_SHEET_NAME + "')/tables/add"), {
+    method: 'POST', headers: hJson, body: JSON.stringify({ address: endereco, hasHeaders: true })
+  });
+  if (!respAdd.ok){
+    var t3 = await respAdd.text();
+    throw new Error('Falha ao criar a tabela na aba (' + respAdd.status + '): ' + t3.slice(0, 300));
+  }
+  var criada = await respAdd.json();
+  var respNome = await fetch(emissaoWorkbookUrl(alvo, '/tables/' + criada.id), {
+    method: 'PATCH', headers: hJson, body: JSON.stringify({ name: EMISSAO_TABLE_NAME })
+  });
+  if (!respNome.ok){
+    var t4 = await respNome.text();
+    throw new Error('Falha ao nomear a tabela como ' + EMISSAO_TABLE_NAME + ' (' + respNome.status + '): ' + t4.slice(0, 300));
+  }
+}
+
+function emissaoRowToObj(v, rowIndex){
+  var txt = function(i){ return v[i] == null ? '' : String(v[i]); };
+  return {
+    id: txt(0), _rowIndex: rowIndex,
+    desc: txt(1), nome: txt(2), tipo: txt(3), link: txt(4),
+    usuario: txt(5), senha: txt(6), codigo: txt(7), dia: txt(8),
+    nota: txt(9), atualizado: txt(10)
+  };
+}
+function emissaoObjToRow(o){
+  return [o.id, o.desc, o.nome, o.tipo, o.link, o.usuario, o.senha, o.codigo, o.dia, o.nota, o.atualizado];
+}
+async function buscarEmissaoGraph(token, alvo){
+  var resp = await fetch(emissaoWorkbookUrl(alvo, "/tables('" + EMISSAO_TABLE_NAME + "')/rows"), {
+    headers: { Authorization: 'Bearer ' + token }
+  });
+  if (!resp.ok){
+    var t = await resp.text();
+    throw new Error('Não foi possível ler a aba de emissão (' + resp.status + '): ' + t.slice(0, 300));
+  }
+  var json = await resp.json();
+  return (json.value || []).map(function(row){ return emissaoRowToObj(row.values[0], row.index); });
+}
+// Em célula de formato geral o Excel transforma "0012345678" em 12345678, o que
+// estraga código de instalação e senha só de números. Marca a linha como texto
+// antes de gravar os valores.
+async function formatarLinhaEmissaoComoTexto(token, alvo, rowIndex){
+  var linha = rowIndex + 2; // linha 1 é o cabeçalho da tabela
+  var endereco = 'A' + linha + ':' + colLetraEmissao(EMISSAO_COLS.length) + linha;
+  var formatos = [EMISSAO_COLS.map(function(){ return '@'; })];
+  try {
+    await fetch(emissaoWorkbookUrl(alvo, "/worksheets('" + EMISSAO_SHEET_NAME + "')/range(address='" + endereco + "')"), {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ numberFormat: formatos })
+    });
+  } catch (e) { /* só preserva zeros à esquerda; não vale abortar o salvamento */ }
+}
+async function atualizarEmissaoGraph(token, alvo, rowIndex, obj){
+  await formatarLinhaEmissaoComoTexto(token, alvo, rowIndex);
+  var url = emissaoWorkbookUrl(alvo, "/tables('" + EMISSAO_TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')');
+  var resp = await fetch(url, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [emissaoObjToRow(obj)] })
+  });
+  if (!resp.ok){
+    var t = await resp.text();
+    throw new Error('Falha ao atualizar a planilha (' + resp.status + '): ' + t.slice(0, 300));
+  }
+}
+async function adicionarEmissaoGraph(token, alvo, obj){
+  var resp = await fetch(emissaoWorkbookUrl(alvo, "/tables('" + EMISSAO_TABLE_NAME + "')/rows"), {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [emissaoObjToRow(obj)] })
+  });
+  if (!resp.ok){
+    var t = await resp.text();
+    throw new Error('Falha ao gravar na planilha (' + resp.status + '): ' + t.slice(0, 300));
+  }
+  var criada = await resp.json();
+  // Regrava já com a linha formatada como texto (na 1a gravação o Excel pode
+  // ter convertido código/senha numéricos e comido os zeros à esquerda).
+  if (typeof criada.index === 'number') await atualizarEmissaoGraph(token, alvo, criada.index, obj);
+}
+async function removerEmissaoGraph(token, alvo, rowIndex){
+  var url = emissaoWorkbookUrl(alvo, "/tables('" + EMISSAO_TABLE_NAME + "')/rows/itemAt(index=" + rowIndex + ')');
+  var resp = await fetch(url, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+  if (!resp.ok && resp.status !== 204){
+    var t = await resp.text();
+    throw new Error('Falha ao remover da planilha (' + resp.status + '): ' + t.slice(0, 300));
+  }
+}
+// Mesma proteção do resto do app: confere a posição da linha na hora de gravar,
+// porque a planilha pode ter mudado em outra sessão desde que a tela carregou.
+async function resolverRowIndexEmissao(token, alvo, id, rowIndexEsperado){
+  var atuais = await buscarEmissaoGraph(token, alvo);
+  var candidatos = atuais.filter(function(o){ return String(o.id) === String(id); });
+  if (!candidatos.length) throw new Error('Registro não encontrado na planilha (pode ter sido removido em outra sessão).');
+  if (candidatos.length === 1) return candidatos[0]._rowIndex;
+  var porPosicao = candidatos.find(function(o){ return o._rowIndex === rowIndexEsperado; });
+  if (porPosicao) return porPosicao._rowIndex;
+  throw new Error('Id ' + id + ' está duplicado na aba ' + EMISSAO_SHEET_NAME + ' — corrija na planilha antes de editar/excluir este registro.');
+}
+
+function emiBotaoCopiar(idAttr, campo, rotulo){
+  return '<button type="button" class="emi-mini" data-emi-copiar="' + idAttr + '" data-emi-campo="' + campo + '" title="Copiar ' + rotulo.toLowerCase() + '">' + SVG_COPIAR + '</button>';
+}
+function emiItemVazio(rotulo){
+  return '<div class="emi-item"><span class="k">' + rotulo + '</span><span class="v"><span class="vazio">—</span></span></div>';
+}
+function emiItemTexto(rotulo, valor, idAttr, campo){
+  if (!valor) return emiItemVazio(rotulo);
+  return '<div class="emi-item"><span class="k">' + rotulo + '</span><span class="v">' +
+    '<span class="txt">' + escHtml(valor) + '</span>' +
+    emiBotaoCopiar(idAttr, campo, rotulo) +
+    '</span></div>';
+}
+function emiItemLink(o, idAttr){
+  if (!o.link) return emiItemVazio('Link');
+  var rotuloLink = String(o.link).replace(/^https?:\/\//i, '');
+  return '<div class="emi-item"><span class="k">Link</span><span class="v">' +
+    '<a href="' + escHtml(normalizarLink(o.link)) + '" target="_blank" rel="noopener noreferrer" title="Abrir o portal em outra aba">' + escHtml(rotuloLink) + '</a>' +
+    emiBotaoCopiar(idAttr, 'link', 'Link') +
+    '</span></div>';
+}
+function emiItemSenha(o, idAttr){
+  if (!o.senha) return emiItemVazio('Senha');
+  // A senha não vai no HTML: fica só em EMISSAO_DADOS e é lida na hora de
+  // revelar ou copiar, pra não sobrar em atributo do DOM.
+  return '<div class="emi-item"><span class="k">Senha</span><span class="v">' +
+    '<span class="txt" data-emi-senha="' + idAttr + '">' + EMISSAO_MASCARA + '</span>' +
+    '<button type="button" class="emi-mini" data-emi-olho="' + idAttr + '" title="Mostrar senha">' + SVG_OLHO + '</button>' +
+    emiBotaoCopiar(idAttr, 'senha', 'Senha') +
+    '</span></div>';
+}
+
+function renderEmissaoLista(){
+  var el = document.getElementById('emi_lista');
+  if (!EMISSAO_DADOS.length){
+    el.innerHTML = '<p class="emi-empty">Nenhum documento cadastrado ainda. Preencha o formulário acima e clique em "Adicionar documento".</p>';
+    return;
+  }
+  var itens = EMISSAO_DADOS.slice().sort(function(a, b){
+    return String(a.desc||'').localeCompare(String(b.desc||''), 'pt-BR');
+  });
+  el.innerHTML = itens.map(function(o){
+    var idAttr = escHtml(o.id);
+    var sub = [];
+    if (o.nome) sub.push(escHtml(o.nome));
+    if (o.tipo) sub.push(escHtml(o.tipo));
+    if (o.dia) sub.push('vence dia ' + escHtml(o.dia));
+    if (o.atualizado) sub.push('atualizado em ' + escHtml(o.atualizado));
+    return '<div class="emi-card">' +
+      '<div class="emi-card-head">' +
+        '<span class="emi-desc">' + escHtml(o.desc || '(sem descrição)') +
+          (sub.length ? '<span class="emi-sub">' + sub.join(' · ') + '</span>' : '') +
+        '</span>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+          '<button type="button" class="ebtn" data-emi-editar="' + idAttr + '" style="padding:5px 10px;font-size:11px;flex:none;">Editar</button>' +
+          '<button type="button" class="ebtn" data-emi-excluir="' + idAttr + '" style="padding:5px 10px;font-size:11px;flex:none;color:var(--critical);">Excluir</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="emi-grid">' +
+        emiItemLink(o, idAttr) +
+        emiItemTexto('Usuário', o.usuario, idAttr, 'usuario') +
+        emiItemSenha(o, idAttr) +
+        emiItemTexto('Código', o.codigo, idAttr, 'codigo') +
+      '</div>' +
+      (o.nota ? '<div class="emi-nota"><span class="k">Nota</span>' + escHtml(o.nota) + '</div>' : '') +
+    '</div>';
+  }).join('');
+
+  el.querySelectorAll('[data-emi-editar]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var o = emissaoPorId(btn.getAttribute('data-emi-editar'));
+      if (o) emissaoPreencherForm(o);
+    });
+  });
+  el.querySelectorAll('[data-emi-excluir]').forEach(function(btn){
+    btn.addEventListener('click', function(){ excluirEmissao(btn.getAttribute('data-emi-excluir')); });
+  });
+  el.querySelectorAll('[data-emi-copiar]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var o = emissaoPorId(btn.getAttribute('data-emi-copiar'));
+      if (!o) return;
+      var campo = btn.getAttribute('data-emi-campo');
+      var rotulos = { link: 'Link', usuario: 'Usuário', senha: 'Senha', codigo: 'Código' };
+      var valor = campo === 'link' ? normalizarLink(o.link) : o[campo];
+      if (!valor) return;
+      copiarTexto(valor, rotulos[campo] || 'Valor');
+    });
+  });
+  el.querySelectorAll('[data-emi-olho]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-emi-olho');
+      var o = emissaoPorId(id);
+      if (!o) return;
+      var span = btn.parentNode.querySelector('[data-emi-senha]');
+      if (!span) return;
+      var escondida = span.textContent === EMISSAO_MASCARA;
+      span.textContent = escondida ? o.senha : EMISSAO_MASCARA;
+      btn.title = escondida ? 'Esconder senha' : 'Mostrar senha';
+    });
+  });
+}
+
+async function carregarEmissaoPanel(){
+  var el = document.getElementById('emi_lista');
+  el.innerHTML = '<p class="emi-empty">Carregando…</p>';
+  try {
+    var token = await getToken();
+    var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+    await garantirTabelaEmissao(token, alvo);
+    EMISSAO_DADOS = await buscarEmissaoGraph(token, alvo);
+    renderEmissaoLista();
+  } catch (e) {
+    EMISSAO_DADOS = [];
+    el.innerHTML = '<p class="emi-empty">Erro ao carregar: ' + escHtml(e && e.message ? e.message : e) + '</p>';
+  }
+}
+
+function emissaoMostrarSenhaForm(mostrar){
+  var input = document.getElementById('emi_senha');
+  var btn = document.getElementById('emi_senhaOlho');
+  input.type = mostrar ? 'text' : 'password';
+  btn.title = mostrar ? 'Esconder senha' : 'Mostrar senha';
+  btn.setAttribute('aria-label', btn.title);
+}
+function emissaoLimparForm(){
+  emissaoEditandoId = null;
+  EMISSAO_CAMPOS_FORM.forEach(function(id){ document.getElementById(id).value = ''; });
+  emissaoMostrarSenhaForm(false);
+  document.getElementById('emi_salvar').textContent = 'Adicionar documento';
+  document.getElementById('emissaoTitulo').textContent = 'Emissão de Documentos';
+}
+function emissaoPreencherForm(o){
+  emissaoEditandoId = o.id;
+  document.getElementById('emi_desc').value = o.desc;
+  document.getElementById('emi_nome').value = o.nome;
+  document.getElementById('emi_tipo').value = o.tipo;
+  document.getElementById('emi_link').value = o.link;
+  document.getElementById('emi_usuario').value = o.usuario;
+  document.getElementById('emi_senha').value = o.senha;
+  document.getElementById('emi_codigo').value = o.codigo;
+  document.getElementById('emi_dia').value = o.dia;
+  document.getElementById('emi_nota').value = o.nota;
+  emissaoMostrarSenhaForm(false);
+  document.getElementById('emi_salvar').textContent = 'Salvar alterações';
+  document.getElementById('emissaoTitulo').textContent = 'Editando: ' + (o.desc || '(sem descrição)');
+  document.getElementById('emi_desc').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('emi_desc').focus();
+}
+
+async function salvarEmissao(){
+  var desc = document.getElementById('emi_desc').value.trim();
+  if (!desc){
+    showToast('Preencha a Descrição da Despesa.');
+    document.getElementById('emi_desc').focus();
+    return;
+  }
+  var dia = document.getElementById('emi_dia').value.replace(/\D/g, '');
+  if (dia && (Number(dia) < 1 || Number(dia) > 31)){
+    showToast('Dia do Vencimento deve ser um número de 1 a 31.');
+    document.getElementById('emi_dia').focus();
+    return;
+  }
+  var editando = emissaoEditandoId !== null;
+  var original = editando ? emissaoPorId(emissaoEditandoId) : null;
+  if (editando && !original){
+    showToast('Este registro não está mais na lista — reabra a tela e tente de novo.');
+    return;
+  }
+  var obj = {
+    id: editando ? original.id : proximoIdEmissao(),
+    desc: desc,
+    nome: document.getElementById('emi_nome').value.trim(),
+    tipo: document.getElementById('emi_tipo').value.trim(),
+    link: document.getElementById('emi_link').value.trim(),
+    usuario: document.getElementById('emi_usuario').value.trim(),
+    senha: document.getElementById('emi_senha').value,
+    codigo: document.getElementById('emi_codigo').value.trim(),
+    dia: dia,
+    nota: document.getElementById('emi_nota').value,
+    atualizado: agoraBR()
+  };
+  var btnSalvar = document.getElementById('emi_salvar');
+  var rotuloAnterior = btnSalvar.textContent;
+  btnSalvar.disabled = true;
+  btnSalvar.textContent = 'Salvando…';
+  try {
+    var token = await getToken();
+    var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+    await garantirTabelaEmissao(token, alvo);
+    if (editando){
+      var rowIndex = await resolverRowIndexEmissao(token, alvo, original.id, original._rowIndex);
+      await atualizarEmissaoGraph(token, alvo, rowIndex, obj);
+      showToast('"' + obj.desc + '" atualizado.');
+    } else {
+      await adicionarEmissaoGraph(token, alvo, obj);
+      showToast('"' + obj.desc + '" adicionado.');
+    }
+    emissaoLimparForm();
+    await carregarEmissaoPanel();
+  } catch (e) {
+    showToast('Erro ao salvar: ' + (e && e.message ? e.message : e));
+    btnSalvar.textContent = rotuloAnterior;
+  } finally {
+    btnSalvar.disabled = false;
+  }
+}
+
+function excluirEmissao(id){
+  var o = emissaoPorId(id);
+  if (!o) return;
+  pedirSenha('Digite a senha para EXCLUIR "' + (o.desc || '(sem descrição)') + '" da Emissão de Documentos:', function(ok){
+    if (!ok) return;
+    (async function(){
+      try {
+        var token = await getToken();
+        var alvo = await obterArquivoAlvo(token, DRIVE_ID, ITEM_ID);
+        var rowIndex = await resolverRowIndexEmissao(token, alvo, o.id, o._rowIndex);
+        await removerEmissaoGraph(token, alvo, rowIndex);
+        if (String(emissaoEditandoId) === String(o.id)) emissaoLimparForm();
+        showToast('"' + (o.desc || 'Registro') + '" excluído.');
+        await carregarEmissaoPanel();
+      } catch (e) {
+        showToast('Erro ao excluir: ' + (e && e.message ? e.message : e));
+      }
+    })();
+  });
+}
+
+function fecharEmissaoPanel(){
+  document.getElementById('emissaoPanel').classList.remove('open');
+  document.getElementById('addToggleBtn').style.display = currentUserRole === 'Editor' ? '' : 'none';
+  emissaoLimparForm();
+}
+
+document.getElementById('emissaoBtn').addEventListener('click', function(){
+  fecharGavetaAcoes();
+  var abrindo = !document.getElementById('emissaoPanel').classList.contains('open');
+  document.getElementById('entryPanel').classList.remove('open');
+  document.getElementById('adminPanel').classList.remove('open');
+  document.getElementById('emissaoPanel').classList.toggle('open', abrindo);
+  document.getElementById('addToggleBtn').style.display = (abrindo || currentUserRole !== 'Editor') ? 'none' : '';
+  if (abrindo){ emissaoLimparForm(); carregarEmissaoPanel(); }
+});
+document.getElementById('emissaoCloseBtn').addEventListener('click', fecharEmissaoPanel);
+document.getElementById('emi_cancelar').addEventListener('click', function(){
+  if (emissaoEditandoId !== null){ emissaoLimparForm(); return; }
+  fecharEmissaoPanel();
+});
+document.getElementById('emissaoForm').addEventListener('submit', function(ev){
+  ev.preventDefault();
+  salvarEmissao();
+});
+document.getElementById('emi_senhaOlho').addEventListener('click', function(){
+  emissaoMostrarSenhaForm(document.getElementById('emi_senha').type === 'password');
+});
+document.getElementById('emi_dia').addEventListener('input', function(){
+  this.value = this.value.replace(/\D/g, '').slice(0, 2);
+});
+
 document.getElementById('adminBtn').addEventListener('click', function(){
   fecharGavetaAcoes();
   var opening = !document.getElementById('adminPanel').classList.contains('open');
   document.getElementById('entryPanel').classList.remove('open');
+  document.getElementById('emissaoPanel').classList.remove('open');
   document.getElementById('adminPanel').classList.toggle('open', opening);
   document.getElementById('addToggleBtn').style.display = opening ? 'none' : '';
   if (opening) carregarAdminPanel();
