@@ -375,8 +375,44 @@
   /* ---- bottom: chart + ranking ---- */
   .bottom{display:grid;grid-template-columns:320px 1fr;gap:14px;flex:0 0 auto;align-items:start;}
   .bottom .panel{display:flex;flex-direction:column;height:300px;}
+  /* Ocupa a linha inteira: com as duas colunas o "Despesa de:" ficava estreito
+     e escondia pessoas atrás da rolagem horizontal. */
+  .bottom .panel.full{grid-column:1/-1;}
   .bottom .panel-head{flex:none;}
   @media (max-width:760px){ .bottom{grid-template-columns:1fr;} }
+
+  /* ---- painel de desempenho ---- */
+  .perf-body{
+    padding:12px 16px 14px;flex:1;min-height:0;overflow:auto;
+    display:flex;flex-direction:column;gap:13px;
+  }
+  .perf-comp{display:flex;flex-direction:column;gap:7px;flex:none;}
+  .perf-comp-lbl{font-size:9.5px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.05em;}
+  /* gap de 2px = separador na cor da superfície entre os segmentos */
+  .perf-bar{display:flex;gap:2px;height:10px;}
+  .perf-bar > span{height:100%;border-radius:3px;min-width:3px;}
+  .perf-bar-vazia{height:10px;border-radius:3px;background:var(--surface-2);}
+  .perf-legend{display:flex;flex-wrap:wrap;gap:4px 14px;}
+  .perf-legend-item{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ink-muted);}
+  .perf-legend-item b{font:600 10.5px var(--mono);color:var(--ink-soft);}
+  .perf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;}
+  .perf-tile{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    padding:9px 11px;min-width:0;
+  }
+  .perf-tile .k{
+    display:block;font-size:9.5px;color:var(--ink-muted);
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;
+  }
+  /* figuras proporcionais: tabular-nums deixa numero grande com folga demais */
+  .perf-tile .v{display:block;font:600 17px var(--sans);color:var(--ink);line-height:1.15;}
+  .perf-tile .s{
+    display:block;font-size:10.5px;color:var(--ink-muted);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .perf-tile.t-positive .v{color:var(--positive);}
+  .perf-tile.t-warning .v{color:var(--warning);}
+  .perf-tile.t-critical .v{color:var(--atrasado);}
 
   .rank-body{padding:12px 16px 14px;flex:1;min-height:0;overflow:auto;}
   .rank-row{
@@ -965,6 +1001,20 @@
   </div>
 
   <div class="bottom">
+    <div class="panel full">
+      <div class="panel-head">
+        <h2>Total por Despesa de:</h2>
+        <span class="count" id="rankCount"></span>
+      </div>
+      <div class="rank-body" id="rankBody"></div>
+      <div class="rank-legend">
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-pago"></span>Pago</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Em atraso</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-hoje"></span>Vence hoje</span>
+        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="panel-head">
         <div class="panel-head-title">
@@ -981,16 +1031,10 @@
 
     <div class="panel">
       <div class="panel-head">
-        <h2>Total por Despesa de:</h2>
-        <span class="count" id="rankCount"></span>
+        <h2>Desempenho</h2>
+        <span class="count" id="perfCount"></span>
       </div>
-      <div class="rank-body" id="rankBody"></div>
-      <div class="rank-legend">
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-pago"></span>Pago</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-vencido"></span>Em atraso</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-hoje"></span>Vence hoje</span>
-        <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
-      </div>
+      <div class="perf-body" id="perfBody"></div>
     </div>
   </div>
 </div>
@@ -2402,6 +2446,113 @@ function saveDescRankGroupBy(v){ try{ localStorage.setItem('cap_desc_rank_groupb
 var descRankGroupBy = loadDescRankGroupBy();
 document.getElementById('descRankGroupSel').value = descRankGroupBy;
 
+/* ---- painel de Desempenho ---- */
+// Indicadores derivados dos mesmos lançamentos filtrados que alimentam os KPIs
+// do topo. Nada aqui é chart de uma barra só: percentual de composição vira uma
+// barra empilhada e o resto são números diretos.
+var PERF_STATUS_LBL = { pago:'Pago', vencido:'Em atraso', hoje:'Vence hoje', avencer:'A vencer' };
+
+function pctTxt(parte, total){
+  if (!total) return '—';
+  return (parte / total * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + '%';
+}
+function diasAtraso(r){
+  if (!r.pag || !r.venc) return null;
+  return daysBetween(parseISO(r.pag), parseISO(r.venc));
+}
+function calcDesempenho(rows){
+  var total = sum(rows, function(r){ return r.valor; });
+  var porStatus = { pago:0, vencido:0, hoje:0, avencer:0 };
+  var qtd = { pago:0, vencido:0, hoje:0, avencer:0 };
+  rows.forEach(function(r){
+    var k = porStatus.hasOwnProperty(r.status) ? r.status : 'avencer';
+    porStatus[k] += r.valor;
+    qtd[k] += 1;
+  });
+  // Pontualidade e atraso médio só olham lançamento pago que tem as duas datas.
+  var comDatas = rows.filter(function(r){ return r.status === 'pago' && diasAtraso(r) !== null; });
+  var atrasados = comDatas.filter(function(r){ return diasAtraso(r) > 0; });
+  var pontualidade = comDatas.length ? ((comDatas.length - atrasados.length) / comDatas.length * 100) : null;
+  var atrasoMedio = atrasados.length ? (sum(atrasados, function(r){ return diasAtraso(r); }) / atrasados.length) : null;
+  // Próximos 7 dias: o que vence hoje mais o que vence até 7 dias à frente.
+  var prox = rows.filter(function(r){ return r.status === 'hoje' || (r.status === 'avencer' && r.dias <= 7); });
+  var maior = rows.reduce(function(a, r){ return (!a || r.valor > a.valor) ? r : a; }, null);
+  return {
+    total: total, porStatus: porStatus, qtd: qtd, titulos: rows.length,
+    jurosTotal: sum(rows, function(r){ return juros(r); }),
+    pagoEfetivo: sum(rows, function(r){ return pago(r); }),
+    pagosComDatas: comDatas.length, atrasados: atrasados.length,
+    pontualidade: pontualidade, atrasoMedio: atrasoMedio,
+    proxValor: sum(prox, function(r){ return r.valor; }), proxQtd: prox.length,
+    ticket: rows.length ? (total / rows.length) : null,
+    maior: maior
+  };
+}
+function perfTile(rotulo, valor, sub, cls){
+  return '<div class="perf-tile' + (cls ? ' ' + cls : '') + '">' +
+    '<span class="k">' + rotulo + '</span>' +
+    '<span class="v">' + valor + '</span>' +
+    '<span class="s">' + (sub || '&nbsp;') + '</span>' +
+    '</div>';
+}
+function renderDesempenho(rows){
+  var d = calcDesempenho(rows);
+  var el = document.getElementById('perfBody');
+  document.getElementById('perfCount').textContent = d.titulos + (d.titulos === 1 ? ' título' : ' títulos');
+  if (!d.titulos){
+    el.innerHTML = '<div class="empty-note">Sem dados para os filtros selecionados.</div>';
+    return;
+  }
+  var ordem = ['pago','vencido','hoje','avencer'];
+  var comValor = ordem.filter(function(k){ return d.porStatus[k] > 0; });
+  // flex-grow proporcional ao valor: o gap de 2px do .perf-bar faz a separação
+  var barra = comValor.length
+    ? '<div class="perf-bar">' + comValor.map(function(k){
+        return '<span class="seg-' + k + '" style="flex:' + d.porStatus[k] + '" title="' +
+          PERF_STATUS_LBL[k] + ': ' + brl(d.porStatus[k]) + '"></span>';
+      }).join('') + '</div>'
+    : '<div class="perf-bar-vazia"></div>';
+  // legenda sempre presente: identidade nunca fica só na cor
+  var legenda = '<div class="perf-legend">' + ordem.map(function(k){
+    return '<span class="perf-legend-item"><span class="rank-swatch rank-swatch-' + k + '"></span>' +
+      PERF_STATUS_LBL[k] + ' <b>' + pctTxt(d.porStatus[k], d.total) + '</b></span>';
+  }).join('') + '</div>';
+
+  var clsQuitado = d.porStatus.pago > 0 ? 't-positive' : '';
+  var clsVencido = d.porStatus.vencido > 0 ? 't-critical' : '';
+  var clsPontual = d.pontualidade === null ? '' : (d.pontualidade >= 90 ? 't-positive' : (d.pontualidade >= 70 ? 't-warning' : 't-critical'));
+  var titulos = function(n){ return n + (n === 1 ? ' título' : ' títulos'); };
+
+  var tiles = [
+    // Percentual sobre o valor ORIGINAL, igual à barra de composição — por isso
+    // pode diferir do KPI "Pago" do topo, que usa o valor efetivamente pago
+    // (com juros ou desconto). O pago efetivo aparece no tile de juros.
+    perfTile('Quitado', pctTxt(d.porStatus.pago, d.total),
+      brl(d.porStatus.pago) + ' de ' + brl(d.total), clsQuitado),
+    perfTile('Em atraso', pctTxt(d.porStatus.vencido, d.total),
+      titulos(d.qtd.vencido) + ' · ' + brl(d.porStatus.vencido), clsVencido),
+    perfTile('Pontualidade',
+      d.pontualidade === null ? '—' : pctTxt(d.pontualidade, 100),
+      d.pontualidade === null ? 'Nenhum pagamento com data' :
+        ((d.pagosComDatas - d.atrasados) + ' de ' + d.pagosComDatas + ' pagos em dia'), clsPontual),
+    perfTile('Atraso médio',
+      d.atrasoMedio === null ? '—' : (Math.round(d.atrasoMedio * 10) / 10).toLocaleString('pt-BR') + (Math.round(d.atrasoMedio) === 1 ? ' dia' : ' dias'),
+      d.atrasados ? ('nos ' + d.atrasados + ' pagos com atraso') : 'Nenhum pagamento atrasado',
+      d.atrasoMedio === null ? '' : 't-critical'),
+    perfTile('Vence em 7 dias', brl(d.proxValor), titulos(d.proxQtd), d.proxQtd ? 't-warning' : ''),
+    perfTile('Ticket médio', d.ticket === null ? '—' : brl(d.ticket), titulos(d.titulos)),
+    perfTile('Juros pagos', brl(d.jurosTotal),
+      'sobre ' + brl(d.pagoEfetivo) + ' pagos', d.jurosTotal > 0 ? 't-critical' : '')
+  ].join('');
+
+  el.innerHTML =
+    '<div class="perf-comp">' +
+      '<span class="perf-comp-lbl">Composição do valor original — ' + brl(d.total) + '</span>' +
+      barra + legenda +
+    '</div>' +
+    '<div class="perf-grid">' + tiles + '</div>';
+}
+
 function renderDescRanking(rows){
   var chaveCampo = descRankGroupBy;
   var lbl = DESC_RANK_GROUP_LABELS[chaveCampo];
@@ -2466,6 +2617,7 @@ function renderRanking(rows){
 function render(){
   var rows = filtered();
   renderKpis(rows);
+  renderDesempenho(rows);
   renderTable(rows);
   renderDescRanking(filtered());
   renderRanking(filtered(['nome','status']));
