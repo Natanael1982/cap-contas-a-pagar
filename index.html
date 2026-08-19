@@ -275,7 +275,7 @@
   .kpi.k-positive .v{color:var(--positive);}
 
   /* ---- middle: table + status ---- */
-  .middle{flex:1 1 auto;min-height:230px;max-height:330px;display:flex;flex-direction:row;}
+  .middle{margin-bottom:14px;flex:1 1 auto;min-height:230px;max-height:330px;display:flex;flex-direction:row;}
   .middle .panel{flex:1;display:flex;flex-direction:column;min-height:0;min-width:0;}
   @media (max-width:760px){ .middle{flex-direction:column;} .table-scroll{max-height:195px;} }
 
@@ -485,6 +485,15 @@
   .row-edit svg{width:13px;height:13px;}
 
   /* ---- add-entry toggle + form ---- */
+  .back-btn{
+    display:none;align-items:center;gap:6px;
+    background:var(--surface-2);border:1px solid var(--border-strong);
+    color:var(--ink-soft);font:600 11.5px var(--sans);padding:7.5px 12px;border-radius:7px;
+    cursor:pointer;white-space:nowrap;height:31px;flex:none;
+  }
+  .back-btn.show{display:flex;}
+  .back-btn:hover{background:var(--surface-3);color:var(--ink);}
+  .back-btn svg{width:13px;height:13px;}
   .add-btn{
     display:flex;align-items:center;gap:6px;background:var(--chart);border:1px solid var(--chart);
     color:#fff;font:600 11.5px var(--sans);padding:7.5px 12px;border-radius:7px;cursor:pointer;
@@ -701,6 +710,10 @@
       <p>Contas a Pagar</p>
     </div>
     <div class="head-right">
+      <button class="back-btn" id="backBtn" type="button" title="Voltar para o painel">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Voltar
+      </button>
       <button class="add-btn" id="addToggleBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Novo
@@ -969,28 +982,6 @@
         <span class="rank-legend-item"><span class="rank-swatch rank-swatch-avencer"></span>A vencer</span>
       </div>
     </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-head-title">
-          <h2>Total por</h2>
-          <select id="descRankGroupSel" class="rank-group-sel">
-            <option value="desc">Descrição</option>
-            <option value="tipo">Tipo de Despesa</option>
-          </select>
-        </div>
-        <span class="count" id="descRankCount"></span>
-      </div>
-      <div class="rank-body" id="descRankBody"></div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <h2>Desempenho</h2>
-        <span class="count" id="perfCount"></span>
-      </div>
-      <div class="perf-body" id="perfBody"></div>
-    </div>
   </div>
 
   <div class="middle">
@@ -1035,6 +1026,30 @@
           </tfoot>
         </table>
       </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-title">
+          <h2>Total por</h2>
+          <select id="descRankGroupSel" class="rank-group-sel">
+            <option value="desc">Descrição</option>
+            <option value="tipo">Tipo de Despesa</option>
+          </select>
+        </div>
+        <span class="count" id="descRankCount"></span>
+      </div>
+      <div class="rank-body" id="descRankBody"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Desempenho</h2>
+        <span class="count" id="perfCount"></span>
+      </div>
+      <div class="perf-body" id="perfBody"></div>
     </div>
   </div>
 </div>
@@ -1227,6 +1242,7 @@ function sair(){
   EMISSAO_DADOS = [];
   emissaoEditandoId = null;
   document.getElementById('emissaoPanel').classList.remove('open');
+  atualizarBotaoVoltar();
   atualizarEstadoLogin();
   document.getElementById('semAcessoOverlay').classList.remove('open');
   buildFilters(); updateClearButton(); render();
@@ -2852,6 +2868,7 @@ function setFormMode(editing){
 
 function togglePanel(open){
   entryPanel.classList.toggle('open', open);
+  atualizarBotaoVoltar();
   if (open) document.getElementById('nf_nome').focus();
 }
 
@@ -3822,6 +3839,7 @@ function fecharEmissaoPanel(){
   document.getElementById('emissaoPanel').classList.remove('open');
   document.getElementById('addToggleBtn').style.display = currentUserRole === 'Editor' ? '' : 'none';
   emissaoLimparForm();
+  atualizarBotaoVoltar();
 }
 
 document.getElementById('emissaoBtn').addEventListener('click', function(){
@@ -3831,6 +3849,7 @@ document.getElementById('emissaoBtn').addEventListener('click', function(){
   document.getElementById('adminPanel').classList.remove('open');
   document.getElementById('emissaoPanel').classList.toggle('open', abrindo);
   document.getElementById('addToggleBtn').style.display = (abrindo || currentUserRole !== 'Editor') ? 'none' : '';
+  atualizarBotaoVoltar();
   if (abrindo){ emissaoLimparForm(); carregarEmissaoPanel(); }
 });
 document.getElementById('emissaoCloseBtn').addEventListener('click', fecharEmissaoPanel);
@@ -3849,6 +3868,33 @@ document.getElementById('emi_dia').addEventListener('input', function(){
   this.value = this.value.replace(/\D/g, '').slice(0, 2);
 });
 
+/* ---- botão Voltar ---- */
+// Aparece só quando um dos painéis de tela cheia está aberto. Em vez de
+// repetir a limpeza de cada tela, clica no botão de fechar que aquele painel
+// já tem — assim não tem como as duas saídas divergirem com o tempo.
+var PAINEIS_TELA_CHEIA = [
+  { painel:'entryPanel',   fechar:'cancelEntryBtn'  },
+  { painel:'adminPanel',   fechar:'adminCloseBtn'   },
+  { painel:'emissaoPanel', fechar:'emissaoCloseBtn' }
+];
+function painelAbertoAtual(){
+  for (var i = 0; i < PAINEIS_TELA_CHEIA.length; i++){
+    var el = document.getElementById(PAINEIS_TELA_CHEIA[i].painel);
+    if (el && el.classList.contains('open')) return PAINEIS_TELA_CHEIA[i];
+  }
+  return null;
+}
+function atualizarBotaoVoltar(){
+  document.getElementById('backBtn').classList.toggle('show', !!painelAbertoAtual());
+}
+function voltarDoPainel(){
+  var atual = painelAbertoAtual();
+  if (!atual) return;
+  document.getElementById(atual.fechar).click();
+  atualizarBotaoVoltar();
+}
+document.getElementById('backBtn').addEventListener('click', voltarDoPainel);
+
 document.getElementById('adminBtn').addEventListener('click', function(){
   fecharGavetaAcoes();
   var opening = !document.getElementById('adminPanel').classList.contains('open');
@@ -3856,11 +3902,13 @@ document.getElementById('adminBtn').addEventListener('click', function(){
   document.getElementById('emissaoPanel').classList.remove('open');
   document.getElementById('adminPanel').classList.toggle('open', opening);
   document.getElementById('addToggleBtn').style.display = opening ? 'none' : '';
+  atualizarBotaoVoltar();
   if (opening) carregarAdminPanel();
 });
 document.getElementById('adminCloseBtn').addEventListener('click', function(){
   document.getElementById('adminPanel').classList.remove('open');
   document.getElementById('addToggleBtn').style.display = '';
+  atualizarBotaoVoltar();
 });
 document.getElementById('semAcessoSairBtn').addEventListener('click', sair);
 
