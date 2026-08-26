@@ -130,7 +130,7 @@
 "Ivanilda Hozana",
 "Envio de Boleto",
 46259,
-"",
+46259,
 "IPVA PCW6700 - Parcela 6",
 "IPVA",
 "A Vencer",
@@ -138,7 +138,7 @@
 340.45,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/GuiaSeparada%20-%20IPVA%202026%20-%20AGOS%20-%202026_Natanael%20Silva.pdf",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-6-1787703170175.pdf",
 "",
 ""
 ]
@@ -3881,7 +3881,7 @@
 "00020101021126580014br.gov.bcb.pix01362b946329-3dd9-4237-9897-658af92371ef5204000053039865406128.495802BR5909Claro S/A6006RECIFE62270523051136136000003424117866304AB55",
 128.49,
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-176-1787703491344.png",
 "",
 "",
 ""
@@ -3905,7 +3905,7 @@
 "00020101021126580014br.gov.bcb.pix01362b946329-3dd9-4237-9897-658af92371ef5204000053039865406132.535802BR5909Claro S/A6006RECIFE6227052305113613600000342411784630475BA",
 132.53,
 "",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-177-1787704161192.png",
 "",
 "",
 ""
@@ -4363,6 +4363,30 @@
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-196-1787337892153.jpg",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-196-1787337894907.jpg",
+"",
+""
+]
+]
+},
+{
+"index": 182,
+"values": [
+[
+197,
+"",
+"",
+"Result Vision",
+"Envio de Boleto",
+46265,
+"",
+"Documento de Arrecadação do Simples Nacional",
+"Parcelamento",
+"A Vencer",
+"",
+308.18,
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-197-1787702746590.pdf",
+"",
 "",
 ""
 ]
