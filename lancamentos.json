@@ -2079,7 +2079,7 @@
 "Cartão de Crédito",
 "A Vencer",
 "",
-669.19,
+847.25,
 "",
 "",
 "",
@@ -2175,7 +2175,7 @@
 "Cartão de Crédito",
 "A Vencer",
 "",
-1543,
+1744.5,
 "",
 "",
 "",
@@ -2507,9 +2507,9 @@
 "Envio de Boleto",
 46228,
 46230,
-"Cartão Polo Wear",
+"Polo Wear Cred System",
 "Cartão de Crédito",
-"A Vencer",
+"Pago",
 "",
 43.99,
 "",
@@ -2553,7 +2553,7 @@
 "",
 "Ivanilda Hozana",
 "Envio de Boleto",
-46275,
+46274,
 "",
 "IPTU Apto 102 - Parcela 7/10",
 "IPTU",
@@ -2818,15 +2818,15 @@
 "Soluções",
 "Envio de Boleto",
 46254,
-"",
+46262,
 "Cartão Parcelado Bradesco",
 "Cartão de Crédito",
 "A Vencer",
 "",
 587.08,
+625.34,
 "",
-"",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-124-1788002884999.pdf",
 "",
 ""
 ]
@@ -2962,7 +2962,7 @@
 "Soluções",
 "Envio de Boleto",
 46253,
-"",
+46253,
 "Parcelamento Bradesco - Parcela 35/72",
 "Cartão de Crédito",
 "A Vencer",
@@ -3922,7 +3922,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46259,
-"",
+46263,
 "Polo Wear Cred System",
 "Cartão de Crédito",
 "A Vencer",
@@ -3930,7 +3930,7 @@
 43.99,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-178-1786675414775.jpg",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-178-1788004944836.jpeg",
 "",
 ""
 ]
@@ -4012,30 +4012,6 @@
 "index": 167,
 "values": [
 [
-182,
-"",
-"",
-"Result Vision - 56.282.210/0001-74",
-"Envio de Boleto",
-46265,
-"",
-"Parcelamento PGFN - Parcela 1/33",
-"Parcelamento",
-"A Vencer",
-"",
-308.18,
-"",
-"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-182-1786982788763.PDF",
-"",
-"",
-""
-]
-]
-},
-{
-"index": 168,
-"values": [
-[
 183,
 "",
 "",
@@ -4057,7 +4033,7 @@
 ]
 },
 {
-"index": 169,
+"index": 168,
 "values": [
 [
 184,
@@ -4081,7 +4057,7 @@
 ]
 },
 {
-"index": 170,
+"index": 169,
 "values": [
 [
 185,
@@ -4105,7 +4081,7 @@
 ]
 },
 {
-"index": 171,
+"index": 170,
 "values": [
 [
 186,
@@ -4129,7 +4105,7 @@
 ]
 },
 {
-"index": 172,
+"index": 171,
 "values": [
 [
 187,
@@ -4153,7 +4129,7 @@
 ]
 },
 {
-"index": 173,
+"index": 172,
 "values": [
 [
 188,
@@ -4177,7 +4153,7 @@
 ]
 },
 {
-"index": 174,
+"index": 173,
 "values": [
 [
 189,
@@ -4201,7 +4177,7 @@
 ]
 },
 {
-"index": 175,
+"index": 174,
 "values": [
 [
 190,
@@ -4225,7 +4201,7 @@
 ]
 },
 {
-"index": 176,
+"index": 175,
 "values": [
 [
 191,
@@ -4249,7 +4225,7 @@
 ]
 },
 {
-"index": 177,
+"index": 176,
 "values": [
 [
 192,
@@ -4273,7 +4249,7 @@
 ]
 },
 {
-"index": 178,
+"index": 177,
 "values": [
 [
 193,
@@ -4297,7 +4273,7 @@
 ]
 },
 {
-"index": 179,
+"index": 178,
 "values": [
 [
 194,
@@ -4321,7 +4297,7 @@
 ]
 },
 {
-"index": 180,
+"index": 179,
 "values": [
 [
 195,
@@ -4345,7 +4321,7 @@
 ]
 },
 {
-"index": 181,
+"index": 180,
 "values": [
 [
 196,
@@ -4369,7 +4345,7 @@
 ]
 },
 {
-"index": 182,
+"index": 181,
 "values": [
 [
 197,
@@ -4379,13 +4355,61 @@
 "Envio de Boleto",
 46265,
 "",
-"Documento de Arrecadação do Simples Nacional",
+"Parcelamento Simples Nacional - Parcela 1/33",
 "Parcelamento",
 "A Vencer",
 "",
 308.18,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-197-1787702746590.pdf",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 182,
+"values": [
+[
+198,
+"",
+"",
+"Natanael Silva",
+"Envio de Boleto",
+46259,
+46263,
+"Cartão Hiper 2242",
+"Cartão de Crédito",
+"A Vencer",
+"",
+38.32,
+"",
+"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-198-1788004187772.pdf",
+"",
+""
+]
+]
+},
+{
+"index": 183,
+"values": [
+[
+199,
+"",
+"",
+"Natanael Silva",
+"Envio de Boleto",
+46275,
+"",
+"Cartão Magazine Luiz 4566",
+"Cartão de Crédito",
+"A Vencer",
+"",
+276.25,
+"",
+"",
 "",
 "",
 ""
