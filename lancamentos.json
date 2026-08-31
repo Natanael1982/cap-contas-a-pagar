@@ -4019,7 +4019,7 @@
 "Envio de Boleto",
 46257,
 "",
-"Cartão Riachuelo",
+"Cartão Midway Riachuelo",
 "Cartão de Crédito",
 "A Vencer",
 "",
@@ -4354,7 +4354,7 @@
 "Result Vision",
 "Envio de Boleto",
 46265,
-"",
+46265,
 "Parcelamento Simples Nacional - Parcela 1/33",
 "Parcelamento",
 "A Vencer",
@@ -4362,7 +4362,7 @@
 308.18,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-197-1787702746590.pdf",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-197-1788204757419.jpeg",
 "",
 ""
 ]
@@ -4408,6 +4408,78 @@
 "A Vencer",
 "",
 276.25,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 184,
+"values": [
+[
+200,
+"",
+"",
+"Result Vision",
+"Envio de Boleto",
+46295,
+"",
+"Parcelamento Simples Nacional - Parcela 2/33",
+"",
+"A Vencer",
+"",
+308.18,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 185,
+"values": [
+[
+201,
+"",
+"",
+"Result Vision",
+"Envio de Boleto",
+46326,
+"",
+"Parcelamento Simples Nacional - Parcela 3/33",
+"",
+"A Vencer",
+"",
+308.18,
+"",
+"",
+"",
+"",
+""
+]
+]
+},
+{
+"index": 186,
+"values": [
+[
+202,
+"",
+"",
+"Result Vision",
+"Envio de Boleto",
+46387,
+"",
+"Parcelamento Simples Nacional - Parcela 4/33",
+"Outras",
+"A Vencer",
+"",
+308.18,
 "",
 "",
 "",
