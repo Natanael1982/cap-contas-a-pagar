@@ -293,20 +293,20 @@
 "values": [
 [
 13,
-"24/03/2026 19:43",
-"24/03/2026 19:44",
+"",
+"",
 "Ivanilda Hozana",
 "Envio de Boleto",
-"31/08/2026",
-"",
+46265,
+46265,
 "IPTU Casa Gravatá - Parcela 5",
 "IPTU",
 "A Vencer",
 "81640000001 3 24051715202 3 60831000000 5 00009988600 4",
-"124,05",
+124.05,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/BOLETO%20-%20IPTU%20RESULT%20VISION%20CASA%20GRAVAT%C3%81_Part_Natanael%20Silva%204.pdf",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-13-1788220605715.jpeg",
 "",
 "Cadastro: 31933 - Inscrição Municipal: 01.05.164.04.0704.001 - Nosso Número (Núm. Dam): 24/000000009988596-6"
 ]
@@ -701,20 +701,20 @@
 "values": [
 [
 31,
-"25/06/2026 21:11",
-"25/06/2026 21:12",
+"",
+"",
 "Natanael Silva",
 "Envio de Boleto",
-"20/08/2026",
-"",
+46254,
+46265,
 "Terreno Natanael",
 "Financiamento",
 "A Vencer",
 "03399.41114 15000.000198 61948.001013 1 15440000057479",
-"574,79",
-"",
+574.79,
+588.39,
 "https://sinerggiacombr.sharepoint.com/sites/SinergiaFinanceiro/Documentos%20Compartilhados/Aplicativos/Microsoft%20Forms/Envio%20de%20Boletos%20e%20Comprovantes/Pergunta/20.08.2026%20-%20P%C3%A1ginas%20De%20Boletos%202026%20-%20NATANA_Natanael%20Silva.pdf",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-31-1788219885268.jpeg",
 "",
 ""
 ]
@@ -1906,15 +1906,15 @@
 "Natanael Silva",
 "Envio de Boleto",
 46258,
-"",
+46265,
 "Cartão Nubank",
 "Cartão de Crédito",
 "A Vencer",
 "",
 1329.93,
-125.29,
 "",
 "",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-173-1788220211813.jpeg",
 "",
 ""
 ]
@@ -2149,14 +2149,14 @@
 46248,
 "Cartão Mercado Pago",
 "Cartão de Crédito",
-"A Vencer",
+"Pago",
 "",
 1842.99,
-1400,
 "",
-"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-95-1786741276483.jpg",
 "",
-""
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-95-1788221367537.png",
+"",
+"A diferença de 448,98, pago em 31/08/2026"
 ]
 ]
 },
@@ -2314,15 +2314,15 @@
 "Natanael Silva",
 "Envio de Boleto",
 46254,
-"",
+46265,
 "Cartão Bradesco 4128 - C&A",
 "Cartão de Crédito",
 "A Vencer",
 "",
 366.42,
 "",
-"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-103-1787008994246.jpg",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-103-1788219347210.pdf",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-103-1788219348411.pdf",
 "",
 ""
 ]
@@ -3850,7 +3850,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46254,
-"",
+46265,
 "Claro Apto 301 - 136-412746235",
 "Telefone/Internet",
 "A Vencer",
@@ -3858,7 +3858,7 @@
 100.88,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-175-1786607412000.jpg",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-175-1788219553780.jpeg",
 "",
 ""
 ]
@@ -3874,7 +3874,7 @@
 "Felipe Hozana",
 "Envio de Boleto",
 46259,
-"",
+46265,
 "Claro Apto 201- 136-411619680",
 "Telefone/Internet",
 "A Vencer",
@@ -3882,7 +3882,7 @@
 128.49,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-176-1787703491344.png",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-176-1788220438375.jpeg",
 "",
 ""
 ]
@@ -3898,7 +3898,7 @@
 "Natanael Silva",
 "Envio de Boleto",
 46259,
-"",
+46265,
 "Claro Apto 102 - 136-411619671",
 "Telefone/Internet",
 "A Vencer",
@@ -3906,7 +3906,7 @@
 132.53,
 "",
 "https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/boleto-177-1787704161192.png",
-"",
+"https://sinerggiacombr.sharepoint.com/sites/ProjetosPowerBi/Shared%20Documents/Gest%C3%A3o%20Financeira%20Claude/Anexos/comprovante-177-1788219630783.jpeg",
 "",
 ""
 ]
